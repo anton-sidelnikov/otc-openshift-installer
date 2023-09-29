@@ -2,7 +2,7 @@ package models
 import (
     "errors"
 )
-// Provides operations to manage the collection of agreement entities.
+// Possible values of a property
 type Enablement int
 
 const (
@@ -17,7 +17,7 @@ const (
 func (i Enablement) String() string {
     return []string{"notConfigured", "enabled", "disabled"}[i]
 }
-func ParseEnablement(v string) (interface{}, error) {
+func ParseEnablement(v string) (any, error) {
     result := NOTCONFIGURED_ENABLEMENT
     switch v {
         case "notConfigured":
@@ -37,4 +37,7 @@ func SerializeEnablement(values []Enablement) []string {
         result[i] = v.String()
     }
     return result
+}
+func (i Enablement) isMultiValue() bool {
+    return false
 }

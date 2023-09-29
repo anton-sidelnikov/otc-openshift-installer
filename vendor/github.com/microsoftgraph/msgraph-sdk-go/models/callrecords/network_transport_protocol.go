@@ -2,7 +2,7 @@ package callrecords
 import (
     "errors"
 )
-// Provides operations to manage the cloudCommunications singleton.
+// 
 type NetworkTransportProtocol int
 
 const (
@@ -15,7 +15,7 @@ const (
 func (i NetworkTransportProtocol) String() string {
     return []string{"unknown", "udp", "tcp", "unknownFutureValue"}[i]
 }
-func ParseNetworkTransportProtocol(v string) (interface{}, error) {
+func ParseNetworkTransportProtocol(v string) (any, error) {
     result := UNKNOWN_NETWORKTRANSPORTPROTOCOL
     switch v {
         case "unknown":
@@ -37,4 +37,7 @@ func SerializeNetworkTransportProtocol(values []NetworkTransportProtocol) []stri
         result[i] = v.String()
     }
     return result
+}
+func (i NetworkTransportProtocol) isMultiValue() bool {
+    return false
 }

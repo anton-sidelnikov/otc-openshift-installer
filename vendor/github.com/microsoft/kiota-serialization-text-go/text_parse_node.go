@@ -14,7 +14,9 @@ import (
 
 // TextParseNode is a ParseNode implementation for JSON.
 type TextParseNode struct {
-	value string
+	value                     string
+	onBeforeAssignFieldValues absser.ParsableAction
+	onAfterAssignFieldValues  absser.ParsableAction
 }
 
 // NewTextParseNode creates a new TextParseNode.
@@ -247,4 +249,26 @@ func (n *TextParseNode) GetByteArrayValue() ([]byte, error) {
 // GetRawValue returns a ByteArray value from the nodes.
 func (n *TextParseNode) GetRawValue() (interface{}, error) {
 	return n.value, nil
+}
+
+// GetOnBeforeAssignFieldValues returns a ByteArray value from the nodes.
+func (n *TextParseNode) GetOnBeforeAssignFieldValues() absser.ParsableAction {
+	return n.onBeforeAssignFieldValues
+}
+
+// SetOnBeforeAssignFieldValues returns a ByteArray value from the nodes.
+func (n *TextParseNode) SetOnBeforeAssignFieldValues(action absser.ParsableAction) error {
+	n.onBeforeAssignFieldValues = action
+	return nil
+}
+
+// GetOnAfterAssignFieldValues returns a ByteArray value from the nodes.
+func (n *TextParseNode) GetOnAfterAssignFieldValues() absser.ParsableAction {
+	return n.onAfterAssignFieldValues
+}
+
+// SetOnAfterAssignFieldValues returns a ByteArray value from the nodes.
+func (n *TextParseNode) SetOnAfterAssignFieldValues(action absser.ParsableAction) error {
+	n.onAfterAssignFieldValues = action
+	return nil
 }

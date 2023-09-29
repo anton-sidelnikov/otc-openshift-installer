@@ -2,7 +2,7 @@ package models
 import (
     "errors"
 )
-// Provides operations to call the sendActivityNotification method.
+// 
 type TeamworkActivityTopicSource int
 
 const (
@@ -13,7 +13,7 @@ const (
 func (i TeamworkActivityTopicSource) String() string {
     return []string{"entityUrl", "text"}[i]
 }
-func ParseTeamworkActivityTopicSource(v string) (interface{}, error) {
+func ParseTeamworkActivityTopicSource(v string) (any, error) {
     result := ENTITYURL_TEAMWORKACTIVITYTOPICSOURCE
     switch v {
         case "entityUrl":
@@ -31,4 +31,7 @@ func SerializeTeamworkActivityTopicSource(values []TeamworkActivityTopicSource) 
         result[i] = v.String()
     }
     return result
+}
+func (i TeamworkActivityTopicSource) isMultiValue() bool {
+    return false
 }

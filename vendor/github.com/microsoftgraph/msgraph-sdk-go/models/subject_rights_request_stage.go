@@ -2,7 +2,7 @@ package models
 import (
     "errors"
 )
-// Provides operations to manage the collection of agreement entities.
+// 
 type SubjectRightsRequestStage int
 
 const (
@@ -13,12 +13,13 @@ const (
     CASERESOLVED_SUBJECTRIGHTSREQUESTSTAGE
     CONTENTESTIMATE_SUBJECTRIGHTSREQUESTSTAGE
     UNKNOWNFUTUREVALUE_SUBJECTRIGHTSREQUESTSTAGE
+    APPROVAL_SUBJECTRIGHTSREQUESTSTAGE
 )
 
 func (i SubjectRightsRequestStage) String() string {
-    return []string{"contentRetrieval", "contentReview", "generateReport", "contentDeletion", "caseResolved", "contentEstimate", "unknownFutureValue"}[i]
+    return []string{"contentRetrieval", "contentReview", "generateReport", "contentDeletion", "caseResolved", "contentEstimate", "unknownFutureValue", "approval"}[i]
 }
-func ParseSubjectRightsRequestStage(v string) (interface{}, error) {
+func ParseSubjectRightsRequestStage(v string) (any, error) {
     result := CONTENTRETRIEVAL_SUBJECTRIGHTSREQUESTSTAGE
     switch v {
         case "contentRetrieval":
@@ -35,6 +36,8 @@ func ParseSubjectRightsRequestStage(v string) (interface{}, error) {
             result = CONTENTESTIMATE_SUBJECTRIGHTSREQUESTSTAGE
         case "unknownFutureValue":
             result = UNKNOWNFUTUREVALUE_SUBJECTRIGHTSREQUESTSTAGE
+        case "approval":
+            result = APPROVAL_SUBJECTRIGHTSREQUESTSTAGE
         default:
             return 0, errors.New("Unknown SubjectRightsRequestStage value: " + v)
     }
@@ -46,4 +49,7 @@ func SerializeSubjectRightsRequestStage(values []SubjectRightsRequestStage) []st
         result[i] = v.String()
     }
     return result
+}
+func (i SubjectRightsRequestStage) isMultiValue() bool {
+    return false
 }

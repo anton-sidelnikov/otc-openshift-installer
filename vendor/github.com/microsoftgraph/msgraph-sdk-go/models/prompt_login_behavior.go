@@ -2,7 +2,7 @@ package models
 import (
     "errors"
 )
-// Provides operations to manage the collection of agreement entities.
+// 
 type PromptLoginBehavior int
 
 const (
@@ -15,7 +15,7 @@ const (
 func (i PromptLoginBehavior) String() string {
     return []string{"translateToFreshPasswordAuthentication", "nativeSupport", "disabled", "unknownFutureValue"}[i]
 }
-func ParsePromptLoginBehavior(v string) (interface{}, error) {
+func ParsePromptLoginBehavior(v string) (any, error) {
     result := TRANSLATETOFRESHPASSWORDAUTHENTICATION_PROMPTLOGINBEHAVIOR
     switch v {
         case "translateToFreshPasswordAuthentication":
@@ -37,4 +37,7 @@ func SerializePromptLoginBehavior(values []PromptLoginBehavior) []string {
         result[i] = v.String()
     }
     return result
+}
+func (i PromptLoginBehavior) isMultiValue() bool {
+    return false
 }

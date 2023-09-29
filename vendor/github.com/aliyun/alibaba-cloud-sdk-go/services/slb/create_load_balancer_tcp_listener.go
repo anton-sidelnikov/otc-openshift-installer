@@ -74,12 +74,14 @@ type CreateLoadBalancerTCPListenerRequest struct {
 	ResourceOwnerId                requests.Integer                          `position:"Query" name:"ResourceOwnerId"`
 	HealthCheckURI                 string                                    `position:"Query" name:"HealthCheckURI"`
 	AclStatus                      string                                    `position:"Query" name:"AclStatus"`
+	FullNatEnabled                 requests.Boolean                          `position:"Query" name:"FullNatEnabled"`
 	HealthCheckTcpFastCloseEnabled requests.Boolean                          `position:"Query" name:"HealthCheckTcpFastCloseEnabled"`
 	AclType                        string                                    `position:"Query" name:"AclType"`
 	EstablishedTimeout             requests.Integer                          `position:"Query" name:"EstablishedTimeout"`
 	FailoverStrategy               string                                    `position:"Query" name:"FailoverStrategy"`
 	PersistenceTimeout             requests.Integer                          `position:"Query" name:"PersistenceTimeout"`
 	VpcIds                         string                                    `position:"Query" name:"VpcIds"`
+	Tag                            *[]CreateLoadBalancerTCPListenerTag       `position:"Query" name:"Tag"  type:"Repeated"`
 	MasterSlaveModeEnabled         requests.Boolean                          `position:"Query" name:"MasterSlaveModeEnabled"`
 	VServerGroupId                 string                                    `position:"Query" name:"VServerGroupId"`
 	AclId                          string                                    `position:"Query" name:"AclId"`
@@ -113,6 +115,12 @@ type CreateLoadBalancerTCPListenerRequest struct {
 	ConnectionDrainTimeout         requests.Integer                          `position:"Query" name:"ConnectionDrainTimeout"`
 	HealthCheckConnectPort         requests.Integer                          `position:"Query" name:"HealthCheckConnectPort"`
 	HealthCheckHttpCode            string                                    `position:"Query" name:"HealthCheckHttpCode"`
+}
+
+// CreateLoadBalancerTCPListenerTag is a repeated param struct in CreateLoadBalancerTCPListenerRequest
+type CreateLoadBalancerTCPListenerTag struct {
+	Value string `name:"Value"`
+	Key   string `name:"Key"`
 }
 
 // CreateLoadBalancerTCPListenerPortRange is a repeated param struct in CreateLoadBalancerTCPListenerRequest

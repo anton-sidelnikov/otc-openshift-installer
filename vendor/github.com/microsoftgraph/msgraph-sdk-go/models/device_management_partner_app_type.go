@@ -2,7 +2,7 @@ package models
 import (
     "errors"
 )
-// Provides operations to manage the collection of agreement entities.
+// Partner App Type.
 type DeviceManagementPartnerAppType int
 
 const (
@@ -17,7 +17,7 @@ const (
 func (i DeviceManagementPartnerAppType) String() string {
     return []string{"unknown", "singleTenantApp", "multiTenantApp"}[i]
 }
-func ParseDeviceManagementPartnerAppType(v string) (interface{}, error) {
+func ParseDeviceManagementPartnerAppType(v string) (any, error) {
     result := UNKNOWN_DEVICEMANAGEMENTPARTNERAPPTYPE
     switch v {
         case "unknown":
@@ -37,4 +37,7 @@ func SerializeDeviceManagementPartnerAppType(values []DeviceManagementPartnerApp
         result[i] = v.String()
     }
     return result
+}
+func (i DeviceManagementPartnerAppType) isMultiValue() bool {
+    return false
 }

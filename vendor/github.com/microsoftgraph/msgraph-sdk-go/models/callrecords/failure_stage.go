@@ -2,7 +2,7 @@ package callrecords
 import (
     "errors"
 )
-// Provides operations to manage the cloudCommunications singleton.
+// 
 type FailureStage int
 
 const (
@@ -15,7 +15,7 @@ const (
 func (i FailureStage) String() string {
     return []string{"unknown", "callSetup", "midcall", "unknownFutureValue"}[i]
 }
-func ParseFailureStage(v string) (interface{}, error) {
+func ParseFailureStage(v string) (any, error) {
     result := UNKNOWN_FAILURESTAGE
     switch v {
         case "unknown":
@@ -37,4 +37,7 @@ func SerializeFailureStage(values []FailureStage) []string {
         result[i] = v.String()
     }
     return result
+}
+func (i FailureStage) isMultiValue() bool {
+    return false
 }

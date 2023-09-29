@@ -2,7 +2,7 @@ package models
 import (
     "errors"
 )
-// Provides operations to manage the collection of agreement entities.
+// 
 type PrinterProcessingState int
 
 const (
@@ -16,7 +16,7 @@ const (
 func (i PrinterProcessingState) String() string {
     return []string{"unknown", "idle", "processing", "stopped", "unknownFutureValue"}[i]
 }
-func ParsePrinterProcessingState(v string) (interface{}, error) {
+func ParsePrinterProcessingState(v string) (any, error) {
     result := UNKNOWN_PRINTERPROCESSINGSTATE
     switch v {
         case "unknown":
@@ -40,4 +40,7 @@ func SerializePrinterProcessingState(values []PrinterProcessingState) []string {
         result[i] = v.String()
     }
     return result
+}
+func (i PrinterProcessingState) isMultiValue() bool {
+    return false
 }

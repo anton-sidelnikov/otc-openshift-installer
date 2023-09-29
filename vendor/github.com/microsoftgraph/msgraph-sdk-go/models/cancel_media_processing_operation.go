@@ -8,7 +8,7 @@ import (
 type CancelMediaProcessingOperation struct {
     CommsOperation
 }
-// NewCancelMediaProcessingOperation instantiates a new CancelMediaProcessingOperation and sets the default values.
+// NewCancelMediaProcessingOperation instantiates a new cancelMediaProcessingOperation and sets the default values.
 func NewCancelMediaProcessingOperation()(*CancelMediaProcessingOperation) {
     m := &CancelMediaProcessingOperation{
         CommsOperation: *NewCommsOperation(),
@@ -31,4 +31,9 @@ func (m *CancelMediaProcessingOperation) Serialize(writer i878a80d2330e89d268963
         return err
     }
     return nil
+}
+// CancelMediaProcessingOperationable 
+type CancelMediaProcessingOperationable interface {
+    CommsOperationable
+    i878a80d2330e89d26896388a3f487eef27b0a0e6c010c493bf80be1452208f91.Parsable
 }

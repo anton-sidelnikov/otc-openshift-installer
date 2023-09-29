@@ -2,7 +2,7 @@ package models
 import (
     "errors"
 )
-// Provides operations to manage the collection of agreement entities.
+// 
 type MeetingRequestType int
 
 const (
@@ -18,7 +18,7 @@ const (
 func (i MeetingRequestType) String() string {
     return []string{"none", "newMeetingRequest", "fullUpdate", "informationalUpdate", "silentUpdate", "outdated", "principalWantsCopy"}[i]
 }
-func ParseMeetingRequestType(v string) (interface{}, error) {
+func ParseMeetingRequestType(v string) (any, error) {
     result := NONE_MEETINGREQUESTTYPE
     switch v {
         case "none":
@@ -46,4 +46,7 @@ func SerializeMeetingRequestType(values []MeetingRequestType) []string {
         result[i] = v.String()
     }
     return result
+}
+func (i MeetingRequestType) isMultiValue() bool {
+    return false
 }

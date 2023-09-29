@@ -2,7 +2,7 @@ package models
 import (
     "errors"
 )
-// Provides operations to manage the collection of agreement entities.
+// 
 type SubjectRightsRequestStatus int
 
 const (
@@ -14,7 +14,7 @@ const (
 func (i SubjectRightsRequestStatus) String() string {
     return []string{"active", "closed", "unknownFutureValue"}[i]
 }
-func ParseSubjectRightsRequestStatus(v string) (interface{}, error) {
+func ParseSubjectRightsRequestStatus(v string) (any, error) {
     result := ACTIVE_SUBJECTRIGHTSREQUESTSTATUS
     switch v {
         case "active":
@@ -34,4 +34,7 @@ func SerializeSubjectRightsRequestStatus(values []SubjectRightsRequestStatus) []
         result[i] = v.String()
     }
     return result
+}
+func (i SubjectRightsRequestStatus) isMultiValue() bool {
+    return false
 }

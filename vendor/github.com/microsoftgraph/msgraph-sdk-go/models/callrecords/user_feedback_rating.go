@@ -2,7 +2,7 @@ package callrecords
 import (
     "errors"
 )
-// Provides operations to manage the cloudCommunications singleton.
+// 
 type UserFeedbackRating int
 
 const (
@@ -18,7 +18,7 @@ const (
 func (i UserFeedbackRating) String() string {
     return []string{"notRated", "bad", "poor", "fair", "good", "excellent", "unknownFutureValue"}[i]
 }
-func ParseUserFeedbackRating(v string) (interface{}, error) {
+func ParseUserFeedbackRating(v string) (any, error) {
     result := NOTRATED_USERFEEDBACKRATING
     switch v {
         case "notRated":
@@ -46,4 +46,7 @@ func SerializeUserFeedbackRating(values []UserFeedbackRating) []string {
         result[i] = v.String()
     }
     return result
+}
+func (i UserFeedbackRating) isMultiValue() bool {
+    return false
 }

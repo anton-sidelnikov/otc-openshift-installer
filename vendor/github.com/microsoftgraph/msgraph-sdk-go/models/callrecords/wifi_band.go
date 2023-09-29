@@ -2,7 +2,7 @@ package callrecords
 import (
     "errors"
 )
-// Provides operations to manage the cloudCommunications singleton.
+// 
 type WifiBand int
 
 const (
@@ -16,7 +16,7 @@ const (
 func (i WifiBand) String() string {
     return []string{"unknown", "frequency24GHz", "frequency50GHz", "frequency60GHz", "unknownFutureValue"}[i]
 }
-func ParseWifiBand(v string) (interface{}, error) {
+func ParseWifiBand(v string) (any, error) {
     result := UNKNOWN_WIFIBAND
     switch v {
         case "unknown":
@@ -40,4 +40,7 @@ func SerializeWifiBand(values []WifiBand) []string {
         result[i] = v.String()
     }
     return result
+}
+func (i WifiBand) isMultiValue() bool {
+    return false
 }

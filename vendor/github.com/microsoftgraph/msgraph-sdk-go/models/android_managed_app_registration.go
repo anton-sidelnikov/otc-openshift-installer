@@ -4,17 +4,17 @@ import (
     i878a80d2330e89d26896388a3f487eef27b0a0e6c010c493bf80be1452208f91 "github.com/microsoft/kiota-abstractions-go/serialization"
 )
 
-// AndroidManagedAppRegistration 
+// AndroidManagedAppRegistration represents the synchronization details of an android app, with management capabilities, for a specific user.
 type AndroidManagedAppRegistration struct {
     ManagedAppRegistration
 }
-// NewAndroidManagedAppRegistration instantiates a new AndroidManagedAppRegistration and sets the default values.
+// NewAndroidManagedAppRegistration instantiates a new androidManagedAppRegistration and sets the default values.
 func NewAndroidManagedAppRegistration()(*AndroidManagedAppRegistration) {
     m := &AndroidManagedAppRegistration{
         ManagedAppRegistration: *NewManagedAppRegistration(),
     }
-    odataTypeValue := "#microsoft.graph.androidManagedAppRegistration";
-    m.SetOdataType(&odataTypeValue);
+    odataTypeValue := "#microsoft.graph.androidManagedAppRegistration"
+    m.SetOdataType(&odataTypeValue)
     return m
 }
 // CreateAndroidManagedAppRegistrationFromDiscriminatorValue creates a new instance of the appropriate class based on discriminator value
@@ -33,4 +33,9 @@ func (m *AndroidManagedAppRegistration) Serialize(writer i878a80d2330e89d2689638
         return err
     }
     return nil
+}
+// AndroidManagedAppRegistrationable 
+type AndroidManagedAppRegistrationable interface {
+    ManagedAppRegistrationable
+    i878a80d2330e89d26896388a3f487eef27b0a0e6c010c493bf80be1452208f91.Parsable
 }

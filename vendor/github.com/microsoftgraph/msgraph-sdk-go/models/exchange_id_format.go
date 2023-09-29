@@ -2,7 +2,7 @@ package models
 import (
     "errors"
 )
-// Provides operations to call the translateExchangeIds method.
+// 
 type ExchangeIdFormat int
 
 const (
@@ -16,7 +16,7 @@ const (
 func (i ExchangeIdFormat) String() string {
     return []string{"entryId", "ewsId", "immutableEntryId", "restId", "restImmutableEntryId"}[i]
 }
-func ParseExchangeIdFormat(v string) (interface{}, error) {
+func ParseExchangeIdFormat(v string) (any, error) {
     result := ENTRYID_EXCHANGEIDFORMAT
     switch v {
         case "entryId":
@@ -40,4 +40,7 @@ func SerializeExchangeIdFormat(values []ExchangeIdFormat) []string {
         result[i] = v.String()
     }
     return result
+}
+func (i ExchangeIdFormat) isMultiValue() bool {
+    return false
 }

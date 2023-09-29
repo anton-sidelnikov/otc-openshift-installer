@@ -2,7 +2,7 @@ package models
 import (
     "errors"
 )
-// Provides operations to manage the collection of agreement entities.
+// Contains value for notification status.
 type Win32LobAppNotification int
 
 const (
@@ -17,7 +17,7 @@ const (
 func (i Win32LobAppNotification) String() string {
     return []string{"showAll", "showReboot", "hideAll"}[i]
 }
-func ParseWin32LobAppNotification(v string) (interface{}, error) {
+func ParseWin32LobAppNotification(v string) (any, error) {
     result := SHOWALL_WIN32LOBAPPNOTIFICATION
     switch v {
         case "showAll":
@@ -37,4 +37,7 @@ func SerializeWin32LobAppNotification(values []Win32LobAppNotification) []string
         result[i] = v.String()
     }
     return result
+}
+func (i Win32LobAppNotification) isMultiValue() bool {
+    return false
 }

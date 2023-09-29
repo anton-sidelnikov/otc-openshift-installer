@@ -2,7 +2,7 @@ package models
 import (
     "errors"
 )
-// Provides operations to manage the collection of agreement entities.
+// 
 type BookingType int
 
 const (
@@ -14,7 +14,7 @@ const (
 func (i BookingType) String() string {
     return []string{"unknown", "standard", "reserved"}[i]
 }
-func ParseBookingType(v string) (interface{}, error) {
+func ParseBookingType(v string) (any, error) {
     result := UNKNOWN_BOOKINGTYPE
     switch v {
         case "unknown":
@@ -34,4 +34,7 @@ func SerializeBookingType(values []BookingType) []string {
         result[i] = v.String()
     }
     return result
+}
+func (i BookingType) isMultiValue() bool {
+    return false
 }

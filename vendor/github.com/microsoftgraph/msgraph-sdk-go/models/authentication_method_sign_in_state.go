@@ -2,7 +2,7 @@ package models
 import (
     "errors"
 )
-// Provides operations to manage the collection of agreement entities.
+// 
 type AuthenticationMethodSignInState int
 
 const (
@@ -18,7 +18,7 @@ const (
 func (i AuthenticationMethodSignInState) String() string {
     return []string{"notSupported", "notAllowedByPolicy", "notEnabled", "phoneNumberNotUnique", "ready", "notConfigured", "unknownFutureValue"}[i]
 }
-func ParseAuthenticationMethodSignInState(v string) (interface{}, error) {
+func ParseAuthenticationMethodSignInState(v string) (any, error) {
     result := NOTSUPPORTED_AUTHENTICATIONMETHODSIGNINSTATE
     switch v {
         case "notSupported":
@@ -46,4 +46,7 @@ func SerializeAuthenticationMethodSignInState(values []AuthenticationMethodSignI
         result[i] = v.String()
     }
     return result
+}
+func (i AuthenticationMethodSignInState) isMultiValue() bool {
+    return false
 }

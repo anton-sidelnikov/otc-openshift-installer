@@ -2,7 +2,7 @@ package models
 import (
     "errors"
 )
-// Provides operations to manage the collection of agreement entities.
+// 
 type TeamSpecialization int
 
 const (
@@ -19,7 +19,7 @@ const (
 func (i TeamSpecialization) String() string {
     return []string{"none", "educationStandard", "educationClass", "educationProfessionalLearningCommunity", "educationStaff", "healthcareStandard", "healthcareCareCoordination", "unknownFutureValue"}[i]
 }
-func ParseTeamSpecialization(v string) (interface{}, error) {
+func ParseTeamSpecialization(v string) (any, error) {
     result := NONE_TEAMSPECIALIZATION
     switch v {
         case "none":
@@ -49,4 +49,7 @@ func SerializeTeamSpecialization(values []TeamSpecialization) []string {
         result[i] = v.String()
     }
     return result
+}
+func (i TeamSpecialization) isMultiValue() bool {
+    return false
 }

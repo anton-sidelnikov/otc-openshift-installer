@@ -2,7 +2,7 @@ package models
 import (
     "errors"
 )
-// Provides operations to manage the collection of agreement entities.
+// 
 type AccessPackageRequestState int
 
 const (
@@ -21,7 +21,7 @@ const (
 func (i AccessPackageRequestState) String() string {
     return []string{"submitted", "pendingApproval", "delivering", "delivered", "deliveryFailed", "denied", "scheduled", "canceled", "partiallyDelivered", "unknownFutureValue"}[i]
 }
-func ParseAccessPackageRequestState(v string) (interface{}, error) {
+func ParseAccessPackageRequestState(v string) (any, error) {
     result := SUBMITTED_ACCESSPACKAGEREQUESTSTATE
     switch v {
         case "submitted":
@@ -55,4 +55,7 @@ func SerializeAccessPackageRequestState(values []AccessPackageRequestState) []st
         result[i] = v.String()
     }
     return result
+}
+func (i AccessPackageRequestState) isMultiValue() bool {
+    return false
 }

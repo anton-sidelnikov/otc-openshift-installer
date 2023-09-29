@@ -2,7 +2,7 @@ package models
 import (
     "errors"
 )
-// Provides operations to manage the collection of agreement entities.
+// 
 type WellknownListName int
 
 const (
@@ -15,7 +15,7 @@ const (
 func (i WellknownListName) String() string {
     return []string{"none", "defaultList", "flaggedEmails", "unknownFutureValue"}[i]
 }
-func ParseWellknownListName(v string) (interface{}, error) {
+func ParseWellknownListName(v string) (any, error) {
     result := NONE_WELLKNOWNLISTNAME
     switch v {
         case "none":
@@ -37,4 +37,7 @@ func SerializeWellknownListName(values []WellknownListName) []string {
         result[i] = v.String()
     }
     return result
+}
+func (i WellknownListName) isMultiValue() bool {
+    return false
 }

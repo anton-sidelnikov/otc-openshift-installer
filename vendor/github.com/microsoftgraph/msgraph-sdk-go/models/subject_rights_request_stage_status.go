@@ -2,7 +2,7 @@ package models
 import (
     "errors"
 )
-// Provides operations to manage the collection of agreement entities.
+// 
 type SubjectRightsRequestStageStatus int
 
 const (
@@ -16,7 +16,7 @@ const (
 func (i SubjectRightsRequestStageStatus) String() string {
     return []string{"notStarted", "current", "completed", "failed", "unknownFutureValue"}[i]
 }
-func ParseSubjectRightsRequestStageStatus(v string) (interface{}, error) {
+func ParseSubjectRightsRequestStageStatus(v string) (any, error) {
     result := NOTSTARTED_SUBJECTRIGHTSREQUESTSTAGESTATUS
     switch v {
         case "notStarted":
@@ -40,4 +40,7 @@ func SerializeSubjectRightsRequestStageStatus(values []SubjectRightsRequestStage
         result[i] = v.String()
     }
     return result
+}
+func (i SubjectRightsRequestStageStatus) isMultiValue() bool {
+    return false
 }

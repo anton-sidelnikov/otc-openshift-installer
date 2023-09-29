@@ -2,7 +2,7 @@ package models
 import (
     "errors"
 )
-// Provides operations to manage the admin singleton.
+// 
 type PostType int
 
 const (
@@ -15,7 +15,7 @@ const (
 func (i PostType) String() string {
     return []string{"regular", "quick", "strategic", "unknownFutureValue"}[i]
 }
-func ParsePostType(v string) (interface{}, error) {
+func ParsePostType(v string) (any, error) {
     result := REGULAR_POSTTYPE
     switch v {
         case "regular":
@@ -37,4 +37,7 @@ func SerializePostType(values []PostType) []string {
         result[i] = v.String()
     }
     return result
+}
+func (i PostType) isMultiValue() bool {
+    return false
 }

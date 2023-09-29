@@ -1,58 +1,71 @@
 package jsonserialization
 
 import (
+	"bytes"
 	"encoding/base64"
 	"encoding/json"
 	"strconv"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/google/uuid"
 
+	abstractions "github.com/microsoft/kiota-abstractions-go"
 	absser "github.com/microsoft/kiota-abstractions-go/serialization"
 )
 
+var buffPool = sync.Pool{
+	New: func() interface{} {
+		return new(bytes.Buffer)
+	},
+}
+
 // JsonSerializationWriter implements SerializationWriter for JSON.
 type JsonSerializationWriter struct {
-	writer []string
+	writer                     *bytes.Buffer
+	separatorIndices           []int
+	onBeforeAssignFieldValues  absser.ParsableAction
+	onAfterAssignFieldValues   absser.ParsableAction
+	onStartObjectSerialization absser.ParsableWriter
 }
 
 // NewJsonSerializationWriter creates a new instance of the JsonSerializationWriter.
 func NewJsonSerializationWriter() *JsonSerializationWriter {
 	return &JsonSerializationWriter{
-		writer: make([]string, 0),
+		writer:           buffPool.Get().(*bytes.Buffer),
+		separatorIndices: make([]int, 0),
 	}
 }
-func (w *JsonSerializationWriter) writeRawValue(value string) {
-	w.writer = append(w.writer, value)
+func (w *JsonSerializationWriter) getWriter() *bytes.Buffer {
+	if w.writer == nil {
+		panic("The writer has already been closed. Call Reset instead of Close to reuse it or instantiate a new one.")
+	}
+
+	return w.writer
+}
+func (w *JsonSerializationWriter) writeRawValue(value ...string) {
+	writer := w.getWriter()
+
+	for _, v := range value {
+		writer.WriteString(v)
+	}
 }
 func (w *JsonSerializationWriter) writeStringValue(value string) {
+	value = strings.ReplaceAll(value, `\`, `\\`)
+	value = strings.ReplaceAll(value, `"`, `\"`)
+	value = strings.ReplaceAll(value, "\n", `\n`)
+	value = strings.ReplaceAll(value, "\r", `\r`)
+	value = strings.ReplaceAll(value, "\t", `\t`)
 
-	value = strings.ReplaceAll(
-		strings.ReplaceAll(
-			strings.ReplaceAll(value,
-				"\\", "\\\\",
-			),
-			"\"",
-			"\\\""),
-		"\n",
-		"\\n")
-	value = strings.ReplaceAll(strings.ReplaceAll(value, "\t", "\\t"), "\r", "\\r")
-	w.writeRawValue("\"" + value + "\"")
+	w.writeRawValue("\"", value, "\"")
 }
 func (w *JsonSerializationWriter) writePropertyName(key string) {
-	w.writeRawValue("\"" + key + "\":")
+	w.writeRawValue("\"", key, "\":")
 }
 func (w *JsonSerializationWriter) writePropertySeparator() {
+	w.separatorIndices = append(w.separatorIndices, w.getWriter().Len())
 	w.writeRawValue(",")
-}
-func (w *JsonSerializationWriter) trimLastPropertySeparator() {
-	for idx, s := range w.writer {
-		writerLen := len(w.writer)
-		if s == "," && (idx == writerLen-1 || (idx < writerLen-1 && (w.writer[idx+1] == "]" || w.writer[idx+1] == "}" || w.writer[idx+1] == ","))) {
-			w.writer[idx] = ""
-		}
-	}
 }
 func (w *JsonSerializationWriter) writeArrayStart() {
 	w.writeRawValue("[")
@@ -250,29 +263,40 @@ func (w *JsonSerializationWriter) WriteObjectValue(key string, item absser.Parsa
 		if key != "" {
 			w.writePropertyName(key)
 		}
-		//TODO onBefore for backing store
-		w.writeObjectStart()
+		abstractions.InvokeParsableAction(w.GetOnBeforeSerialization(), item)
+		_, isComposedTypeWrapper := item.(absser.ComposedTypeWrapper)
+		if !isComposedTypeWrapper {
+			w.writeObjectStart()
+		}
 		if item != nil {
-			//TODO onStart for backing store
-			err := item.Serialize(w)
+			err := abstractions.InvokeParsableWriter(w.GetOnStartObjectSerialization(), item, w)
+			if err != nil {
+				return err
+			}
+			err = item.Serialize(w)
 
-			//TODO onAfter for backing store
+			abstractions.InvokeParsableAction(w.GetOnAfterObjectSerialization(), item)
 			if err != nil {
 				return err
 			}
 		}
 
 		for _, additionalValue := range additionalValuesToMerge {
-			//TODO onBefore for backing store
-			//TODO onStart for backing store
-			err := additionalValue.Serialize(w)
+			abstractions.InvokeParsableAction(w.GetOnBeforeSerialization(), additionalValue)
+			err := abstractions.InvokeParsableWriter(w.GetOnStartObjectSerialization(), additionalValue, w)
 			if err != nil {
 				return err
 			}
-			//TODO onAfter for backing store
+			err = additionalValue.Serialize(w)
+			if err != nil {
+				return err
+			}
+			abstractions.InvokeParsableAction(w.GetOnAfterObjectSerialization(), additionalValue)
 		}
 
-		w.writeObjectEnd()
+		if !isComposedTypeWrapper {
+			w.writeObjectEnd()
+		}
 		if key != "" {
 			w.writePropertySeparator()
 		}
@@ -604,14 +628,27 @@ func (w *JsonSerializationWriter) WriteCollectionOfInt8Values(key string, collec
 
 // GetSerializedContent returns the resulting byte array from the serialization writer.
 func (w *JsonSerializationWriter) GetSerializedContent() ([]byte, error) {
-	w.trimLastPropertySeparator()
-	resultStr := strings.Join(w.writer, "")
-	return []byte(resultStr), nil
+	trimmed := w.getWriter().Bytes()
+	buffLen := len(trimmed)
+
+	for i := len(w.separatorIndices) - 1; i >= 0; i-- {
+		idx := w.separatorIndices[i]
+
+		if idx == buffLen-1 {
+			trimmed = trimmed[:idx]
+		} else if trimmed[idx+1] == byte(']') || trimmed[idx+1] == byte('}') {
+			trimmed = append(trimmed[:idx], trimmed[idx+1:]...)
+		}
+	}
+
+	trimmedCopy := make([]byte, len(trimmed))
+	copy(trimmedCopy, trimmed)
+
+	return trimmedCopy, nil
 }
 
 // WriteAnyValue an unknown value as a parameter.
 func (w *JsonSerializationWriter) WriteAnyValue(key string, value interface{}) error {
-
 	if value != nil {
 		body, err := json.Marshal(value)
 		if err != nil {
@@ -627,6 +664,47 @@ func (w *JsonSerializationWriter) WriteAnyValue(key string, value interface{}) e
 			w.writePropertySeparator()
 		}
 	}
+	return nil
+}
+
+func (w *JsonSerializationWriter) WriteNullValue(key string) error {
+	if key != "" {
+		w.writePropertyName(key)
+	}
+
+	w.writeRawValue("null")
+
+	if key != "" {
+		w.writePropertySeparator()
+	}
+
+	return nil
+}
+
+func (w *JsonSerializationWriter) GetOnBeforeSerialization() absser.ParsableAction {
+	return w.onBeforeAssignFieldValues
+}
+
+func (w *JsonSerializationWriter) SetOnBeforeSerialization(action absser.ParsableAction) error {
+	w.onBeforeAssignFieldValues = action
+	return nil
+}
+
+func (w *JsonSerializationWriter) GetOnAfterObjectSerialization() absser.ParsableAction {
+	return w.onAfterAssignFieldValues
+}
+
+func (w *JsonSerializationWriter) SetOnAfterObjectSerialization(action absser.ParsableAction) error {
+	w.onAfterAssignFieldValues = action
+	return nil
+}
+
+func (w *JsonSerializationWriter) GetOnStartObjectSerialization() absser.ParsableWriter {
+	return w.onStartObjectSerialization
+}
+
+func (w *JsonSerializationWriter) SetOnStartObjectSerialization(writer absser.ParsableWriter) error {
+	w.onStartObjectSerialization = writer
 	return nil
 }
 
@@ -726,8 +804,24 @@ func (w *JsonSerializationWriter) WriteAdditionalData(value map[string]interface
 	return err
 }
 
-// Close clears the internal buffer.
+// Reset sets the internal buffer to empty, allowing the writer to be reused.
+func (w *JsonSerializationWriter) Reset() error {
+	w.getWriter().Reset()
+	w.separatorIndices = w.separatorIndices[:0]
+	return nil
+}
+
+// Close relases the internal buffer. Subsequent calls to the writer will panic.
 func (w *JsonSerializationWriter) Close() error {
-	w.writer = make([]string, 0)
+	if w.writer == nil {
+		return nil
+	}
+
+	w.writer.Reset()
+	buffPool.Put(w.writer)
+
+	w.writer = nil
+	w.separatorIndices = nil
+
 	return nil
 }

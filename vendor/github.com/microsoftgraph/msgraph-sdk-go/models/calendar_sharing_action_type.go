@@ -2,7 +2,7 @@ package models
 import (
     "errors"
 )
-// Provides operations to manage the collection of agreement entities.
+// 
 type CalendarSharingActionType int
 
 const (
@@ -12,7 +12,7 @@ const (
 func (i CalendarSharingActionType) String() string {
     return []string{"accept"}[i]
 }
-func ParseCalendarSharingActionType(v string) (interface{}, error) {
+func ParseCalendarSharingActionType(v string) (any, error) {
     result := ACCEPT_CALENDARSHARINGACTIONTYPE
     switch v {
         case "accept":
@@ -28,4 +28,7 @@ func SerializeCalendarSharingActionType(values []CalendarSharingActionType) []st
         result[i] = v.String()
     }
     return result
+}
+func (i CalendarSharingActionType) isMultiValue() bool {
+    return false
 }

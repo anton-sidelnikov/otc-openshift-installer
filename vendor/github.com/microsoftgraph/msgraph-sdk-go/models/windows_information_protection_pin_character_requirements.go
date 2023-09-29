@@ -2,7 +2,7 @@ package models
 import (
     "errors"
 )
-// Provides operations to manage the collection of agreement entities.
+// Pin Character Requirements
 type WindowsInformationProtectionPinCharacterRequirements int
 
 const (
@@ -17,7 +17,7 @@ const (
 func (i WindowsInformationProtectionPinCharacterRequirements) String() string {
     return []string{"notAllow", "requireAtLeastOne", "allow"}[i]
 }
-func ParseWindowsInformationProtectionPinCharacterRequirements(v string) (interface{}, error) {
+func ParseWindowsInformationProtectionPinCharacterRequirements(v string) (any, error) {
     result := NOTALLOW_WINDOWSINFORMATIONPROTECTIONPINCHARACTERREQUIREMENTS
     switch v {
         case "notAllow":
@@ -37,4 +37,7 @@ func SerializeWindowsInformationProtectionPinCharacterRequirements(values []Wind
         result[i] = v.String()
     }
     return result
+}
+func (i WindowsInformationProtectionPinCharacterRequirements) isMultiValue() bool {
+    return false
 }

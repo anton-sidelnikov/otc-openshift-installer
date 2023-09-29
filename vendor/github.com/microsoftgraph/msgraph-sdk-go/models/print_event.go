@@ -2,7 +2,7 @@ package models
 import (
     "errors"
 )
-// Provides operations to manage the collection of agreement entities.
+// 
 type PrintEvent int
 
 const (
@@ -13,7 +13,7 @@ const (
 func (i PrintEvent) String() string {
     return []string{"jobStarted", "unknownFutureValue"}[i]
 }
-func ParsePrintEvent(v string) (interface{}, error) {
+func ParsePrintEvent(v string) (any, error) {
     result := JOBSTARTED_PRINTEVENT
     switch v {
         case "jobStarted":
@@ -31,4 +31,7 @@ func SerializePrintEvent(values []PrintEvent) []string {
         result[i] = v.String()
     }
     return result
+}
+func (i PrintEvent) isMultiValue() bool {
+    return false
 }

@@ -2,7 +2,7 @@ package models
 import (
     "errors"
 )
-// Provides operations to manage the collection of agreement entities.
+// Which branch devices will receive their updates from
 type WindowsUpdateType int
 
 const (
@@ -23,7 +23,7 @@ const (
 func (i WindowsUpdateType) String() string {
     return []string{"userDefined", "all", "businessReadyOnly", "windowsInsiderBuildFast", "windowsInsiderBuildSlow", "windowsInsiderBuildRelease"}[i]
 }
-func ParseWindowsUpdateType(v string) (interface{}, error) {
+func ParseWindowsUpdateType(v string) (any, error) {
     result := USERDEFINED_WINDOWSUPDATETYPE
     switch v {
         case "userDefined":
@@ -49,4 +49,7 @@ func SerializeWindowsUpdateType(values []WindowsUpdateType) []string {
         result[i] = v.String()
     }
     return result
+}
+func (i WindowsUpdateType) isMultiValue() bool {
+    return false
 }

@@ -2,7 +2,7 @@ package models
 import (
     "errors"
 )
-// Provides operations to manage the collection of agreement entities.
+// 
 type PrintScaling int
 
 const (
@@ -17,7 +17,7 @@ const (
 func (i PrintScaling) String() string {
     return []string{"auto", "shrinkToFit", "fill", "fit", "none", "unknownFutureValue"}[i]
 }
-func ParsePrintScaling(v string) (interface{}, error) {
+func ParsePrintScaling(v string) (any, error) {
     result := AUTO_PRINTSCALING
     switch v {
         case "auto":
@@ -43,4 +43,7 @@ func SerializePrintScaling(values []PrintScaling) []string {
         result[i] = v.String()
     }
     return result
+}
+func (i PrintScaling) isMultiValue() bool {
+    return false
 }

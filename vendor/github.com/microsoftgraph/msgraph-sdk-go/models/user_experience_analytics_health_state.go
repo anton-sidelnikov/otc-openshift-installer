@@ -2,22 +2,26 @@ package models
 import (
     "errors"
 )
-// Provides operations to manage the collection of agreement entities.
+// 
 type UserExperienceAnalyticsHealthState int
 
 const (
+    // Indicates that the health state is unknown.
     UNKNOWN_USEREXPERIENCEANALYTICSHEALTHSTATE UserExperienceAnalyticsHealthState = iota
+    // Indicates that the health state is insufficient data.
     INSUFFICIENTDATA_USEREXPERIENCEANALYTICSHEALTHSTATE
+    // Indicates that the health state needs attention.
     NEEDSATTENTION_USEREXPERIENCEANALYTICSHEALTHSTATE
+    // Indicates that the health state is meeting goals.
     MEETINGGOALS_USEREXPERIENCEANALYTICSHEALTHSTATE
-    // Evolvable enum member
+    // Evolvable enumeration sentinel value. Do not use.
     UNKNOWNFUTUREVALUE_USEREXPERIENCEANALYTICSHEALTHSTATE
 )
 
 func (i UserExperienceAnalyticsHealthState) String() string {
     return []string{"unknown", "insufficientData", "needsAttention", "meetingGoals", "unknownFutureValue"}[i]
 }
-func ParseUserExperienceAnalyticsHealthState(v string) (interface{}, error) {
+func ParseUserExperienceAnalyticsHealthState(v string) (any, error) {
     result := UNKNOWN_USEREXPERIENCEANALYTICSHEALTHSTATE
     switch v {
         case "unknown":
@@ -41,4 +45,7 @@ func SerializeUserExperienceAnalyticsHealthState(values []UserExperienceAnalytic
         result[i] = v.String()
     }
     return result
+}
+func (i UserExperienceAnalyticsHealthState) isMultiValue() bool {
+    return false
 }

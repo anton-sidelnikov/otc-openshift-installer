@@ -2,7 +2,7 @@ package models
 import (
     "errors"
 )
-// Provides operations to manage the collection of agreement entities.
+// Notification Settings Alert Type.
 type IosNotificationAlertType int
 
 const (
@@ -19,7 +19,7 @@ const (
 func (i IosNotificationAlertType) String() string {
     return []string{"deviceDefault", "banner", "modal", "none"}[i]
 }
-func ParseIosNotificationAlertType(v string) (interface{}, error) {
+func ParseIosNotificationAlertType(v string) (any, error) {
     result := DEVICEDEFAULT_IOSNOTIFICATIONALERTTYPE
     switch v {
         case "deviceDefault":
@@ -41,4 +41,7 @@ func SerializeIosNotificationAlertType(values []IosNotificationAlertType) []stri
         result[i] = v.String()
     }
     return result
+}
+func (i IosNotificationAlertType) isMultiValue() bool {
+    return false
 }

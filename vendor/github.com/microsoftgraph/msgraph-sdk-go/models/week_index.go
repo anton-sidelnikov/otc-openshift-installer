@@ -2,7 +2,7 @@ package models
 import (
     "errors"
 )
-// Provides operations to manage the collection of agreement entities.
+// 
 type WeekIndex int
 
 const (
@@ -16,7 +16,7 @@ const (
 func (i WeekIndex) String() string {
     return []string{"first", "second", "third", "fourth", "last"}[i]
 }
-func ParseWeekIndex(v string) (interface{}, error) {
+func ParseWeekIndex(v string) (any, error) {
     result := FIRST_WEEKINDEX
     switch v {
         case "first":
@@ -40,4 +40,7 @@ func SerializeWeekIndex(values []WeekIndex) []string {
         result[i] = v.String()
     }
     return result
+}
+func (i WeekIndex) isMultiValue() bool {
+    return false
 }

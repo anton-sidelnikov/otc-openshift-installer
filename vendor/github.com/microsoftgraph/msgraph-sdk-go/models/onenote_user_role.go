@@ -2,7 +2,7 @@ package models
 import (
     "errors"
 )
-// Provides operations to manage the collection of agreement entities.
+// 
 type OnenoteUserRole int
 
 const (
@@ -15,7 +15,7 @@ const (
 func (i OnenoteUserRole) String() string {
     return []string{"None", "Owner", "Contributor", "Reader"}[i]
 }
-func ParseOnenoteUserRole(v string) (interface{}, error) {
+func ParseOnenoteUserRole(v string) (any, error) {
     result := NONE_ONENOTEUSERROLE
     switch v {
         case "None":
@@ -37,4 +37,7 @@ func SerializeOnenoteUserRole(values []OnenoteUserRole) []string {
         result[i] = v.String()
     }
     return result
+}
+func (i OnenoteUserRole) isMultiValue() bool {
+    return false
 }

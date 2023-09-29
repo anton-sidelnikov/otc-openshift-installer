@@ -8,7 +8,7 @@ import (
 type SubscribeToToneOperation struct {
     CommsOperation
 }
-// NewSubscribeToToneOperation instantiates a new SubscribeToToneOperation and sets the default values.
+// NewSubscribeToToneOperation instantiates a new subscribeToToneOperation and sets the default values.
 func NewSubscribeToToneOperation()(*SubscribeToToneOperation) {
     m := &SubscribeToToneOperation{
         CommsOperation: *NewCommsOperation(),
@@ -31,4 +31,9 @@ func (m *SubscribeToToneOperation) Serialize(writer i878a80d2330e89d26896388a3f4
         return err
     }
     return nil
+}
+// SubscribeToToneOperationable 
+type SubscribeToToneOperationable interface {
+    CommsOperationable
+    i878a80d2330e89d26896388a3f487eef27b0a0e6c010c493bf80be1452208f91.Parsable
 }

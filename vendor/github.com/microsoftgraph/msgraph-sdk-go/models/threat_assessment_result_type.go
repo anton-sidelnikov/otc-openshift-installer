@@ -2,7 +2,7 @@ package models
 import (
     "errors"
 )
-// Provides operations to manage the collection of agreement entities.
+// 
 type ThreatAssessmentResultType int
 
 const (
@@ -14,7 +14,7 @@ const (
 func (i ThreatAssessmentResultType) String() string {
     return []string{"checkPolicy", "rescan", "unknownFutureValue"}[i]
 }
-func ParseThreatAssessmentResultType(v string) (interface{}, error) {
+func ParseThreatAssessmentResultType(v string) (any, error) {
     result := CHECKPOLICY_THREATASSESSMENTRESULTTYPE
     switch v {
         case "checkPolicy":
@@ -34,4 +34,7 @@ func SerializeThreatAssessmentResultType(values []ThreatAssessmentResultType) []
         result[i] = v.String()
     }
     return result
+}
+func (i ThreatAssessmentResultType) isMultiValue() bool {
+    return false
 }

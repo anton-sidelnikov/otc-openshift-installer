@@ -8,7 +8,7 @@ import (
 type EdiscoveryTagOperation struct {
     CaseOperation
 }
-// NewEdiscoveryTagOperation instantiates a new EdiscoveryTagOperation and sets the default values.
+// NewEdiscoveryTagOperation instantiates a new ediscoveryTagOperation and sets the default values.
 func NewEdiscoveryTagOperation()(*EdiscoveryTagOperation) {
     m := &EdiscoveryTagOperation{
         CaseOperation: *NewCaseOperation(),
@@ -31,4 +31,9 @@ func (m *EdiscoveryTagOperation) Serialize(writer i878a80d2330e89d26896388a3f487
         return err
     }
     return nil
+}
+// EdiscoveryTagOperationable 
+type EdiscoveryTagOperationable interface {
+    CaseOperationable
+    i878a80d2330e89d26896388a3f487eef27b0a0e6c010c493bf80be1452208f91.Parsable
 }

@@ -2,7 +2,7 @@ package models
 import (
     "errors"
 )
-// Provides operations to manage the collection of agreement entities.
+// 
 type EducationAddedStudentAction int
 
 const (
@@ -14,7 +14,7 @@ const (
 func (i EducationAddedStudentAction) String() string {
     return []string{"none", "assignIfOpen", "unknownFutureValue"}[i]
 }
-func ParseEducationAddedStudentAction(v string) (interface{}, error) {
+func ParseEducationAddedStudentAction(v string) (any, error) {
     result := NONE_EDUCATIONADDEDSTUDENTACTION
     switch v {
         case "none":
@@ -34,4 +34,7 @@ func SerializeEducationAddedStudentAction(values []EducationAddedStudentAction) 
         result[i] = v.String()
     }
     return result
+}
+func (i EducationAddedStudentAction) isMultiValue() bool {
+    return false
 }

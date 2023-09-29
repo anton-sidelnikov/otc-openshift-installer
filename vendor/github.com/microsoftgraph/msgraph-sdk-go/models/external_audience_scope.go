@@ -2,7 +2,7 @@ package models
 import (
     "errors"
 )
-// Provides operations to manage the collection of agreement entities.
+// 
 type ExternalAudienceScope int
 
 const (
@@ -14,7 +14,7 @@ const (
 func (i ExternalAudienceScope) String() string {
     return []string{"none", "contactsOnly", "all"}[i]
 }
-func ParseExternalAudienceScope(v string) (interface{}, error) {
+func ParseExternalAudienceScope(v string) (any, error) {
     result := NONE_EXTERNALAUDIENCESCOPE
     switch v {
         case "none":
@@ -34,4 +34,7 @@ func SerializeExternalAudienceScope(values []ExternalAudienceScope) []string {
         result[i] = v.String()
     }
     return result
+}
+func (i ExternalAudienceScope) isMultiValue() bool {
+    return false
 }

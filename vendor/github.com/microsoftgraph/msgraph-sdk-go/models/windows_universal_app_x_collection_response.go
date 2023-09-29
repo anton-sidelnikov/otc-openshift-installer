@@ -1,17 +1,14 @@
 package models
 
 import (
-    i2ae4187f7daee263371cb1c977df639813ab50ffa529013b7437480d1ec0158f "github.com/microsoft/kiota-abstractions-go"
     i878a80d2330e89d26896388a3f487eef27b0a0e6c010c493bf80be1452208f91 "github.com/microsoft/kiota-abstractions-go/serialization"
 )
 
 // WindowsUniversalAppXCollectionResponse 
 type WindowsUniversalAppXCollectionResponse struct {
     BaseCollectionPaginationCountResponse
-    // The value property
-    value []WindowsUniversalAppXable
 }
-// NewWindowsUniversalAppXCollectionResponse instantiates a new WindowsUniversalAppXCollectionResponse and sets the default values.
+// NewWindowsUniversalAppXCollectionResponse instantiates a new windowsUniversalAppXCollectionResponse and sets the default values.
 func NewWindowsUniversalAppXCollectionResponse()(*WindowsUniversalAppXCollectionResponse) {
     m := &WindowsUniversalAppXCollectionResponse{
         BaseCollectionPaginationCountResponse: *NewBaseCollectionPaginationCountResponse(),
@@ -25,12 +22,34 @@ func CreateWindowsUniversalAppXCollectionResponseFromDiscriminatorValue(parseNod
 // GetFieldDeserializers the deserialization information for the current model
 func (m *WindowsUniversalAppXCollectionResponse) GetFieldDeserializers()(map[string]func(i878a80d2330e89d26896388a3f487eef27b0a0e6c010c493bf80be1452208f91.ParseNode)(error)) {
     res := m.BaseCollectionPaginationCountResponse.GetFieldDeserializers()
-    res["value"] = i2ae4187f7daee263371cb1c977df639813ab50ffa529013b7437480d1ec0158f.SetCollectionOfObjectValues(CreateWindowsUniversalAppXFromDiscriminatorValue , m.SetValue)
+    res["value"] = func (n i878a80d2330e89d26896388a3f487eef27b0a0e6c010c493bf80be1452208f91.ParseNode) error {
+        val, err := n.GetCollectionOfObjectValues(CreateWindowsUniversalAppXFromDiscriminatorValue)
+        if err != nil {
+            return err
+        }
+        if val != nil {
+            res := make([]WindowsUniversalAppXable, len(val))
+            for i, v := range val {
+                if v != nil {
+                    res[i] = v.(WindowsUniversalAppXable)
+                }
+            }
+            m.SetValue(res)
+        }
+        return nil
+    }
     return res
 }
 // GetValue gets the value property value. The value property
 func (m *WindowsUniversalAppXCollectionResponse) GetValue()([]WindowsUniversalAppXable) {
-    return m.value
+    val, err := m.GetBackingStore().Get("value")
+    if err != nil {
+        panic(err)
+    }
+    if val != nil {
+        return val.([]WindowsUniversalAppXable)
+    }
+    return nil
 }
 // Serialize serializes information the current object
 func (m *WindowsUniversalAppXCollectionResponse) Serialize(writer i878a80d2330e89d26896388a3f487eef27b0a0e6c010c493bf80be1452208f91.SerializationWriter)(error) {
@@ -39,7 +58,12 @@ func (m *WindowsUniversalAppXCollectionResponse) Serialize(writer i878a80d2330e8
         return err
     }
     if m.GetValue() != nil {
-        cast := i2ae4187f7daee263371cb1c977df639813ab50ffa529013b7437480d1ec0158f.CollectionCast[i878a80d2330e89d26896388a3f487eef27b0a0e6c010c493bf80be1452208f91.Parsable](m.GetValue())
+        cast := make([]i878a80d2330e89d26896388a3f487eef27b0a0e6c010c493bf80be1452208f91.Parsable, len(m.GetValue()))
+        for i, v := range m.GetValue() {
+            if v != nil {
+                cast[i] = v.(i878a80d2330e89d26896388a3f487eef27b0a0e6c010c493bf80be1452208f91.Parsable)
+            }
+        }
         err = writer.WriteCollectionOfObjectValues("value", cast)
         if err != nil {
             return err
@@ -49,5 +73,15 @@ func (m *WindowsUniversalAppXCollectionResponse) Serialize(writer i878a80d2330e8
 }
 // SetValue sets the value property value. The value property
 func (m *WindowsUniversalAppXCollectionResponse) SetValue(value []WindowsUniversalAppXable)() {
-    m.value = value
+    err := m.GetBackingStore().Set("value", value)
+    if err != nil {
+        panic(err)
+    }
+}
+// WindowsUniversalAppXCollectionResponseable 
+type WindowsUniversalAppXCollectionResponseable interface {
+    BaseCollectionPaginationCountResponseable
+    i878a80d2330e89d26896388a3f487eef27b0a0e6c010c493bf80be1452208f91.Parsable
+    GetValue()([]WindowsUniversalAppXable)
+    SetValue(value []WindowsUniversalAppXable)()
 }

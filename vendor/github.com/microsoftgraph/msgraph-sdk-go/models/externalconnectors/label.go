@@ -2,7 +2,7 @@ package externalconnectors
 import (
     "errors"
 )
-// Provides operations to manage the collection of externalConnection entities.
+// 
 type Label int
 
 const (
@@ -21,7 +21,7 @@ const (
 func (i Label) String() string {
     return []string{"title", "url", "createdBy", "lastModifiedBy", "authors", "createdDateTime", "lastModifiedDateTime", "fileName", "fileExtension", "unknownFutureValue"}[i]
 }
-func ParseLabel(v string) (interface{}, error) {
+func ParseLabel(v string) (any, error) {
     result := TITLE_LABEL
     switch v {
         case "title":
@@ -55,4 +55,7 @@ func SerializeLabel(values []Label) []string {
         result[i] = v.String()
     }
     return result
+}
+func (i Label) isMultiValue() bool {
+    return false
 }

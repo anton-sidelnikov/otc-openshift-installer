@@ -8,7 +8,7 @@ import (
 type EdiscoveryHoldOperation struct {
     CaseOperation
 }
-// NewEdiscoveryHoldOperation instantiates a new EdiscoveryHoldOperation and sets the default values.
+// NewEdiscoveryHoldOperation instantiates a new ediscoveryHoldOperation and sets the default values.
 func NewEdiscoveryHoldOperation()(*EdiscoveryHoldOperation) {
     m := &EdiscoveryHoldOperation{
         CaseOperation: *NewCaseOperation(),
@@ -31,4 +31,9 @@ func (m *EdiscoveryHoldOperation) Serialize(writer i878a80d2330e89d26896388a3f48
         return err
     }
     return nil
+}
+// EdiscoveryHoldOperationable 
+type EdiscoveryHoldOperationable interface {
+    CaseOperationable
+    i878a80d2330e89d26896388a3f487eef27b0a0e6c010c493bf80be1452208f91.Parsable
 }

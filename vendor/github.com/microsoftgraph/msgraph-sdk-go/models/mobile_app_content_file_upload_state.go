@@ -2,7 +2,7 @@ package models
 import (
     "errors"
 )
-// Provides operations to manage the collection of agreement entities.
+// Contains properties for upload request states.
 type MobileAppContentFileUploadState int
 
 const (
@@ -27,7 +27,7 @@ const (
 func (i MobileAppContentFileUploadState) String() string {
     return []string{"success", "transientError", "error", "unknown", "azureStorageUriRequestSuccess", "azureStorageUriRequestPending", "azureStorageUriRequestFailed", "azureStorageUriRequestTimedOut", "azureStorageUriRenewalSuccess", "azureStorageUriRenewalPending", "azureStorageUriRenewalFailed", "azureStorageUriRenewalTimedOut", "commitFileSuccess", "commitFilePending", "commitFileFailed", "commitFileTimedOut"}[i]
 }
-func ParseMobileAppContentFileUploadState(v string) (interface{}, error) {
+func ParseMobileAppContentFileUploadState(v string) (any, error) {
     result := SUCCESS_MOBILEAPPCONTENTFILEUPLOADSTATE
     switch v {
         case "success":
@@ -73,4 +73,7 @@ func SerializeMobileAppContentFileUploadState(values []MobileAppContentFileUploa
         result[i] = v.String()
     }
     return result
+}
+func (i MobileAppContentFileUploadState) isMultiValue() bool {
+    return false
 }

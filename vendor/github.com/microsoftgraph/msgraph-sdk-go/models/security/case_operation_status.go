@@ -2,7 +2,7 @@ package security
 import (
     "errors"
 )
-// Provides operations to manage the collection of agreement entities.
+// 
 type CaseOperationStatus int
 
 const (
@@ -18,7 +18,7 @@ const (
 func (i CaseOperationStatus) String() string {
     return []string{"notStarted", "submissionFailed", "running", "succeeded", "partiallySucceeded", "failed", "unknownFutureValue"}[i]
 }
-func ParseCaseOperationStatus(v string) (interface{}, error) {
+func ParseCaseOperationStatus(v string) (any, error) {
     result := NOTSTARTED_CASEOPERATIONSTATUS
     switch v {
         case "notStarted":
@@ -46,4 +46,7 @@ func SerializeCaseOperationStatus(values []CaseOperationStatus) []string {
         result[i] = v.String()
     }
     return result
+}
+func (i CaseOperationStatus) isMultiValue() bool {
+    return false
 }

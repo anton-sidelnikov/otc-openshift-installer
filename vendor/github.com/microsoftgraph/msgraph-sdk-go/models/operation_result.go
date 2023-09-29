@@ -2,7 +2,7 @@ package models
 import (
     "errors"
 )
-// Provides operations to manage the collection of agreement entities.
+// 
 type OperationResult int
 
 const (
@@ -15,7 +15,7 @@ const (
 func (i OperationResult) String() string {
     return []string{"success", "failure", "timeout", "unknownFutureValue"}[i]
 }
-func ParseOperationResult(v string) (interface{}, error) {
+func ParseOperationResult(v string) (any, error) {
     result := SUCCESS_OPERATIONRESULT
     switch v {
         case "success":
@@ -37,4 +37,7 @@ func SerializeOperationResult(values []OperationResult) []string {
         result[i] = v.String()
     }
     return result
+}
+func (i OperationResult) isMultiValue() bool {
+    return false
 }

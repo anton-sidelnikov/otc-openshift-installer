@@ -2,7 +2,7 @@ package models
 import (
     "errors"
 )
-// Provides operations to manage the collection of agreement entities.
+// Possible values for the file format of a report
 type DeviceManagementReportFileFormat int
 
 const (
@@ -19,7 +19,7 @@ const (
 func (i DeviceManagementReportFileFormat) String() string {
     return []string{"csv", "pdf", "json", "unknownFutureValue"}[i]
 }
-func ParseDeviceManagementReportFileFormat(v string) (interface{}, error) {
+func ParseDeviceManagementReportFileFormat(v string) (any, error) {
     result := CSV_DEVICEMANAGEMENTREPORTFILEFORMAT
     switch v {
         case "csv":
@@ -41,4 +41,7 @@ func SerializeDeviceManagementReportFileFormat(values []DeviceManagementReportFi
         result[i] = v.String()
     }
     return result
+}
+func (i DeviceManagementReportFileFormat) isMultiValue() bool {
+    return false
 }

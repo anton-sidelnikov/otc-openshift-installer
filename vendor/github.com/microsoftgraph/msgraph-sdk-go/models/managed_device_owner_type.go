@@ -2,7 +2,7 @@ package models
 import (
     "errors"
 )
-// Provides operations to manage the collection of agreement entities.
+// Owner type of device.
 type ManagedDeviceOwnerType int
 
 const (
@@ -17,7 +17,7 @@ const (
 func (i ManagedDeviceOwnerType) String() string {
     return []string{"unknown", "company", "personal"}[i]
 }
-func ParseManagedDeviceOwnerType(v string) (interface{}, error) {
+func ParseManagedDeviceOwnerType(v string) (any, error) {
     result := UNKNOWN_MANAGEDDEVICEOWNERTYPE
     switch v {
         case "unknown":
@@ -37,4 +37,7 @@ func SerializeManagedDeviceOwnerType(values []ManagedDeviceOwnerType) []string {
         result[i] = v.String()
     }
     return result
+}
+func (i ManagedDeviceOwnerType) isMultiValue() bool {
+    return false
 }

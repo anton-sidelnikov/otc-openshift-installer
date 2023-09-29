@@ -2,7 +2,7 @@ package models
 import (
     "errors"
 )
-// Provides operations to manage the collection of agreement entities.
+// Web Browser Cookie Settings.
 type WebBrowserCookieSettings int
 
 const (
@@ -21,7 +21,7 @@ const (
 func (i WebBrowserCookieSettings) String() string {
     return []string{"browserDefault", "blockAlways", "allowCurrentWebSite", "allowFromWebsitesVisited", "allowAlways"}[i]
 }
-func ParseWebBrowserCookieSettings(v string) (interface{}, error) {
+func ParseWebBrowserCookieSettings(v string) (any, error) {
     result := BROWSERDEFAULT_WEBBROWSERCOOKIESETTINGS
     switch v {
         case "browserDefault":
@@ -45,4 +45,7 @@ func SerializeWebBrowserCookieSettings(values []WebBrowserCookieSettings) []stri
         result[i] = v.String()
     }
     return result
+}
+func (i WebBrowserCookieSettings) isMultiValue() bool {
+    return false
 }
