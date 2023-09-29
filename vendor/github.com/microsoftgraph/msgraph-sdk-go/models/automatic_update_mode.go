@@ -2,7 +2,7 @@ package models
 import (
     "errors"
 )
-// Provides operations to manage the collection of agreement entities.
+// Possible values for automatic update mode.
 type AutomaticUpdateMode int
 
 const (
@@ -23,7 +23,7 @@ const (
 func (i AutomaticUpdateMode) String() string {
     return []string{"userDefined", "notifyDownload", "autoInstallAtMaintenanceTime", "autoInstallAndRebootAtMaintenanceTime", "autoInstallAndRebootAtScheduledTime", "autoInstallAndRebootWithoutEndUserControl"}[i]
 }
-func ParseAutomaticUpdateMode(v string) (interface{}, error) {
+func ParseAutomaticUpdateMode(v string) (any, error) {
     result := USERDEFINED_AUTOMATICUPDATEMODE
     switch v {
         case "userDefined":
@@ -49,4 +49,7 @@ func SerializeAutomaticUpdateMode(values []AutomaticUpdateMode) []string {
         result[i] = v.String()
     }
     return result
+}
+func (i AutomaticUpdateMode) isMultiValue() bool {
+    return false
 }

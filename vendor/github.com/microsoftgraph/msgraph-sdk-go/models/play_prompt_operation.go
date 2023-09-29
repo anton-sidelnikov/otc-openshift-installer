@@ -8,7 +8,7 @@ import (
 type PlayPromptOperation struct {
     CommsOperation
 }
-// NewPlayPromptOperation instantiates a new PlayPromptOperation and sets the default values.
+// NewPlayPromptOperation instantiates a new playPromptOperation and sets the default values.
 func NewPlayPromptOperation()(*PlayPromptOperation) {
     m := &PlayPromptOperation{
         CommsOperation: *NewCommsOperation(),
@@ -31,4 +31,9 @@ func (m *PlayPromptOperation) Serialize(writer i878a80d2330e89d26896388a3f487eef
         return err
     }
     return nil
+}
+// PlayPromptOperationable 
+type PlayPromptOperationable interface {
+    CommsOperationable
+    i878a80d2330e89d26896388a3f487eef27b0a0e6c010c493bf80be1452208f91.Parsable
 }

@@ -1,8 +1,9 @@
 package models
 import (
     "errors"
+    "strings"
 )
-// Provides operations to manage the collection of chat entities.
+// 
 type ChatMessagePolicyViolationVerdictDetailsTypes int
 
 const (
@@ -13,21 +14,30 @@ const (
 )
 
 func (i ChatMessagePolicyViolationVerdictDetailsTypes) String() string {
-    return []string{"none", "allowFalsePositiveOverride", "allowOverrideWithoutJustification", "allowOverrideWithJustification"}[i]
+    var values []string
+    for p := ChatMessagePolicyViolationVerdictDetailsTypes(1); p <= ALLOWOVERRIDEWITHJUSTIFICATION_CHATMESSAGEPOLICYVIOLATIONVERDICTDETAILSTYPES; p <<= 1 {
+        if i&p == p {
+            values = append(values, []string{"none", "allowFalsePositiveOverride", "allowOverrideWithoutJustification", "allowOverrideWithJustification"}[p])
+        }
+    }
+    return strings.Join(values, ",")
 }
-func ParseChatMessagePolicyViolationVerdictDetailsTypes(v string) (interface{}, error) {
-    result := NONE_CHATMESSAGEPOLICYVIOLATIONVERDICTDETAILSTYPES
-    switch v {
-        case "none":
-            result = NONE_CHATMESSAGEPOLICYVIOLATIONVERDICTDETAILSTYPES
-        case "allowFalsePositiveOverride":
-            result = ALLOWFALSEPOSITIVEOVERRIDE_CHATMESSAGEPOLICYVIOLATIONVERDICTDETAILSTYPES
-        case "allowOverrideWithoutJustification":
-            result = ALLOWOVERRIDEWITHOUTJUSTIFICATION_CHATMESSAGEPOLICYVIOLATIONVERDICTDETAILSTYPES
-        case "allowOverrideWithJustification":
-            result = ALLOWOVERRIDEWITHJUSTIFICATION_CHATMESSAGEPOLICYVIOLATIONVERDICTDETAILSTYPES
-        default:
-            return 0, errors.New("Unknown ChatMessagePolicyViolationVerdictDetailsTypes value: " + v)
+func ParseChatMessagePolicyViolationVerdictDetailsTypes(v string) (any, error) {
+    var result ChatMessagePolicyViolationVerdictDetailsTypes
+    values := strings.Split(v, ",")
+    for _, str := range values {
+        switch str {
+            case "none":
+                result |= NONE_CHATMESSAGEPOLICYVIOLATIONVERDICTDETAILSTYPES
+            case "allowFalsePositiveOverride":
+                result |= ALLOWFALSEPOSITIVEOVERRIDE_CHATMESSAGEPOLICYVIOLATIONVERDICTDETAILSTYPES
+            case "allowOverrideWithoutJustification":
+                result |= ALLOWOVERRIDEWITHOUTJUSTIFICATION_CHATMESSAGEPOLICYVIOLATIONVERDICTDETAILSTYPES
+            case "allowOverrideWithJustification":
+                result |= ALLOWOVERRIDEWITHJUSTIFICATION_CHATMESSAGEPOLICYVIOLATIONVERDICTDETAILSTYPES
+            default:
+                return 0, errors.New("Unknown ChatMessagePolicyViolationVerdictDetailsTypes value: " + v)
+        }
     }
     return &result, nil
 }
@@ -37,4 +47,7 @@ func SerializeChatMessagePolicyViolationVerdictDetailsTypes(values []ChatMessage
         result[i] = v.String()
     }
     return result
+}
+func (i ChatMessagePolicyViolationVerdictDetailsTypes) isMultiValue() bool {
+    return true
 }

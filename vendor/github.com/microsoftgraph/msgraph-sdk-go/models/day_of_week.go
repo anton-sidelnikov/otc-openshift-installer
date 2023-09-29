@@ -2,7 +2,7 @@ package models
 import (
     "errors"
 )
-// Provides operations to manage the collection of agreement entities.
+// 
 type DayOfWeek int
 
 const (
@@ -18,7 +18,7 @@ const (
 func (i DayOfWeek) String() string {
     return []string{"sunday", "monday", "tuesday", "wednesday", "thursday", "friday", "saturday"}[i]
 }
-func ParseDayOfWeek(v string) (interface{}, error) {
+func ParseDayOfWeek(v string) (any, error) {
     result := SUNDAY_DAYOFWEEK
     switch v {
         case "sunday":
@@ -46,4 +46,7 @@ func SerializeDayOfWeek(values []DayOfWeek) []string {
         result[i] = v.String()
     }
     return result
+}
+func (i DayOfWeek) isMultiValue() bool {
+    return false
 }

@@ -2,7 +2,7 @@ package models
 import (
     "errors"
 )
-// Provides operations to manage the collection of agreement entities.
+// 
 type CountryLookupMethodType int
 
 const (
@@ -14,7 +14,7 @@ const (
 func (i CountryLookupMethodType) String() string {
     return []string{"clientIpAddress", "authenticatorAppGps", "unknownFutureValue"}[i]
 }
-func ParseCountryLookupMethodType(v string) (interface{}, error) {
+func ParseCountryLookupMethodType(v string) (any, error) {
     result := CLIENTIPADDRESS_COUNTRYLOOKUPMETHODTYPE
     switch v {
         case "clientIpAddress":
@@ -34,4 +34,7 @@ func SerializeCountryLookupMethodType(values []CountryLookupMethodType) []string
         result[i] = v.String()
     }
     return result
+}
+func (i CountryLookupMethodType) isMultiValue() bool {
+    return false
 }

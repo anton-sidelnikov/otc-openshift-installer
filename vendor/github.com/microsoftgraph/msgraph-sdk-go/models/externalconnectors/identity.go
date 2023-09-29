@@ -1,16 +1,13 @@
 package externalconnectors
 
 import (
-    i2ae4187f7daee263371cb1c977df639813ab50ffa529013b7437480d1ec0158f "github.com/microsoft/kiota-abstractions-go"
     i878a80d2330e89d26896388a3f487eef27b0a0e6c010c493bf80be1452208f91 "github.com/microsoft/kiota-abstractions-go/serialization"
     iadcd81124412c61e647227ecfc4449d8bba17de0380ddda76f641a29edf2b242 "github.com/microsoftgraph/msgraph-sdk-go/models"
 )
 
-// Identity provides operations to manage the collection of externalConnection entities.
+// Identity 
 type Identity struct {
     iadcd81124412c61e647227ecfc4449d8bba17de0380ddda76f641a29edf2b242.Entity
-    // The type of identity. Possible values are: user or group for Azure AD identities and externalgroup for groups in an external system.
-    type_escaped *IdentityType
 }
 // NewIdentity instantiates a new identity and sets the default values.
 func NewIdentity()(*Identity) {
@@ -26,12 +23,28 @@ func CreateIdentityFromDiscriminatorValue(parseNode i878a80d2330e89d26896388a3f4
 // GetFieldDeserializers the deserialization information for the current model
 func (m *Identity) GetFieldDeserializers()(map[string]func(i878a80d2330e89d26896388a3f487eef27b0a0e6c010c493bf80be1452208f91.ParseNode)(error)) {
     res := m.Entity.GetFieldDeserializers()
-    res["type"] = i2ae4187f7daee263371cb1c977df639813ab50ffa529013b7437480d1ec0158f.SetEnumValue(ParseIdentityType , m.SetType)
+    res["type"] = func (n i878a80d2330e89d26896388a3f487eef27b0a0e6c010c493bf80be1452208f91.ParseNode) error {
+        val, err := n.GetEnumValue(ParseIdentityType)
+        if err != nil {
+            return err
+        }
+        if val != nil {
+            m.SetTypeEscaped(val.(*IdentityType))
+        }
+        return nil
+    }
     return res
 }
-// GetType gets the type property value. The type of identity. Possible values are: user or group for Azure AD identities and externalgroup for groups in an external system.
-func (m *Identity) GetType()(*IdentityType) {
-    return m.type_escaped
+// GetTypeEscaped gets the type property value. The type of identity. Possible values are: user or group for Azure AD identities and externalgroup for groups in an external system.
+func (m *Identity) GetTypeEscaped()(*IdentityType) {
+    val, err := m.GetBackingStore().Get("typeEscaped")
+    if err != nil {
+        panic(err)
+    }
+    if val != nil {
+        return val.(*IdentityType)
+    }
+    return nil
 }
 // Serialize serializes information the current object
 func (m *Identity) Serialize(writer i878a80d2330e89d26896388a3f487eef27b0a0e6c010c493bf80be1452208f91.SerializationWriter)(error) {
@@ -39,8 +52,8 @@ func (m *Identity) Serialize(writer i878a80d2330e89d26896388a3f487eef27b0a0e6c01
     if err != nil {
         return err
     }
-    if m.GetType() != nil {
-        cast := (*m.GetType()).String()
+    if m.GetTypeEscaped() != nil {
+        cast := (*m.GetTypeEscaped()).String()
         err = writer.WriteStringValue("type", &cast)
         if err != nil {
             return err
@@ -48,7 +61,17 @@ func (m *Identity) Serialize(writer i878a80d2330e89d26896388a3f487eef27b0a0e6c01
     }
     return nil
 }
-// SetType sets the type property value. The type of identity. Possible values are: user or group for Azure AD identities and externalgroup for groups in an external system.
-func (m *Identity) SetType(value *IdentityType)() {
-    m.type_escaped = value
+// SetTypeEscaped sets the type property value. The type of identity. Possible values are: user or group for Azure AD identities and externalgroup for groups in an external system.
+func (m *Identity) SetTypeEscaped(value *IdentityType)() {
+    err := m.GetBackingStore().Set("typeEscaped", value)
+    if err != nil {
+        panic(err)
+    }
+}
+// Identityable 
+type Identityable interface {
+    iadcd81124412c61e647227ecfc4449d8bba17de0380ddda76f641a29edf2b242.Entityable
+    i878a80d2330e89d26896388a3f487eef27b0a0e6c010c493bf80be1452208f91.Parsable
+    GetTypeEscaped()(*IdentityType)
+    SetTypeEscaped(value *IdentityType)()
 }

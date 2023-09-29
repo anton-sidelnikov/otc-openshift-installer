@@ -2,7 +2,7 @@ package externalconnectors
 import (
     "errors"
 )
-// Provides operations to manage the collection of externalConnection entities.
+// 
 type AccessType int
 
 const (
@@ -14,7 +14,7 @@ const (
 func (i AccessType) String() string {
     return []string{"grant", "deny", "unknownFutureValue"}[i]
 }
-func ParseAccessType(v string) (interface{}, error) {
+func ParseAccessType(v string) (any, error) {
     result := GRANT_ACCESSTYPE
     switch v {
         case "grant":
@@ -34,4 +34,7 @@ func SerializeAccessType(values []AccessType) []string {
         result[i] = v.String()
     }
     return result
+}
+func (i AccessType) isMultiValue() bool {
+    return false
 }

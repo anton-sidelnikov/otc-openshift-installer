@@ -2,7 +2,7 @@ package models
 import (
     "errors"
 )
-// Provides operations to manage the collection of authenticationMethodConfiguration entities.
+// 
 type X509CertificateAuthenticationMode int
 
 const (
@@ -14,7 +14,7 @@ const (
 func (i X509CertificateAuthenticationMode) String() string {
     return []string{"x509CertificateSingleFactor", "x509CertificateMultiFactor", "unknownFutureValue"}[i]
 }
-func ParseX509CertificateAuthenticationMode(v string) (interface{}, error) {
+func ParseX509CertificateAuthenticationMode(v string) (any, error) {
     result := X509CERTIFICATESINGLEFACTOR_X509CERTIFICATEAUTHENTICATIONMODE
     switch v {
         case "x509CertificateSingleFactor":
@@ -34,4 +34,7 @@ func SerializeX509CertificateAuthenticationMode(values []X509CertificateAuthenti
         result[i] = v.String()
     }
     return result
+}
+func (i X509CertificateAuthenticationMode) isMultiValue() bool {
+    return false
 }

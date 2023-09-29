@@ -6,7 +6,7 @@ Get started with the Microsoft Graph SDK for Go by integrating the [Microsoft Gr
 
 > **Note:** this SDK allows you to build applications using the [v1.0](https://docs.microsoft.com/graph/use-the-api#version) of Microsoft Graph. If you want to try the latest Microsoft Graph APIs under beta, use our [beta SDK](https://github.com/microsoftgraph/msgraph-beta-sdk-go) instead.
 >
-> **Note:** the Microsoft Graph Go SDK is currently in Community Preview. During this period we're expecting breaking changes to happen to the SDK based on community's feedback. Checkout the [known limitations](https://github.com/microsoftgraph/msgraph-sdk-go-core/issues/1).
+> **Note:** The Microsoft Graph Go SDK is currently in General Availability version starting from version 1.0.0. The SDK is considered stable, regular releases and updates to the SDK will however continue weekly..
 
 ## 1. Installation
 
@@ -29,10 +29,11 @@ For an example of how to get an authentication provider, see [choose a Microsoft
 
 > Note: we are working to add the getting started information for Go to our public documentation, in the meantime the following sample should help you getting started.
 
+This example uses the `DeviceCodeCredential` class, which uses the [device code flow](https://learn.microsoft.com/azure/active-directory/develop/v2-oauth2-device-code) to authenticate the user and acquire an access token. This authentication method is not enabled on app registrations by default. In order to use this example, you must enable public client flows on the app registation in the Azure portal by selecting **Authentication** under **Manage**, and setting the **Allow public client flows** toggle to **Yes**.
+
 ```Golang
 import (
     azidentity "github.com/Azure/azure-sdk-for-go/sdk/azidentity"
-    a          "github.com/microsoft/kiota-authentication-azure-go"
     "context"
 )
 
@@ -123,15 +124,14 @@ import (
 result, err := client.Users().Get(context.Background(), nil)
 if err != nil {
     fmt.Printf("Error getting users: %v\n", err)
-    printOdataError(err error)
+    printOdataError(err)
     return err
 }
 
 // Use PageIterator to iterate through all users
-pageIterator, err := msgraphcore.NewPageIterator(result, client.GetAdapter(), models.CreateUserCollectionResponseFromDiscriminatorValue)
+pageIterator, err := msgraphcore.NewPageIterator[models.Userable](result, client.GetAdapter(), models.CreateUserCollectionResponseFromDiscriminatorValue)
 
-err = pageIterator.Iterate(context.Background(), func(pageItem interface{}) bool {
-    user := pageItem.(models.Userable)
+err = pageIterator.Iterate(context.Background(), func(user models.Userable) bool {
     fmt.Printf("%s\n", *user.GetDisplayName())
     // Return true to continue the iteration
     return true
@@ -143,7 +143,7 @@ func printOdataError(err error) {
         switch err.(type) {
         case *odataerrors.ODataError:
                 typed := err.(*odataerrors.ODataError)
-                fmt.Printf("error:", typed.Error())
+                fmt.Printf("error: %s", typed.Error())
                 if terr := typed.GetError(); terr != nil {
                         fmt.Printf("code: %s", *terr.GetCode())
                         fmt.Printf("msg: %s", *terr.GetMessage())

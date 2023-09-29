@@ -2,24 +2,24 @@ package models
 import (
     "errors"
 )
-// Provides operations to manage the collection of agreement entities.
+// 
 type DiskType int
 
 const (
-    // Enum member for unknown or default diskType
+    // Enum member for unknown or default diskType.
     UNKNOWN_DISKTYPE DiskType = iota
-    // Enum member for HDD devices
+    // Enum member for HDD devices.
     HDD_DISKTYPE
-    // Enum member for SSD devices
+    // Enum member for SSD devices.
     SSD_DISKTYPE
-    // Evolvable enum member
+    // Evolvable enumeration sentinel value.Do not use.
     UNKNOWNFUTUREVALUE_DISKTYPE
 )
 
 func (i DiskType) String() string {
     return []string{"unknown", "hdd", "ssd", "unknownFutureValue"}[i]
 }
-func ParseDiskType(v string) (interface{}, error) {
+func ParseDiskType(v string) (any, error) {
     result := UNKNOWN_DISKTYPE
     switch v {
         case "unknown":
@@ -41,4 +41,7 @@ func SerializeDiskType(values []DiskType) []string {
         result[i] = v.String()
     }
     return result
+}
+func (i DiskType) isMultiValue() bool {
+    return false
 }

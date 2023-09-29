@@ -2,7 +2,7 @@ package models
 import (
     "errors"
 )
-// Provides operations to manage the collection of agreement entities.
+// 
 type TaskStatus int
 
 const (
@@ -16,7 +16,7 @@ const (
 func (i TaskStatus) String() string {
     return []string{"notStarted", "inProgress", "completed", "waitingOnOthers", "deferred"}[i]
 }
-func ParseTaskStatus(v string) (interface{}, error) {
+func ParseTaskStatus(v string) (any, error) {
     result := NOTSTARTED_TASKSTATUS
     switch v {
         case "notStarted":
@@ -40,4 +40,7 @@ func SerializeTaskStatus(values []TaskStatus) []string {
         result[i] = v.String()
     }
     return result
+}
+func (i TaskStatus) isMultiValue() bool {
+    return false
 }

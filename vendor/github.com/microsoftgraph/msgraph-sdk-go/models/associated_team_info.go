@@ -8,7 +8,7 @@ import (
 type AssociatedTeamInfo struct {
     TeamInfo
 }
-// NewAssociatedTeamInfo instantiates a new AssociatedTeamInfo and sets the default values.
+// NewAssociatedTeamInfo instantiates a new associatedTeamInfo and sets the default values.
 func NewAssociatedTeamInfo()(*AssociatedTeamInfo) {
     m := &AssociatedTeamInfo{
         TeamInfo: *NewTeamInfo(),
@@ -31,4 +31,9 @@ func (m *AssociatedTeamInfo) Serialize(writer i878a80d2330e89d26896388a3f487eef2
         return err
     }
     return nil
+}
+// AssociatedTeamInfoable 
+type AssociatedTeamInfoable interface {
+    i878a80d2330e89d26896388a3f487eef27b0a0e6c010c493bf80be1452208f91.Parsable
+    TeamInfoable
 }

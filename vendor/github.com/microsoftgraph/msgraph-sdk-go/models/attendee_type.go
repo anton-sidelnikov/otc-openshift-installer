@@ -2,7 +2,7 @@ package models
 import (
     "errors"
 )
-// Provides operations to manage the collection of agreement entities.
+// 
 type AttendeeType int
 
 const (
@@ -14,7 +14,7 @@ const (
 func (i AttendeeType) String() string {
     return []string{"required", "optional", "resource"}[i]
 }
-func ParseAttendeeType(v string) (interface{}, error) {
+func ParseAttendeeType(v string) (any, error) {
     result := REQUIRED_ATTENDEETYPE
     switch v {
         case "required":
@@ -34,4 +34,7 @@ func SerializeAttendeeType(values []AttendeeType) []string {
         result[i] = v.String()
     }
     return result
+}
+func (i AttendeeType) isMultiValue() bool {
+    return false
 }

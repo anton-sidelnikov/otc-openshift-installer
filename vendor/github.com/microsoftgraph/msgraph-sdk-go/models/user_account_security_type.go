@@ -2,7 +2,7 @@ package models
 import (
     "errors"
 )
-// Provides operations to manage the collection of agreement entities.
+// 
 type UserAccountSecurityType int
 
 const (
@@ -16,7 +16,7 @@ const (
 func (i UserAccountSecurityType) String() string {
     return []string{"unknown", "standard", "power", "administrator", "unknownFutureValue"}[i]
 }
-func ParseUserAccountSecurityType(v string) (interface{}, error) {
+func ParseUserAccountSecurityType(v string) (any, error) {
     result := UNKNOWN_USERACCOUNTSECURITYTYPE
     switch v {
         case "unknown":
@@ -40,4 +40,7 @@ func SerializeUserAccountSecurityType(values []UserAccountSecurityType) []string
         result[i] = v.String()
     }
     return result
+}
+func (i UserAccountSecurityType) isMultiValue() bool {
+    return false
 }

@@ -2,7 +2,7 @@ package models
 import (
     "errors"
 )
-// Provides operations to manage the collection of agreement entities.
+// 
 type ThreatAssessmentRequestSource int
 
 const (
@@ -14,7 +14,7 @@ const (
 func (i ThreatAssessmentRequestSource) String() string {
     return []string{"undefined", "user", "administrator"}[i]
 }
-func ParseThreatAssessmentRequestSource(v string) (interface{}, error) {
+func ParseThreatAssessmentRequestSource(v string) (any, error) {
     result := UNDEFINED_THREATASSESSMENTREQUESTSOURCE
     switch v {
         case "undefined":
@@ -34,4 +34,7 @@ func SerializeThreatAssessmentRequestSource(values []ThreatAssessmentRequestSour
         result[i] = v.String()
     }
     return result
+}
+func (i ThreatAssessmentRequestSource) isMultiValue() bool {
+    return false
 }

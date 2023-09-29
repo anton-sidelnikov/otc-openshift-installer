@@ -2,7 +2,7 @@ package models
 import (
     "errors"
 )
-// Provides operations to manage the collection of agreement entities.
+// 
 type MailDestinationRoutingReason int
 
 const (
@@ -27,7 +27,7 @@ const (
 func (i MailDestinationRoutingReason) String() string {
     return []string{"none", "mailFlowRule", "safeSender", "blockedSender", "advancedSpamFiltering", "domainAllowList", "domainBlockList", "notInAddressBook", "firstTimeSender", "autoPurgeToInbox", "autoPurgeToJunk", "autoPurgeToDeleted", "outbound", "notJunk", "junk", "unknownFutureValue"}[i]
 }
-func ParseMailDestinationRoutingReason(v string) (interface{}, error) {
+func ParseMailDestinationRoutingReason(v string) (any, error) {
     result := NONE_MAILDESTINATIONROUTINGREASON
     switch v {
         case "none":
@@ -73,4 +73,7 @@ func SerializeMailDestinationRoutingReason(values []MailDestinationRoutingReason
         result[i] = v.String()
     }
     return result
+}
+func (i MailDestinationRoutingReason) isMultiValue() bool {
+    return false
 }

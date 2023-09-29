@@ -2,7 +2,7 @@ package models
 import (
     "errors"
 )
-// Provides operations to manage the collection of agreement entities.
+// 
 type Status int
 
 const (
@@ -16,7 +16,7 @@ const (
 func (i Status) String() string {
     return []string{"active", "updated", "deleted", "ignored", "unknownFutureValue"}[i]
 }
-func ParseStatus(v string) (interface{}, error) {
+func ParseStatus(v string) (any, error) {
     result := ACTIVE_STATUS
     switch v {
         case "active":
@@ -40,4 +40,7 @@ func SerializeStatus(values []Status) []string {
         result[i] = v.String()
     }
     return result
+}
+func (i Status) isMultiValue() bool {
+    return false
 }

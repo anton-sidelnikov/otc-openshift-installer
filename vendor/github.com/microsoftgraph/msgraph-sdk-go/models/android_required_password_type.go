@@ -2,7 +2,7 @@ package models
 import (
     "errors"
 )
-// Provides operations to manage the collection of agreement entities.
+// Android required password type.
 type AndroidRequiredPasswordType int
 
 const (
@@ -27,7 +27,7 @@ const (
 func (i AndroidRequiredPasswordType) String() string {
     return []string{"deviceDefault", "alphabetic", "alphanumeric", "alphanumericWithSymbols", "lowSecurityBiometric", "numeric", "numericComplex", "any"}[i]
 }
-func ParseAndroidRequiredPasswordType(v string) (interface{}, error) {
+func ParseAndroidRequiredPasswordType(v string) (any, error) {
     result := DEVICEDEFAULT_ANDROIDREQUIREDPASSWORDTYPE
     switch v {
         case "deviceDefault":
@@ -57,4 +57,7 @@ func SerializeAndroidRequiredPasswordType(values []AndroidRequiredPasswordType) 
         result[i] = v.String()
     }
     return result
+}
+func (i AndroidRequiredPasswordType) isMultiValue() bool {
+    return false
 }

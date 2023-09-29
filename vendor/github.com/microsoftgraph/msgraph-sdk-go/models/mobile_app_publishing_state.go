@@ -2,7 +2,7 @@ package models
 import (
     "errors"
 )
-// Provides operations to manage the collection of agreement entities.
+// Indicates the publishing state of an app.
 type MobileAppPublishingState int
 
 const (
@@ -17,7 +17,7 @@ const (
 func (i MobileAppPublishingState) String() string {
     return []string{"notPublished", "processing", "published"}[i]
 }
-func ParseMobileAppPublishingState(v string) (interface{}, error) {
+func ParseMobileAppPublishingState(v string) (any, error) {
     result := NOTPUBLISHED_MOBILEAPPPUBLISHINGSTATE
     switch v {
         case "notPublished":
@@ -37,4 +37,7 @@ func SerializeMobileAppPublishingState(values []MobileAppPublishingState) []stri
         result[i] = v.String()
     }
     return result
+}
+func (i MobileAppPublishingState) isMultiValue() bool {
+    return false
 }

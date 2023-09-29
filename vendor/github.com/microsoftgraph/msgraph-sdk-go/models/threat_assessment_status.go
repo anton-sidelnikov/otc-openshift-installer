@@ -2,7 +2,7 @@ package models
 import (
     "errors"
 )
-// Provides operations to manage the collection of agreement entities.
+// 
 type ThreatAssessmentStatus int
 
 const (
@@ -13,7 +13,7 @@ const (
 func (i ThreatAssessmentStatus) String() string {
     return []string{"pending", "completed"}[i]
 }
-func ParseThreatAssessmentStatus(v string) (interface{}, error) {
+func ParseThreatAssessmentStatus(v string) (any, error) {
     result := PENDING_THREATASSESSMENTSTATUS
     switch v {
         case "pending":
@@ -31,4 +31,7 @@ func SerializeThreatAssessmentStatus(values []ThreatAssessmentStatus) []string {
         result[i] = v.String()
     }
     return result
+}
+func (i ThreatAssessmentStatus) isMultiValue() bool {
+    return false
 }

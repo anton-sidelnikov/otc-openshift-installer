@@ -2,7 +2,7 @@ package models
 import (
     "errors"
 )
-// Provides operations to call the changeScreenSharingRole method.
+// 
 type ScreenSharingRole int
 
 const (
@@ -13,7 +13,7 @@ const (
 func (i ScreenSharingRole) String() string {
     return []string{"viewer", "sharer"}[i]
 }
-func ParseScreenSharingRole(v string) (interface{}, error) {
+func ParseScreenSharingRole(v string) (any, error) {
     result := VIEWER_SCREENSHARINGROLE
     switch v {
         case "viewer":
@@ -31,4 +31,7 @@ func SerializeScreenSharingRole(values []ScreenSharingRole) []string {
         result[i] = v.String()
     }
     return result
+}
+func (i ScreenSharingRole) isMultiValue() bool {
+    return false
 }

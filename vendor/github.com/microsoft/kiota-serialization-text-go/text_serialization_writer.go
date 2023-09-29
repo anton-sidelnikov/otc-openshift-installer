@@ -17,7 +17,10 @@ var OnlyOneValue = errors.New("text serialization writer can only write one valu
 
 // TextSerializationWriter implements SerializationWriter for JSON.
 type TextSerializationWriter struct {
-	writer []string
+	writer                     []string
+	onBeforeAssignFieldValues  absser.ParsableAction
+	onAfterAssignFieldValues   absser.ParsableAction
+	onStartObjectSerialization absser.ParsableWriter
 }
 
 // NewTextSerializationWriter creates a new instance of the TextSerializationWriter.
@@ -248,5 +251,36 @@ func (w *TextSerializationWriter) WriteAnyValue(key string, value interface{}) e
 
 // Close clears the internal buffer.
 func (w *TextSerializationWriter) Close() error {
+	return nil
+}
+
+func (w *TextSerializationWriter) WriteNullValue(key string) error {
+	return NoStructuredDataError
+}
+
+func (w *TextSerializationWriter) GetOnBeforeSerialization() absser.ParsableAction {
+	return w.onBeforeAssignFieldValues
+}
+
+func (w *TextSerializationWriter) SetOnBeforeSerialization(action absser.ParsableAction) error {
+	w.onBeforeAssignFieldValues = action
+	return nil
+}
+
+func (w *TextSerializationWriter) GetOnAfterObjectSerialization() absser.ParsableAction {
+	return w.onAfterAssignFieldValues
+}
+
+func (w *TextSerializationWriter) SetOnAfterObjectSerialization(action absser.ParsableAction) error {
+	w.onAfterAssignFieldValues = action
+	return nil
+}
+
+func (w *TextSerializationWriter) GetOnStartObjectSerialization() absser.ParsableWriter {
+	return w.onStartObjectSerialization
+}
+
+func (w *TextSerializationWriter) SetOnStartObjectSerialization(writer absser.ParsableWriter) error {
+	w.onStartObjectSerialization = writer
 	return nil
 }

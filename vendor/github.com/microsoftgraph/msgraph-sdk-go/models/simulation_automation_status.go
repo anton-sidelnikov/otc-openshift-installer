@@ -2,7 +2,7 @@ package models
 import (
     "errors"
 )
-// Provides operations to manage the collection of agreement entities.
+// 
 type SimulationAutomationStatus int
 
 const (
@@ -17,7 +17,7 @@ const (
 func (i SimulationAutomationStatus) String() string {
     return []string{"unknown", "draft", "notRunning", "running", "completed", "unknownFutureValue"}[i]
 }
-func ParseSimulationAutomationStatus(v string) (interface{}, error) {
+func ParseSimulationAutomationStatus(v string) (any, error) {
     result := UNKNOWN_SIMULATIONAUTOMATIONSTATUS
     switch v {
         case "unknown":
@@ -43,4 +43,7 @@ func SerializeSimulationAutomationStatus(values []SimulationAutomationStatus) []
         result[i] = v.String()
     }
     return result
+}
+func (i SimulationAutomationStatus) isMultiValue() bool {
+    return false
 }

@@ -2,7 +2,7 @@ package models
 import (
     "errors"
 )
-// Provides operations to manage the collection of agreement entities.
+// Possible values for internet site security level.
 type InternetSiteSecurityLevel int
 
 const (
@@ -19,7 +19,7 @@ const (
 func (i InternetSiteSecurityLevel) String() string {
     return []string{"userDefined", "medium", "mediumHigh", "high"}[i]
 }
-func ParseInternetSiteSecurityLevel(v string) (interface{}, error) {
+func ParseInternetSiteSecurityLevel(v string) (any, error) {
     result := USERDEFINED_INTERNETSITESECURITYLEVEL
     switch v {
         case "userDefined":
@@ -41,4 +41,7 @@ func SerializeInternetSiteSecurityLevel(values []InternetSiteSecurityLevel) []st
         result[i] = v.String()
     }
     return result
+}
+func (i InternetSiteSecurityLevel) isMultiValue() bool {
+    return false
 }

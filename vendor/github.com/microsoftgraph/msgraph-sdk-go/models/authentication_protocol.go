@@ -2,7 +2,7 @@ package models
 import (
     "errors"
 )
-// Provides operations to manage the collection of agreement entities.
+// 
 type AuthenticationProtocol int
 
 const (
@@ -14,7 +14,7 @@ const (
 func (i AuthenticationProtocol) String() string {
     return []string{"wsFed", "saml", "unknownFutureValue"}[i]
 }
-func ParseAuthenticationProtocol(v string) (interface{}, error) {
+func ParseAuthenticationProtocol(v string) (any, error) {
     result := WSFED_AUTHENTICATIONPROTOCOL
     switch v {
         case "wsFed":
@@ -34,4 +34,7 @@ func SerializeAuthenticationProtocol(values []AuthenticationProtocol) []string {
         result[i] = v.String()
     }
     return result
+}
+func (i AuthenticationProtocol) isMultiValue() bool {
+    return false
 }

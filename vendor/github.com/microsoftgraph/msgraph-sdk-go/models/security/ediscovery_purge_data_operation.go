@@ -8,7 +8,7 @@ import (
 type EdiscoveryPurgeDataOperation struct {
     CaseOperation
 }
-// NewEdiscoveryPurgeDataOperation instantiates a new EdiscoveryPurgeDataOperation and sets the default values.
+// NewEdiscoveryPurgeDataOperation instantiates a new ediscoveryPurgeDataOperation and sets the default values.
 func NewEdiscoveryPurgeDataOperation()(*EdiscoveryPurgeDataOperation) {
     m := &EdiscoveryPurgeDataOperation{
         CaseOperation: *NewCaseOperation(),
@@ -31,4 +31,9 @@ func (m *EdiscoveryPurgeDataOperation) Serialize(writer i878a80d2330e89d26896388
         return err
     }
     return nil
+}
+// EdiscoveryPurgeDataOperationable 
+type EdiscoveryPurgeDataOperationable interface {
+    CaseOperationable
+    i878a80d2330e89d26896388a3f487eef27b0a0e6c010c493bf80be1452208f91.Parsable
 }

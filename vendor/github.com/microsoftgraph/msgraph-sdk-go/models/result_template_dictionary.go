@@ -8,7 +8,7 @@ import (
 type ResultTemplateDictionary struct {
     Dictionary
 }
-// NewResultTemplateDictionary instantiates a new ResultTemplateDictionary and sets the default values.
+// NewResultTemplateDictionary instantiates a new resultTemplateDictionary and sets the default values.
 func NewResultTemplateDictionary()(*ResultTemplateDictionary) {
     m := &ResultTemplateDictionary{
         Dictionary: *NewDictionary(),
@@ -31,4 +31,9 @@ func (m *ResultTemplateDictionary) Serialize(writer i878a80d2330e89d26896388a3f4
         return err
     }
     return nil
+}
+// ResultTemplateDictionaryable 
+type ResultTemplateDictionaryable interface {
+    Dictionaryable
+    i878a80d2330e89d26896388a3f487eef27b0a0e6c010c493bf80be1452208f91.Parsable
 }

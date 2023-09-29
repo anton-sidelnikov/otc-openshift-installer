@@ -2,7 +2,7 @@ package models
 import (
     "errors"
 )
-// Provides operations to manage the collection of agreement entities.
+// Android Work Profile required password type.
 type AndroidWorkProfileRequiredPasswordType int
 
 const (
@@ -27,7 +27,7 @@ const (
 func (i AndroidWorkProfileRequiredPasswordType) String() string {
     return []string{"deviceDefault", "lowSecurityBiometric", "required", "atLeastNumeric", "numericComplex", "atLeastAlphabetic", "atLeastAlphanumeric", "alphanumericWithSymbols"}[i]
 }
-func ParseAndroidWorkProfileRequiredPasswordType(v string) (interface{}, error) {
+func ParseAndroidWorkProfileRequiredPasswordType(v string) (any, error) {
     result := DEVICEDEFAULT_ANDROIDWORKPROFILEREQUIREDPASSWORDTYPE
     switch v {
         case "deviceDefault":
@@ -57,4 +57,7 @@ func SerializeAndroidWorkProfileRequiredPasswordType(values []AndroidWorkProfile
         result[i] = v.String()
     }
     return result
+}
+func (i AndroidWorkProfileRequiredPasswordType) isMultiValue() bool {
+    return false
 }

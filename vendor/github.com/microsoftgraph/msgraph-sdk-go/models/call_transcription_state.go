@@ -2,7 +2,7 @@ package models
 import (
     "errors"
 )
-// Provides operations to manage the cloudCommunications singleton.
+// 
 type CallTranscriptionState int
 
 const (
@@ -15,7 +15,7 @@ const (
 func (i CallTranscriptionState) String() string {
     return []string{"notStarted", "active", "inactive", "unknownFutureValue"}[i]
 }
-func ParseCallTranscriptionState(v string) (interface{}, error) {
+func ParseCallTranscriptionState(v string) (any, error) {
     result := NOTSTARTED_CALLTRANSCRIPTIONSTATE
     switch v {
         case "notStarted":
@@ -37,4 +37,7 @@ func SerializeCallTranscriptionState(values []CallTranscriptionState) []string {
         result[i] = v.String()
     }
     return result
+}
+func (i CallTranscriptionState) isMultiValue() bool {
+    return false
 }

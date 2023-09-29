@@ -7,8 +7,85 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+## [1.0.4] - 2023-07-12
 
 ### Changed
+
+- Fixes parsing time parsing without timezone information.
+
+## [1.0.3] - 2023-06-28
+
+### Changed
+
+- Fixes serialization of composed types for scalar values.
+
+## [1.0.2] - 2023-06-14
+
+- Safely serialize null values in collections of Objects, Enums or primitives.
+
+### Changed
+
+## [1.0.1] - 2023-05-25
+
+- Fixes bug where slices backing data from `GetSerializedContent` could be overwritten before they were used but after `JsonSerializationWriter.Close()` was called.
+
+### Added
+
+## [1.0.0] - 2023-05-04
+
+### Changed
+
+- GA Release.
+
+## [0.9.3] - 2023-04-24
+
+### Changed
+
+- Use buffer pool for `JsonSerializationWriter`.
+
+## [0.9.2] - 2023-04-17
+
+### Changed
+
+- Improve `JsonSerializationWriter` serialization performance.
+
+## [0.9.1] - 2023-04-05
+
+### Added
+
+- Improve error messaging for serialization error.
+
+## [0.9.0] - 2023-03-30
+
+### Added
+
+- Add Unmarshal and Marshal helpers.
+
+## [0.8.3] - 2023-03-20
+
+### Added
+
+- Validates json content before parsing.
+
+## [0.8.2] - 2023-03-01
+
+### Added
+
+- Fixes bug that returned `JsonParseNode` as value for nested maps when `GetRawValue` is called.
+
+## [0.8.1] - 2023-02-20
+
+### Added
+
+- Fixes bug that returned `JsonParseNode` as value for collections when `GetRawValue` is called.
+
+## [0.8.0] - 2023-01-23
+
+### Added
+
+- Added support for backing store.
 
 ## [0.7.2] - 2022-09-29
 

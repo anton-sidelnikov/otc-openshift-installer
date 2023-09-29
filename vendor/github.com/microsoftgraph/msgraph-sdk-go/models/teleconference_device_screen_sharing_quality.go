@@ -8,7 +8,7 @@ import (
 type TeleconferenceDeviceScreenSharingQuality struct {
     TeleconferenceDeviceVideoQuality
 }
-// NewTeleconferenceDeviceScreenSharingQuality instantiates a new TeleconferenceDeviceScreenSharingQuality and sets the default values.
+// NewTeleconferenceDeviceScreenSharingQuality instantiates a new teleconferenceDeviceScreenSharingQuality and sets the default values.
 func NewTeleconferenceDeviceScreenSharingQuality()(*TeleconferenceDeviceScreenSharingQuality) {
     m := &TeleconferenceDeviceScreenSharingQuality{
         TeleconferenceDeviceVideoQuality: *NewTeleconferenceDeviceVideoQuality(),
@@ -31,4 +31,9 @@ func (m *TeleconferenceDeviceScreenSharingQuality) Serialize(writer i878a80d2330
         return err
     }
     return nil
+}
+// TeleconferenceDeviceScreenSharingQualityable 
+type TeleconferenceDeviceScreenSharingQualityable interface {
+    i878a80d2330e89d26896388a3f487eef27b0a0e6c010c493bf80be1452208f91.Parsable
+    TeleconferenceDeviceVideoQualityable
 }

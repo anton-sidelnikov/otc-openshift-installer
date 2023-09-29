@@ -2,7 +2,7 @@ package models
 import (
     "errors"
 )
-// Provides operations to manage the collection of agreement entities.
+// 
 type ConditionalAccessStatus int
 
 const (
@@ -15,7 +15,7 @@ const (
 func (i ConditionalAccessStatus) String() string {
     return []string{"success", "failure", "notApplied", "unknownFutureValue"}[i]
 }
-func ParseConditionalAccessStatus(v string) (interface{}, error) {
+func ParseConditionalAccessStatus(v string) (any, error) {
     result := SUCCESS_CONDITIONALACCESSSTATUS
     switch v {
         case "success":
@@ -37,4 +37,7 @@ func SerializeConditionalAccessStatus(values []ConditionalAccessStatus) []string
         result[i] = v.String()
     }
     return result
+}
+func (i ConditionalAccessStatus) isMultiValue() bool {
+    return false
 }

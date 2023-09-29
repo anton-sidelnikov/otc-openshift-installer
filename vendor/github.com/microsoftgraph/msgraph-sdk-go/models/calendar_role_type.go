@@ -2,7 +2,7 @@ package models
 import (
     "errors"
 )
-// Provides operations to manage the collection of agreement entities.
+// 
 type CalendarRoleType int
 
 const (
@@ -19,7 +19,7 @@ const (
 func (i CalendarRoleType) String() string {
     return []string{"none", "freeBusyRead", "limitedRead", "read", "write", "delegateWithoutPrivateEventAccess", "delegateWithPrivateEventAccess", "custom"}[i]
 }
-func ParseCalendarRoleType(v string) (interface{}, error) {
+func ParseCalendarRoleType(v string) (any, error) {
     result := NONE_CALENDARROLETYPE
     switch v {
         case "none":
@@ -49,4 +49,7 @@ func SerializeCalendarRoleType(values []CalendarRoleType) []string {
         result[i] = v.String()
     }
     return result
+}
+func (i CalendarRoleType) isMultiValue() bool {
+    return false
 }

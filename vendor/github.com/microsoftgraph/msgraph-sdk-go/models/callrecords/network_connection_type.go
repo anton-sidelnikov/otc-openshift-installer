@@ -2,7 +2,7 @@ package callrecords
 import (
     "errors"
 )
-// Provides operations to manage the cloudCommunications singleton.
+// 
 type NetworkConnectionType int
 
 const (
@@ -17,7 +17,7 @@ const (
 func (i NetworkConnectionType) String() string {
     return []string{"unknown", "wired", "wifi", "mobile", "tunnel", "unknownFutureValue"}[i]
 }
-func ParseNetworkConnectionType(v string) (interface{}, error) {
+func ParseNetworkConnectionType(v string) (any, error) {
     result := UNKNOWN_NETWORKCONNECTIONTYPE
     switch v {
         case "unknown":
@@ -43,4 +43,7 @@ func SerializeNetworkConnectionType(values []NetworkConnectionType) []string {
         result[i] = v.String()
     }
     return result
+}
+func (i NetworkConnectionType) isMultiValue() bool {
+    return false
 }

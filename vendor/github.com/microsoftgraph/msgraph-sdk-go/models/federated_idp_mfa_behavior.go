@@ -2,7 +2,7 @@ package models
 import (
     "errors"
 )
-// Provides operations to manage the collection of agreement entities.
+// 
 type FederatedIdpMfaBehavior int
 
 const (
@@ -15,7 +15,7 @@ const (
 func (i FederatedIdpMfaBehavior) String() string {
     return []string{"acceptIfMfaDoneByFederatedIdp", "enforceMfaByFederatedIdp", "rejectMfaByFederatedIdp", "unknownFutureValue"}[i]
 }
-func ParseFederatedIdpMfaBehavior(v string) (interface{}, error) {
+func ParseFederatedIdpMfaBehavior(v string) (any, error) {
     result := ACCEPTIFMFADONEBYFEDERATEDIDP_FEDERATEDIDPMFABEHAVIOR
     switch v {
         case "acceptIfMfaDoneByFederatedIdp":
@@ -37,4 +37,7 @@ func SerializeFederatedIdpMfaBehavior(values []FederatedIdpMfaBehavior) []string
         result[i] = v.String()
     }
     return result
+}
+func (i FederatedIdpMfaBehavior) isMultiValue() bool {
+    return false
 }

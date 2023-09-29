@@ -2,7 +2,7 @@ package models
 import (
     "errors"
 )
-// Provides operations to manage the collection of agreement entities.
+// 
 type DataSubjectType int
 
 const (
@@ -20,7 +20,7 @@ const (
 func (i DataSubjectType) String() string {
     return []string{"customer", "currentEmployee", "formerEmployee", "prospectiveEmployee", "student", "teacher", "faculty", "other", "unknownFutureValue"}[i]
 }
-func ParseDataSubjectType(v string) (interface{}, error) {
+func ParseDataSubjectType(v string) (any, error) {
     result := CUSTOMER_DATASUBJECTTYPE
     switch v {
         case "customer":
@@ -52,4 +52,7 @@ func SerializeDataSubjectType(values []DataSubjectType) []string {
         result[i] = v.String()
     }
     return result
+}
+func (i DataSubjectType) isMultiValue() bool {
+    return false
 }

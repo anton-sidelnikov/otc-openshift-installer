@@ -8,7 +8,7 @@ import (
 type SearchEntity struct {
     Entity
 }
-// NewSearchEntity instantiates a new SearchEntity and sets the default values.
+// NewSearchEntity instantiates a new searchEntity and sets the default values.
 func NewSearchEntity()(*SearchEntity) {
     m := &SearchEntity{
         Entity: *NewEntity(),
@@ -31,4 +31,9 @@ func (m *SearchEntity) Serialize(writer i878a80d2330e89d26896388a3f487eef27b0a0e
         return err
     }
     return nil
+}
+// SearchEntityable 
+type SearchEntityable interface {
+    Entityable
+    i878a80d2330e89d26896388a3f487eef27b0a0e6c010c493bf80be1452208f91.Parsable
 }

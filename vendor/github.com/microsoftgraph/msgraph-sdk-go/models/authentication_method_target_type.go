@@ -2,7 +2,7 @@ package models
 import (
     "errors"
 )
-// Provides operations to manage the collection of authenticationMethodConfiguration entities.
+// 
 type AuthenticationMethodTargetType int
 
 const (
@@ -14,7 +14,7 @@ const (
 func (i AuthenticationMethodTargetType) String() string {
     return []string{"user", "group", "unknownFutureValue"}[i]
 }
-func ParseAuthenticationMethodTargetType(v string) (interface{}, error) {
+func ParseAuthenticationMethodTargetType(v string) (any, error) {
     result := USER_AUTHENTICATIONMETHODTARGETTYPE
     switch v {
         case "user":
@@ -34,4 +34,7 @@ func SerializeAuthenticationMethodTargetType(values []AuthenticationMethodTarget
         result[i] = v.String()
     }
     return result
+}
+func (i AuthenticationMethodTargetType) isMultiValue() bool {
+    return false
 }

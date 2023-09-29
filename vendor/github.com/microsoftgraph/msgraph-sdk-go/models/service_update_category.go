@@ -2,7 +2,7 @@ package models
 import (
     "errors"
 )
-// Provides operations to manage the admin singleton.
+// 
 type ServiceUpdateCategory int
 
 const (
@@ -15,7 +15,7 @@ const (
 func (i ServiceUpdateCategory) String() string {
     return []string{"preventOrFixIssue", "planForChange", "stayInformed", "unknownFutureValue"}[i]
 }
-func ParseServiceUpdateCategory(v string) (interface{}, error) {
+func ParseServiceUpdateCategory(v string) (any, error) {
     result := PREVENTORFIXISSUE_SERVICEUPDATECATEGORY
     switch v {
         case "preventOrFixIssue":
@@ -37,4 +37,7 @@ func SerializeServiceUpdateCategory(values []ServiceUpdateCategory) []string {
         result[i] = v.String()
     }
     return result
+}
+func (i ServiceUpdateCategory) isMultiValue() bool {
+    return false
 }

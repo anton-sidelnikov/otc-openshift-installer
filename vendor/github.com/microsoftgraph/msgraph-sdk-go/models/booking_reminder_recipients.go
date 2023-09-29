@@ -2,7 +2,7 @@ package models
 import (
     "errors"
 )
-// Provides operations to manage the collection of agreement entities.
+// 
 type BookingReminderRecipients int
 
 const (
@@ -15,7 +15,7 @@ const (
 func (i BookingReminderRecipients) String() string {
     return []string{"allAttendees", "staff", "customer", "unknownFutureValue"}[i]
 }
-func ParseBookingReminderRecipients(v string) (interface{}, error) {
+func ParseBookingReminderRecipients(v string) (any, error) {
     result := ALLATTENDEES_BOOKINGREMINDERRECIPIENTS
     switch v {
         case "allAttendees":
@@ -37,4 +37,7 @@ func SerializeBookingReminderRecipients(values []BookingReminderRecipients) []st
         result[i] = v.String()
     }
     return result
+}
+func (i BookingReminderRecipients) isMultiValue() bool {
+    return false
 }

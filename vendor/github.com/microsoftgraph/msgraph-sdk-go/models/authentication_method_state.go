@@ -2,7 +2,7 @@ package models
 import (
     "errors"
 )
-// Provides operations to manage the collection of authenticationMethodConfiguration entities.
+// 
 type AuthenticationMethodState int
 
 const (
@@ -13,7 +13,7 @@ const (
 func (i AuthenticationMethodState) String() string {
     return []string{"enabled", "disabled"}[i]
 }
-func ParseAuthenticationMethodState(v string) (interface{}, error) {
+func ParseAuthenticationMethodState(v string) (any, error) {
     result := ENABLED_AUTHENTICATIONMETHODSTATE
     switch v {
         case "enabled":
@@ -31,4 +31,7 @@ func SerializeAuthenticationMethodState(values []AuthenticationMethodState) []st
         result[i] = v.String()
     }
     return result
+}
+func (i AuthenticationMethodState) isMultiValue() bool {
+    return false
 }

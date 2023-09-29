@@ -2,7 +2,7 @@ package models
 import (
     "errors"
 )
-// Provides operations to manage the collection of agreement entities.
+// 
 type BookingsAvailabilityStatus int
 
 const (
@@ -16,7 +16,7 @@ const (
 func (i BookingsAvailabilityStatus) String() string {
     return []string{"available", "busy", "slotsAvailable", "outOfOffice", "unknownFutureValue"}[i]
 }
-func ParseBookingsAvailabilityStatus(v string) (interface{}, error) {
+func ParseBookingsAvailabilityStatus(v string) (any, error) {
     result := AVAILABLE_BOOKINGSAVAILABILITYSTATUS
     switch v {
         case "available":
@@ -40,4 +40,7 @@ func SerializeBookingsAvailabilityStatus(values []BookingsAvailabilityStatus) []
         result[i] = v.String()
     }
     return result
+}
+func (i BookingsAvailabilityStatus) isMultiValue() bool {
+    return false
 }

@@ -77,8 +77,10 @@ type CreateVpcRequest struct {
 	Description          string           `position:"Query" name:"Description"`
 	VpcName              string           `position:"Query" name:"VpcName"`
 	ResourceGroupId      string           `position:"Query" name:"ResourceGroupId"`
+	Ipv4IpamPoolId       string           `position:"Query" name:"Ipv4IpamPoolId"`
 	Ipv6Isp              string           `position:"Query" name:"Ipv6Isp"`
 	UserCidr             string           `position:"Query" name:"UserCidr"`
+	Tag                  *[]CreateVpcTag  `position:"Query" name:"Tag"  type:"Repeated"`
 	DryRun               requests.Boolean `position:"Query" name:"DryRun"`
 	ResourceOwnerAccount string           `position:"Query" name:"ResourceOwnerAccount"`
 	OwnerAccount         string           `position:"Query" name:"OwnerAccount"`
@@ -87,12 +89,18 @@ type CreateVpcRequest struct {
 	CidrBlock            string           `position:"Query" name:"CidrBlock"`
 }
 
+// CreateVpcTag is a repeated param struct in CreateVpcRequest
+type CreateVpcTag struct {
+	Value string `name:"Value"`
+	Key   string `name:"Key"`
+}
+
 // CreateVpcResponse is the response struct for api CreateVpc
 type CreateVpcResponse struct {
 	*responses.BaseResponse
-	RequestId       string `json:"RequestId" xml:"RequestId"`
 	VpcId           string `json:"VpcId" xml:"VpcId"`
 	VRouterId       string `json:"VRouterId" xml:"VRouterId"`
+	RequestId       string `json:"RequestId" xml:"RequestId"`
 	RouteTableId    string `json:"RouteTableId" xml:"RouteTableId"`
 	ResourceGroupId string `json:"ResourceGroupId" xml:"ResourceGroupId"`
 }

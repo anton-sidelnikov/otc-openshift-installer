@@ -3,6 +3,7 @@ package nethttplibrary
 import (
 	"context"
 	"fmt"
+	"io"
 	"math"
 	nethttp "net/http"
 	"strconv"
@@ -133,6 +134,12 @@ func (middleware RetryHandler) retryRequest(ctx context.Context, pipeline Pipeli
 		delay := middleware.getRetryDelay(req, resp, options, executionCount)
 		cumulativeDelay += delay
 		req.Header.Set(retryAttemptHeader, strconv.Itoa(executionCount))
+		if req.Body != nil {
+			s, ok := req.Body.(io.Seeker)
+			if ok {
+				s.Seek(0, io.SeekStart)
+			}
+		}
 		if observabilityName != "" {
 			ctx, span := otel.GetTracerProvider().Tracer(observabilityName).Start(ctx, "RetryHandler_Intercept - attempt "+fmt.Sprint(executionCount))
 			span.SetAttributes(attribute.Int("http.retry_count", executionCount),
@@ -141,7 +148,15 @@ func (middleware RetryHandler) retryRequest(ctx context.Context, pipeline Pipeli
 			defer span.End()
 			req = req.WithContext(ctx)
 		}
-		time.Sleep(delay)
+		t := time.NewTimer(delay)
+		select {
+		case <-ctx.Done():
+			// Return without retrying if the context was cancelled.
+			return nil, ctx.Err()
+
+			// Leaving this case empty causes it to exit the switch-block.
+		case <-t.C:
+		}
 		response, err := pipeline.Next(req, middlewareIndex)
 		if err != nil {
 			return response, err

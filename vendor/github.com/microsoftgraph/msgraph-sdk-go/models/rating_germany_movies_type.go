@@ -2,7 +2,7 @@ package models
 import (
     "errors"
 )
-// Provides operations to manage the collection of agreement entities.
+// Movies rating labels in Germany
 type RatingGermanyMoviesType int
 
 const (
@@ -25,7 +25,7 @@ const (
 func (i RatingGermanyMoviesType) String() string {
     return []string{"allAllowed", "allBlocked", "general", "agesAbove6", "agesAbove12", "agesAbove16", "adults"}[i]
 }
-func ParseRatingGermanyMoviesType(v string) (interface{}, error) {
+func ParseRatingGermanyMoviesType(v string) (any, error) {
     result := ALLALLOWED_RATINGGERMANYMOVIESTYPE
     switch v {
         case "allAllowed":
@@ -53,4 +53,7 @@ func SerializeRatingGermanyMoviesType(values []RatingGermanyMoviesType) []string
         result[i] = v.String()
     }
     return result
+}
+func (i RatingGermanyMoviesType) isMultiValue() bool {
+    return false
 }

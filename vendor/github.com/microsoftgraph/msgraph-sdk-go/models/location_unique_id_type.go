@@ -2,7 +2,7 @@ package models
 import (
     "errors"
 )
-// Provides operations to manage the collection of agreement entities.
+// 
 type LocationUniqueIdType int
 
 const (
@@ -16,7 +16,7 @@ const (
 func (i LocationUniqueIdType) String() string {
     return []string{"unknown", "locationStore", "directory", "private", "bing"}[i]
 }
-func ParseLocationUniqueIdType(v string) (interface{}, error) {
+func ParseLocationUniqueIdType(v string) (any, error) {
     result := UNKNOWN_LOCATIONUNIQUEIDTYPE
     switch v {
         case "unknown":
@@ -40,4 +40,7 @@ func SerializeLocationUniqueIdType(values []LocationUniqueIdType) []string {
         result[i] = v.String()
     }
     return result
+}
+func (i LocationUniqueIdType) isMultiValue() bool {
+    return false
 }

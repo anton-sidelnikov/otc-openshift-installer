@@ -2,7 +2,7 @@ package models
 import (
     "errors"
 )
-// Provides operations to manage the collection of agreement entities.
+// 
 type AnswerInputType int
 
 const (
@@ -14,7 +14,7 @@ const (
 func (i AnswerInputType) String() string {
     return []string{"text", "radioButton", "unknownFutureValue"}[i]
 }
-func ParseAnswerInputType(v string) (interface{}, error) {
+func ParseAnswerInputType(v string) (any, error) {
     result := TEXT_ANSWERINPUTTYPE
     switch v {
         case "text":
@@ -34,4 +34,7 @@ func SerializeAnswerInputType(values []AnswerInputType) []string {
         result[i] = v.String()
     }
     return result
+}
+func (i AnswerInputType) isMultiValue() bool {
+    return false
 }

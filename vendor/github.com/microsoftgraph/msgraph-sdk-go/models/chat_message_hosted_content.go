@@ -8,7 +8,7 @@ import (
 type ChatMessageHostedContent struct {
     TeamworkHostedContent
 }
-// NewChatMessageHostedContent instantiates a new ChatMessageHostedContent and sets the default values.
+// NewChatMessageHostedContent instantiates a new chatMessageHostedContent and sets the default values.
 func NewChatMessageHostedContent()(*ChatMessageHostedContent) {
     m := &ChatMessageHostedContent{
         TeamworkHostedContent: *NewTeamworkHostedContent(),
@@ -31,4 +31,9 @@ func (m *ChatMessageHostedContent) Serialize(writer i878a80d2330e89d26896388a3f4
         return err
     }
     return nil
+}
+// ChatMessageHostedContentable 
+type ChatMessageHostedContentable interface {
+    i878a80d2330e89d26896388a3f487eef27b0a0e6c010c493bf80be1452208f91.Parsable
+    TeamworkHostedContentable
 }

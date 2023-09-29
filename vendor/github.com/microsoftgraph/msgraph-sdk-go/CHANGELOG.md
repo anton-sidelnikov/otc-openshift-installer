@@ -11,6 +11,240 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+## [1.19.0]- 2023-09-20
+
+### Changed
+
+- Weekly generation.
+
+## [1.18.0]- 2023-09-12
+
+### Changed
+
+- Weekly generation.
+
+## [1.17.0]- 2023-08-30
+
+### Changed
+
+- Weekly generation.
+
+## [1.16.0]- 2023-08-23
+
+### Changed
+
+- Weekly generation.
+
+## [1.15.0]- 2023-08-21
+
+### Changed
+
+- Weekly generation.
+
+## [1.14.0]- 2023-08-02
+
+### Changed
+
+- Weekly generation.
+
+## [1.13.0]- 2023-07-28
+
+### Changed
+
+- Weekly generation.
+
+## [1.12.0]- 2023-07-19
+
+### Changed
+
+- Weekly generation.
+
+## [1.11.0]- 2023-07-12
+
+### Changed
+
+- Weekly generation.
+
+## [1.10.0]- 2023-07-05
+
+### Changed
+
+- Weekly generation.
+
+## [1.9.0]- 2023-07-03
+
+### Changed
+
+- Weekly generation.
+
+## [1.8.0]- 2023-06-20
+
+### Changed
+
+- Weekly generation.
+
+## [1.7.0]- 2023-06-14
+
+### Changed
+
+- Weekly generation.
+
+## [1.6.0]- 2023-06-08
+
+### Changed
+
+- Returns deleted change notification,  lifecycle event and resource data package in core.
+
+## [1.5.0]- 2023-06-08
+
+### Changed
+
+- Weekly generation.
+
+## [1.4.0]- 2023-05-30
+
+### Changed
+
+- Weekly generation.
+
+## [1.3.0]- 2023-05-23
+
+### Changed
+
+- Weekly generation.
+
+## [1.2.0]- 2023-05-16
+
+### Changed
+
+- Weekly generation.
+
+## [1.1.0]- 2023-05-09
+
+### Changed
+
+- Weekly generation.
+
+## [1.0.0]- 2023-05-03
+
+### Changed
+
+- Weekly generation - GA release.
+
+## [0.64.0] - 2023-04-25
+
+### Changed
+
+- Weekly generation.
+
+## [0.63.0] - 2023-04-18
+
+### Changed
+
+- BREAKING: `client.UsersById("id").MessagesById("id").Get(context.Background())` now becomes `client.Users().ByUserId("id").Messages().ByMessageId("id").Get(context.Background())`
+- Weekly generation.
+
+## [0.62.0] - 2023-04-11
+
+### Changed
+
+- Weekly generation.
+
+## [0.61.0] - 2023-04-06
+
+### Changed
+
+- Weekly generation.
+- Restored support for APIs under /education/me.
+
+## [0.60.0] - 2023-03-28
+
+### Changed
+
+- Weekly generation
+
+## [0.59.0] - 2023-03-21
+
+### Changed
+
+- Weekly generation
+
+## [0.58.0] - 2023-03-14
+
+### Changed
+
+- Weekly generation
+
+## [0.57.0] - 2023-03-10
+
+### Changed
+
+- Weekly generation
+
+## [0.56.0] - 2023-03-03
+
+### Changed
+
+- Weekly generation
+- shimmed "me" package, backing store , uuid fix and reduced file count.
+
+## [0.55.0] - 2023-02-21
+
+### Changed
+
+- Weekly generation.
+
+## [0.54.0] - 2023-02-07
+
+### Changed
+
+- Weekly generation.
+- BREAKING: OData Functions/Actions now use their full name e.g. GetEffectivePermissions is now MicrosoftGraphGetEffectivePermissions.
+
+## [0.53.0] - 2023-01-24
+
+### Changed
+
+- Weekly generation.
+- Updated dependencies.
+
+## [0.52.0] - 2023-01-17
+
+### Changed
+
+- Weekly generation.
+
+## [0.51.0] - 2023-01-10
+
+### Changed
+
+- Weekly generation.
+- BREAKING: createXXXRequestInformation methods are now named toXXXRequestInformation.
+
+## [0.50.0] - 2022-12-28
+
+### Changed
+
+- Weekly generation.
+
+## [0.49.0] - 2022-12-14
+
+### Added
+
+- BREAKING: added support for multi-valued request headers.
+
+### Changed
+
+- BREAKING: shortens the type names by removing the redudant first level path segment.
+
+## [0.48.0] - 2022-12-02
+
+### Changed
+
+- BREAKING: the package structure has been flattened, making most imports much shorter.
+- Significant improvements in build time.
+- Weekly generation.
+
 ## [0.47.0] - 2022-11-22
 
 ### Changed

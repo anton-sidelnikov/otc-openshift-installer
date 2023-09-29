@@ -2,7 +2,7 @@ package models
 import (
     "errors"
 )
-// Provides operations to manage the collection of agreement entities.
+// Mobile device management authority.
 type MdmAuthority int
 
 const (
@@ -19,7 +19,7 @@ const (
 func (i MdmAuthority) String() string {
     return []string{"unknown", "intune", "sccm", "office365"}[i]
 }
-func ParseMdmAuthority(v string) (interface{}, error) {
+func ParseMdmAuthority(v string) (any, error) {
     result := UNKNOWN_MDMAUTHORITY
     switch v {
         case "unknown":
@@ -41,4 +41,7 @@ func SerializeMdmAuthority(values []MdmAuthority) []string {
         result[i] = v.String()
     }
     return result
+}
+func (i MdmAuthority) isMultiValue() bool {
+    return false
 }

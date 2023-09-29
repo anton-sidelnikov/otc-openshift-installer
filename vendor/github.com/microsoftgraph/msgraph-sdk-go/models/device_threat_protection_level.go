@@ -2,7 +2,7 @@ package models
 import (
     "errors"
 )
-// Provides operations to manage the collection of agreement entities.
+// Device threat protection levels for the Device Threat Protection API.
 type DeviceThreatProtectionLevel int
 
 const (
@@ -23,7 +23,7 @@ const (
 func (i DeviceThreatProtectionLevel) String() string {
     return []string{"unavailable", "secured", "low", "medium", "high", "notSet"}[i]
 }
-func ParseDeviceThreatProtectionLevel(v string) (interface{}, error) {
+func ParseDeviceThreatProtectionLevel(v string) (any, error) {
     result := UNAVAILABLE_DEVICETHREATPROTECTIONLEVEL
     switch v {
         case "unavailable":
@@ -49,4 +49,7 @@ func SerializeDeviceThreatProtectionLevel(values []DeviceThreatProtectionLevel) 
         result[i] = v.String()
     }
     return result
+}
+func (i DeviceThreatProtectionLevel) isMultiValue() bool {
+    return false
 }

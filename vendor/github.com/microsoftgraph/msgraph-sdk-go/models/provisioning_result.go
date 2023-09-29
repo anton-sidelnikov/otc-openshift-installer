@@ -2,7 +2,7 @@ package models
 import (
     "errors"
 )
-// Provides operations to manage the collection of agreement entities.
+// 
 type ProvisioningResult int
 
 const (
@@ -16,7 +16,7 @@ const (
 func (i ProvisioningResult) String() string {
     return []string{"success", "failure", "skipped", "warning", "unknownFutureValue"}[i]
 }
-func ParseProvisioningResult(v string) (interface{}, error) {
+func ParseProvisioningResult(v string) (any, error) {
     result := SUCCESS_PROVISIONINGRESULT
     switch v {
         case "success":
@@ -40,4 +40,7 @@ func SerializeProvisioningResult(values []ProvisioningResult) []string {
         result[i] = v.String()
     }
     return result
+}
+func (i ProvisioningResult) isMultiValue() bool {
+    return false
 }

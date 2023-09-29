@@ -1,18 +1,35 @@
 # GCI
 
-GCI, a tool that controls golang package import order and makes it always deterministic.
+GCI, a tool that controls Go package import order and makes it always deterministic.
 
 The desired output format is highly configurable and allows for more custom formatting than `goimport` does.
 
 GCI considers a import block based on AST as below:
+
 ```
 Doc
 Name Path Comment
 ```
-All comments will keep as they were, except the independent comment blocks(line breaks before and after).
+
+All comments will keep as they were, except the isolated comment blocks.
+
+The isolated comment blocks like below:
+
+```
+import (
+  "fmt"
+  // this line is isolated comment
+
+  // those lines belong to one
+  // isolated comment blocks
+
+  "github.com/daixiang0/gci"
+)
+```
 
 GCI splits all import blocks into different sections, now support five section type:
-- standard: Golang official imports, like "fmt"
+
+- standard: Go official imports, like "fmt"
 - custom: Custom section, use full and the longest match (match full string first, if multiple matches, use the longest one)
 - default: All rest import blocks
 - blank: Put blank imports together in a separate group
@@ -40,7 +57,7 @@ go install github.com/daixiang0/gci@latest
 You may also specify a specific version, for example:
 
 ```shell
-go install github.com/daixiang0/gci@v0.6.0
+go install github.com/daixiang0/gci@v0.11.2
 ```
 
 ## Usage
@@ -48,7 +65,14 @@ go install github.com/daixiang0/gci@v0.6.0
 Now GCI provides two command line methods, mainly for backward compatibility.
 
 ### New style
+
 GCI supports three modes of operation
+
+> **Note**
+>
+> Since v0.10.0, the `-s` and `--section` flag can only be used multiple times to specify multiple sections.
+> For example, you could use `-s standard,default` before, but now you must use `-s standard -s default`.
+> This breaking change makes it possible for the project to support specifying multiple custom prefixes. (Please see below.)
 
 ```shell
 $ gci print -h
@@ -61,15 +85,17 @@ Aliases:
   print, output
 
 Flags:
-  -d, --debug             Enables debug output from the formatter
-  -h, --help              help for write
-  -s, --section strings   Sections define how inputs will be processed. Section names are case-insensitive and may contain parameters in (). The section order is standard > default > custom > blank > dot. The default value is [standard,default].
-                          standard - standard section that Golang provides officially, like "fmt"
-                          Prefix(github.com/daixiang0) - custom section, groups all imports with the specified Prefix. Imports will be matched to the longest Prefix.
-                          default - default section, contains all rest imports
-                          blank - blank section, contains all blank imports. This section is not presed unless explicitly enabled. (default [standard,default])
-      --skip-generated    Skip generated files
-      --custom-order      Enable custom order of sections. If specified, make the section order the same as your configuration order. The default order is standard > default > custom > blank > dot.
+      --custom-order          Enable custom order of sections
+  -d, --debug                 Enables debug output from the formatter
+  -h, --help                  help for print
+  -s, --section stringArray   Sections define how inputs will be processed. Section names are case-insensitive and may contain parameters in (). The section order is standard > default > custom > blank > dot. The default value is [standard,default].
+                              standard - standard section that Go provides officially, like "fmt"
+                              Prefix(github.com/daixiang0) - custom section, groups all imports with the specified Prefix. Imports will be matched to the longest Prefix. Multiple custom prefixes may be provided, they will be rendered as distinct sections separated by newline. You can regroup multiple prefixes by separating them with comma: Prefix(github.com/daixiang0,gitlab.com/daixiang0,daixiang0)
+                              default - default section, contains all rest imports
+                              blank - blank section, contains all blank imports.
+                              dot - dot section, contains all dot imports. (default [standard,default])
+      --skip-generated        Skip generated files
+      --skip-vendor           Skip files inside vendor directory
 ```
 
 ```shell
@@ -83,16 +109,38 @@ Aliases:
   write, overwrite
 
 Flags:
-  -d, --debug             Enables debug output from the formatter
-  -h, --help              help for write
-  -s, --section strings   Sections define how inputs will be processed. Section names are case-insensitive and may contain parameters in (). The section order is standard > default > custom > blank > dot. The default value is [standard,default].
-                          standard - standard section thatolang provides officially, like "fmt"
-                          Prefix(github.com/daixiang0) - custom section, groups all imports with the specified Prefix. Imports will be matched to the longest Prefix.
-                          default - default section, contains all rest imports
-                          blank - blank section, contains all blank imports. This section is not presed unless explicitly enabled.
-                          dot - dot section, contains all dot imports. This section is not presed unless explicitly enabled. (default [standard,default])
-      --skip-generated    Skip generated files
-      --custom-order      Enable custom order of sections. If specified, make the section order the same as your configuration order. The default order is standard > default > custom > blank > dot.
+      --custom-order          Enable custom order of sections
+  -d, --debug                 Enables debug output from the formatter
+  -h, --help                  help for write
+  -s, --section stringArray   Sections define how inputs will be processed. Section names are case-insensitive and may contain parameters in (). The section order is standard > default > custom > blank > dot. The default value is [standard,default].
+                              standard - standard section that Go provides officially, like "fmt"
+                              Prefix(github.com/daixiang0) - custom section, groups all imports with the specified Prefix. Imports will be matched to the longest Prefix. Multiple custom prefixes may be provided, they will be rendered as distinct sections separated by newline. You can regroup multiple prefixes by separating them with comma: Prefix(github.com/daixiang0,gitlab.com/daixiang0,daixiang0)
+                              default - default section, contains all rest imports
+                              blank - blank section, contains all blank imports.
+                              dot - dot section, contains all dot imports. (default [standard,default])
+      --skip-generated        Skip generated files
+      --skip-vendor           Skip files inside vendor directory
+```
+
+```shell
+$ gci list -h
+Prints the filenames that need to be formatted. If you want to show the diff use diff instead, and if you want to apply the changes use write instead
+
+Usage:
+  gci list path... [flags]
+
+Flags:
+      --custom-order          Enable custom order of sections
+  -d, --debug                 Enables debug output from the formatter
+  -h, --help                  help for list
+  -s, --section stringArray   Sections define how inputs will be processed. Section names are case-insensitive and may contain parameters in (). The section order is standard > default > custom > blank > dot. The default value is [standard,default].
+                              standard - standard section that Go provides officially, like "fmt"
+                              Prefix(github.com/daixiang0) - custom section, groups all imports with the specified Prefix. Imports will be matched to the longest Prefix. Multiple custom prefixes may be provided, they will be rendered as distinct sections separated by newline. You can regroup multiple prefixes by separating them with comma: Prefix(github.com/daixiang0,gitlab.com/daixiang0,daixiang0)
+                              default - default section, contains all rest imports
+                              blank - blank section, contains all blank imports.
+                              dot - dot section, contains all dot imports. (default [standard,default])
+      --skip-generated        Skip generated files
+      --skip-vendor           Skip files inside vendor directory
 ```
 
 ```shell
@@ -103,23 +151,36 @@ Usage:
   gci diff path... [flags]
 
 Flags:
-  -d, --debug             Enables debug output from the formatter
-  -h, --help              help for write
-  -s, --section strings   Sections define how inputs will be processed. Section names are case-insensitive and may contain parameters in (). The section order is standard > default > custom > blank > dot. The default value is [standard,default].
-                          standard - standard section thatolang provides officially, like "fmt"
-                          Prefix(github.com/daixiang0) - custom section, groups all imports with the specified Prefix. Imports will be matched to the longest Prefix.
-                          default - default section, contains all rest imports
-                          blank - blank section, contains all blank imports. This section is not presed unless explicitly enabled.
-                          dot - dot section, contains all dot imports. This section is not presed unless explicitly enabled. (default [standard,default])
-      --skip-generated    Skip generated files
-      --custom-order      Enable custom order of sections. If specified, make the section order the same as your configuration order. The default order is standard > default > custom > blank > dot.
+      --custom-order          Enable custom order of sections
+  -d, --debug                 Enables debug output from the formatter
+  -h, --help                  help for diff
+  -s, --section stringArray   Sections define how inputs will be processed. Section names are case-insensitive and may contain parameters in (). The section order is standard > default > custom > blank > dot. The default value is [standard,default].
+                              standard - standard section that Go provides officially, like "fmt"
+                              Prefix(github.com/daixiang0) - custom section, groups all imports with the specified Prefix. Imports will be matched to the longest Prefix. Multiple custom prefixes may be provided, they will be rendered as distinct sections separated by newline. You can regroup multiple prefixes by separating them with comma: Prefix(github.com/daixiang0,gitlab.com/daixiang0,daixiang0)
+                              default - default section, contains all rest imports
+                              blank - blank section, contains all blank imports.
+                              dot - dot section, contains all dot imports. (default [standard,default])
+      --skip-generated        Skip generated files
+      --skip-vendor           Skip files inside vendor directory
 ```
 
 ### Old style
 
 ```shell
+Gci enables automatic formatting of imports in a deterministic manner
+If you want to integrate this as part of your CI take a look at golangci-lint.
+
 Usage:
   gci [-diff | -write] [--local localPackageURLs] path... [flags]
+  gci [command]
+
+Available Commands:
+  completion  Generate the autocompletion script for the specified shell
+  diff        Prints a git style diff to STDOUT
+  help        Help about any command
+  list        Prints filenames that need to be formatted to STDOUT
+  print       Outputs the formatted file to STDOUT
+  write       Formats the specified files in-place
 
 Flags:
   -d, --diff            display diffs instead of rewriting files
@@ -128,6 +189,7 @@ Flags:
   -v, --version         version for gci
   -w, --write           write result to (source) file instead of stdout
 
+Use "gci [command] --help" for more information about a command.
 ```
 
 **Note**::
@@ -144,9 +206,9 @@ Run `gci write -s standard -s default -s "prefix(github.com/daixiang0/gci)" main
 package main
 import (
   "golang.org/x/tools"
-  
+
   "fmt"
-  
+
   "github.com/daixiang0/gci"
 )
 ```
