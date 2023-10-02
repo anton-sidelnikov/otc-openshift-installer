@@ -6,22 +6,22 @@ import (
 
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
+	"github.com/anton-sidelnikov/otc-openshift-installer/pkg/ipnet"
+	"github.com/anton-sidelnikov/otc-openshift-installer/pkg/types/alibabacloud"
+	"github.com/anton-sidelnikov/otc-openshift-installer/pkg/types/aws"
+	"github.com/anton-sidelnikov/otc-openshift-installer/pkg/types/azure"
+	"github.com/anton-sidelnikov/otc-openshift-installer/pkg/types/baremetal"
+	"github.com/anton-sidelnikov/otc-openshift-installer/pkg/types/external"
+	"github.com/anton-sidelnikov/otc-openshift-installer/pkg/types/gcp"
+	"github.com/anton-sidelnikov/otc-openshift-installer/pkg/types/ibmcloud"
+	"github.com/anton-sidelnikov/otc-openshift-installer/pkg/types/libvirt"
+	"github.com/anton-sidelnikov/otc-openshift-installer/pkg/types/none"
+	"github.com/anton-sidelnikov/otc-openshift-installer/pkg/types/nutanix"
+	"github.com/anton-sidelnikov/otc-openshift-installer/pkg/types/openstack"
+	"github.com/anton-sidelnikov/otc-openshift-installer/pkg/types/ovirt"
+	"github.com/anton-sidelnikov/otc-openshift-installer/pkg/types/powervs"
+	"github.com/anton-sidelnikov/otc-openshift-installer/pkg/types/vsphere"
 	configv1 "github.com/openshift/api/config/v1"
-	"github.com/openshift/installer/pkg/ipnet"
-	"github.com/openshift/installer/pkg/types/alibabacloud"
-	"github.com/openshift/installer/pkg/types/aws"
-	"github.com/openshift/installer/pkg/types/azure"
-	"github.com/openshift/installer/pkg/types/baremetal"
-	"github.com/openshift/installer/pkg/types/external"
-	"github.com/openshift/installer/pkg/types/gcp"
-	"github.com/openshift/installer/pkg/types/ibmcloud"
-	"github.com/openshift/installer/pkg/types/libvirt"
-	"github.com/openshift/installer/pkg/types/none"
-	"github.com/openshift/installer/pkg/types/nutanix"
-	"github.com/openshift/installer/pkg/types/openstack"
-	"github.com/openshift/installer/pkg/types/ovirt"
-	"github.com/openshift/installer/pkg/types/powervs"
-	"github.com/openshift/installer/pkg/types/vsphere"
 )
 
 const (
@@ -37,20 +37,12 @@ var (
 	// platforms presented to the user in the interactive wizard.
 	PlatformNames = []string{
 		alibabacloud.Name,
-		aws.Name,
-		azure.Name,
-		gcp.Name,
-		ibmcloud.Name,
-		nutanix.Name,
 		openstack.Name,
-		powervs.Name,
-		vsphere.Name,
 	}
 	// HiddenPlatformNames is a slice with all the
 	// hidden-but-supported platform names. This list isn't presented
 	// to the user in the interactive wizard.
 	HiddenPlatformNames = []string{
-		baremetal.Name,
 		external.Name,
 		none.Name,
 	}

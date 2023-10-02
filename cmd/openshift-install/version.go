@@ -6,8 +6,8 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/openshift/installer/pkg/asset/releaseimage"
-	"github.com/openshift/installer/pkg/version"
+	"github.com/anton-sidelnikov/otc-openshift-installer/pkg/asset/releaseimage"
+	"github.com/anton-sidelnikov/otc-openshift-installer/pkg/version"
 )
 
 func newVersionCmd() *cobra.Command {

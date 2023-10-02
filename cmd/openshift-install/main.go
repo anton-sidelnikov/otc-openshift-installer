@@ -51,7 +51,6 @@ func installerMain() {
 		newGraphCmd(),
 		newCoreOSCmd(),
 		newCompletionCmd(),
-		newMigrateCmd(),
 		newExplainCmd(),
 		newAgentCmd(),
 	} {

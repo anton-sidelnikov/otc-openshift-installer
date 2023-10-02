@@ -3,15 +3,15 @@ package main
 import (
 	"github.com/spf13/cobra"
 
-	"github.com/openshift/installer/cmd/openshift-install/agent"
-	"github.com/openshift/installer/pkg/asset"
-	"github.com/openshift/installer/pkg/asset/agent/agentconfig"
-	"github.com/openshift/installer/pkg/asset/agent/configimage"
-	"github.com/openshift/installer/pkg/asset/agent/image"
-	"github.com/openshift/installer/pkg/asset/agent/manifests"
-	"github.com/openshift/installer/pkg/asset/agent/mirror"
-	"github.com/openshift/installer/pkg/asset/kubeconfig"
-	"github.com/openshift/installer/pkg/asset/password"
+	"github.com/anton-sidelnikov/otc-openshift-installer/cmd/openshift-install/agent"
+	"github.com/anton-sidelnikov/otc-openshift-installer/pkg/asset"
+	"github.com/anton-sidelnikov/otc-openshift-installer/pkg/asset/agent/agentconfig"
+	"github.com/anton-sidelnikov/otc-openshift-installer/pkg/asset/agent/configimage"
+	"github.com/anton-sidelnikov/otc-openshift-installer/pkg/asset/agent/image"
+	"github.com/anton-sidelnikov/otc-openshift-installer/pkg/asset/agent/manifests"
+	"github.com/anton-sidelnikov/otc-openshift-installer/pkg/asset/agent/mirror"
+	"github.com/anton-sidelnikov/otc-openshift-installer/pkg/asset/kubeconfig"
+	"github.com/anton-sidelnikov/otc-openshift-installer/pkg/asset/password"
 )
 
 func newAgentCmd() *cobra.Command {

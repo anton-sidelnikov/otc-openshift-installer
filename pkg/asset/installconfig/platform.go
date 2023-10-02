@@ -8,33 +8,33 @@ import (
 	"github.com/AlecAivazis/survey/v2/core"
 	"github.com/pkg/errors"
 
-	"github.com/openshift/installer/pkg/asset"
-	alibabacloudconfig "github.com/openshift/installer/pkg/asset/installconfig/alibabacloud"
-	awsconfig "github.com/openshift/installer/pkg/asset/installconfig/aws"
-	azureconfig "github.com/openshift/installer/pkg/asset/installconfig/azure"
-	baremetalconfig "github.com/openshift/installer/pkg/asset/installconfig/baremetal"
-	gcpconfig "github.com/openshift/installer/pkg/asset/installconfig/gcp"
-	ibmcloudconfig "github.com/openshift/installer/pkg/asset/installconfig/ibmcloud"
-	libvirtconfig "github.com/openshift/installer/pkg/asset/installconfig/libvirt"
-	nutanixconfig "github.com/openshift/installer/pkg/asset/installconfig/nutanix"
-	openstackconfig "github.com/openshift/installer/pkg/asset/installconfig/openstack"
-	powervsconfig "github.com/openshift/installer/pkg/asset/installconfig/powervs"
-	vsphereconfig "github.com/openshift/installer/pkg/asset/installconfig/vsphere"
-	"github.com/openshift/installer/pkg/types"
-	"github.com/openshift/installer/pkg/types/alibabacloud"
-	"github.com/openshift/installer/pkg/types/aws"
-	"github.com/openshift/installer/pkg/types/azure"
-	"github.com/openshift/installer/pkg/types/baremetal"
-	"github.com/openshift/installer/pkg/types/external"
-	"github.com/openshift/installer/pkg/types/gcp"
-	"github.com/openshift/installer/pkg/types/ibmcloud"
-	"github.com/openshift/installer/pkg/types/libvirt"
-	"github.com/openshift/installer/pkg/types/none"
-	"github.com/openshift/installer/pkg/types/nutanix"
-	"github.com/openshift/installer/pkg/types/openstack"
-	"github.com/openshift/installer/pkg/types/ovirt"
-	"github.com/openshift/installer/pkg/types/powervs"
-	"github.com/openshift/installer/pkg/types/vsphere"
+	"github.com/anton-sidelnikov/otc-openshift-installer/pkg/asset"
+	alibabacloudconfig "github.com/anton-sidelnikov/otc-openshift-installer/pkg/asset/installconfig/alibabacloud"
+	awsconfig "github.com/anton-sidelnikov/otc-openshift-installer/pkg/asset/installconfig/aws"
+	azureconfig "github.com/anton-sidelnikov/otc-openshift-installer/pkg/asset/installconfig/azure"
+	baremetalconfig "github.com/anton-sidelnikov/otc-openshift-installer/pkg/asset/installconfig/baremetal"
+	gcpconfig "github.com/anton-sidelnikov/otc-openshift-installer/pkg/asset/installconfig/gcp"
+	ibmcloudconfig "github.com/anton-sidelnikov/otc-openshift-installer/pkg/asset/installconfig/ibmcloud"
+	libvirtconfig "github.com/anton-sidelnikov/otc-openshift-installer/pkg/asset/installconfig/libvirt"
+	nutanixconfig "github.com/anton-sidelnikov/otc-openshift-installer/pkg/asset/installconfig/nutanix"
+	openstackconfig "github.com/anton-sidelnikov/otc-openshift-installer/pkg/asset/installconfig/openstack"
+	powervsconfig "github.com/anton-sidelnikov/otc-openshift-installer/pkg/asset/installconfig/powervs"
+	vsphereconfig "github.com/anton-sidelnikov/otc-openshift-installer/pkg/asset/installconfig/vsphere"
+	"github.com/anton-sidelnikov/otc-openshift-installer/pkg/types"
+	"github.com/anton-sidelnikov/otc-openshift-installer/pkg/types/alibabacloud"
+	"github.com/anton-sidelnikov/otc-openshift-installer/pkg/types/aws"
+	"github.com/anton-sidelnikov/otc-openshift-installer/pkg/types/azure"
+	"github.com/anton-sidelnikov/otc-openshift-installer/pkg/types/baremetal"
+	"github.com/anton-sidelnikov/otc-openshift-installer/pkg/types/external"
+	"github.com/anton-sidelnikov/otc-openshift-installer/pkg/types/gcp"
+	"github.com/anton-sidelnikov/otc-openshift-installer/pkg/types/ibmcloud"
+	"github.com/anton-sidelnikov/otc-openshift-installer/pkg/types/libvirt"
+	"github.com/anton-sidelnikov/otc-openshift-installer/pkg/types/none"
+	"github.com/anton-sidelnikov/otc-openshift-installer/pkg/types/nutanix"
+	"github.com/anton-sidelnikov/otc-openshift-installer/pkg/types/openstack"
+	"github.com/anton-sidelnikov/otc-openshift-installer/pkg/types/ovirt"
+	"github.com/anton-sidelnikov/otc-openshift-installer/pkg/types/powervs"
+	"github.com/anton-sidelnikov/otc-openshift-installer/pkg/types/vsphere"
 )
 
 // Platform is an asset that queries the user for the platform on which to install
@@ -137,7 +137,7 @@ func (a *platform) queryUserForPlatform() (platform string, err error) {
 			Prompt: &survey.Select{
 				Message: "Platform",
 				Options: types.PlatformNames,
-				Help:    "The platform on which the cluster will run.  For a full list of platforms, including those not supported by this wizard, see https://github.com/openshift/installer",
+				Help:    "The platform on which the cluster will run.  For a full list of platforms, including those not supported by this wizard, see https://github.com/anton-sidelnikov/otc-openshift-installer",
 			},
 			Validate: survey.ComposeValidators(survey.Required, func(ans interface{}) error {
 				choice := ans.(core.OptionAnswer).Value

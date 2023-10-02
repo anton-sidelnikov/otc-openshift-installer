@@ -7,7 +7,7 @@ import (
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 
-	agentpkg "github.com/openshift/installer/pkg/agent"
+	"github.com/anton-sidelnikov/otc-openshift-installer/pkg/agent"
 )
 
 const (
@@ -33,7 +33,7 @@ func NewWaitForCmd() *cobra.Command {
 	return cmd
 }
 
-func handleBootstrapError(cluster *agentpkg.Cluster, err error) {
+func handleBootstrapError(cluster *agent.Cluster, err error) {
 	logrus.Debug("Printing the event list gathered from the Agent Rest API")
 	cluster.PrintInfraEnvRestAPIEventList()
 	err2 := cluster.API.OpenShift.LogClusterOperatorConditions()
@@ -59,12 +59,12 @@ func newWaitForBootstrapCompleteCmd() *cobra.Command {
 			}
 
 			ctx := context.Background()
-			cluster, err := agentpkg.NewCluster(ctx, assetDir)
+			cluster, err := agent.NewCluster(ctx, assetDir)
 			if err != nil {
 				logrus.Exit(exitCodeBootstrapFailed)
 			}
 
-			if err := agentpkg.WaitForBootstrapComplete(cluster); err != nil {
+			if err := agent.WaitForBootstrapComplete(cluster); err != nil {
 				handleBootstrapError(cluster, err)
 			}
 		},
@@ -84,16 +84,16 @@ func newWaitForInstallCompleteCmd() *cobra.Command {
 			}
 
 			ctx := context.Background()
-			cluster, err := agentpkg.NewCluster(ctx, assetDir)
+			cluster, err := agent.NewCluster(ctx, assetDir)
 			if err != nil {
 				logrus.Exit(exitCodeBootstrapFailed)
 			}
 
-			if err := agentpkg.WaitForBootstrapComplete(cluster); err != nil {
+			if err := agent.WaitForBootstrapComplete(cluster); err != nil {
 				handleBootstrapError(cluster, err)
 			}
 
-			if err = agentpkg.WaitForInstallComplete(cluster); err != nil {
+			if err = agent.WaitForInstallComplete(cluster); err != nil {
 				logrus.Error(err)
 				err2 := cluster.API.OpenShift.LogClusterOperatorConditions()
 				if err2 != nil {
