@@ -16,19 +16,15 @@ import (
 	"k8s.io/apimachinery/pkg/util/validation/field"
 	"sigs.k8s.io/yaml"
 
+	"github.com/anton-sidelnikov/otc-openshift-installer/pkg/asset"
+	"github.com/anton-sidelnikov/otc-openshift-installer/pkg/asset/agent"
+	"github.com/anton-sidelnikov/otc-openshift-installer/pkg/ipnet"
+	"github.com/anton-sidelnikov/otc-openshift-installer/pkg/types"
+	"github.com/anton-sidelnikov/otc-openshift-installer/pkg/types/defaults"
 	operv1 "github.com/openshift/api/operator/v1"
 	hiveext "github.com/openshift/assisted-service/api/hiveextension/v1beta1"
 	aiv1beta1 "github.com/openshift/assisted-service/api/v1beta1"
 	hivev1 "github.com/openshift/hive/apis/hive/v1"
-	"github.com/openshift/installer/pkg/asset"
-	"github.com/openshift/installer/pkg/asset/agent"
-	"github.com/openshift/installer/pkg/ipnet"
-	"github.com/openshift/installer/pkg/types"
-	"github.com/openshift/installer/pkg/types/baremetal"
-	"github.com/openshift/installer/pkg/types/defaults"
-	"github.com/openshift/installer/pkg/types/external"
-	"github.com/openshift/installer/pkg/types/none"
-	"github.com/openshift/installer/pkg/types/vsphere"
 )
 
 const (
@@ -155,19 +151,7 @@ func (a *AgentClusterInstall) Generate(dependencies asset.Parents) error {
 					ControlPlaneAgents: int(*installConfig.Config.ControlPlane.Replicas),
 					WorkerAgents:       numberOfWorkers,
 				},
-				PlatformType: agent.HivePlatformType(installConfig.Config.Platform),
 			},
-		}
-
-		if agentClusterInstall.Spec.PlatformType == hiveext.ExternalPlatformType {
-			agentClusterInstall.Spec.ExternalPlatformSpec = &hiveext.ExternalPlatformSpec{
-				PlatformName: installConfig.Config.Platform.External.PlatformName,
-			}
-		}
-
-		if installConfig.Config.Platform.Name() == none.Name || installConfig.Config.Platform.Name() == external.Name {
-			logrus.Debugf("Setting UserManagedNetworking to true for %s platform", installConfig.Config.Platform.Name())
-			agentClusterInstall.Spec.Networking.UserManagedNetworking = swag.Bool(true)
 		}
 
 		icOverridden := false
@@ -179,32 +163,6 @@ func (a *AgentClusterInstall) Generate(dependencies asset.Parents) error {
 
 		if installConfig.Config.Proxy != nil {
 			agentClusterInstall.Spec.Proxy = (*hiveext.Proxy)(getProxy(installConfig))
-		}
-
-		if installConfig.Config.Platform.BareMetal != nil {
-			if len(installConfig.Config.Platform.BareMetal.APIVIPs) > 1 {
-				icOverridden = true
-				icOverrides.Platform = &agentClusterInstallPlatform{
-					BareMetal: &agentClusterInstallOnPremPlatform{
-						APIVIPs:     installConfig.Config.Platform.BareMetal.APIVIPs,
-						IngressVIPs: installConfig.Config.Platform.BareMetal.IngressVIPs,
-					},
-				}
-			}
-			agentClusterInstall.Spec.APIVIP = installConfig.Config.Platform.BareMetal.APIVIPs[0]
-			agentClusterInstall.Spec.IngressVIP = installConfig.Config.Platform.BareMetal.IngressVIPs[0]
-		} else if installConfig.Config.Platform.VSphere != nil {
-			if len(installConfig.Config.Platform.VSphere.APIVIPs) > 1 {
-				icOverridden = true
-				icOverrides.Platform = &agentClusterInstallPlatform{
-					VSphere: &agentClusterInstallOnPremPlatform{
-						APIVIPs:     installConfig.Config.Platform.VSphere.APIVIPs,
-						IngressVIPs: installConfig.Config.Platform.VSphere.IngressVIPs,
-					},
-				}
-			}
-			agentClusterInstall.Spec.APIVIP = installConfig.Config.Platform.VSphere.APIVIPs[0]
-			agentClusterInstall.Spec.IngressVIP = installConfig.Config.Platform.VSphere.IngressVIPs[0]
 		}
 
 		networkOverridden := setNetworkType(agentClusterInstall, installConfig.Config, "NetworkType is not specified in InstallConfig.")
@@ -285,20 +243,6 @@ func (a *AgentClusterInstall) Load(f asset.FileFetcher) (bool, error) {
 
 	setNetworkType(agentClusterInstall, &types.InstallConfig{}, "NetworkType is not specified in AgentClusterInstall.")
 
-	// Due to OCPBUGS-7495 we previously required lowercase platform names here,
-	// even though that is incorrect. Rewrite to the correct mixed case names
-	// for backward compatibility.
-	switch string(agentClusterInstall.Spec.PlatformType) {
-	case baremetal.Name:
-		agentClusterInstall.Spec.PlatformType = hiveext.BareMetalPlatformType
-	case external.Name:
-		agentClusterInstall.Spec.PlatformType = hiveext.ExternalPlatformType
-	case none.Name:
-		agentClusterInstall.Spec.PlatformType = hiveext.NonePlatformType
-	case vsphere.Name:
-		agentClusterInstall.Spec.PlatformType = hiveext.VSpherePlatformType
-	}
-
 	// Set the default value for userManagedNetworking, as would be done by the
 	// mutating webhook in ZTP.
 	if agentClusterInstall.Spec.Networking.UserManagedNetworking == nil {
@@ -363,7 +307,7 @@ func setNetworkType(aci *hiveext.AgentClusterInstall, installConfig *types.Insta
 func isIPv6(ipAddress net.IP) bool {
 	// Using To16() on IPv4 addresses does not return nil so it cannot be used to determine if
 	// IP addresses are IPv6. Instead we are checking if the address is IPv6 by using To4().
-	// Same as https://github.com/openshift/installer/blob/6eca978b89fc0be17f70fc8a28fa20aab1316843/pkg/types/validation/installconfig.go#L193
+	// Same as https://github.com/anton-sidelnikov/otc-openshift-installer/blob/6eca978b89fc0be17f70fc8a28fa20aab1316843/pkg/types/validation/installconfig.go#L193
 	ip := ipAddress.To4()
 	return ip == nil
 }
@@ -416,11 +360,6 @@ func (a *AgentClusterInstall) validateIPAddressAndNetworkType() field.ErrorList 
 
 func (a *AgentClusterInstall) validateSupportedPlatforms() field.ErrorList {
 	var allErrs field.ErrorList
-
-	if a.Config.Spec.PlatformType != "" && !agent.IsSupportedPlatform(a.Config.Spec.PlatformType) {
-		fieldPath := field.NewPath("spec", "platformType")
-		allErrs = append(allErrs, field.NotSupported(fieldPath, a.Config.Spec.PlatformType, agent.SupportedHivePlatforms()))
-	}
 
 	switch a.Config.Spec.PlatformType {
 	case hiveext.NonePlatformType, hiveext.ExternalPlatformType:

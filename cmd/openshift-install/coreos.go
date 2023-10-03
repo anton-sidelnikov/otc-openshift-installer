@@ -3,7 +3,7 @@ package main
 import (
 	"github.com/spf13/cobra"
 
-	"github.com/openshift/installer/pkg/coreoscli"
+	"github.com/anton-sidelnikov/otc-openshift-installer/pkg/coreoscli"
 )
 
 func newCoreOSCmd() *cobra.Command {

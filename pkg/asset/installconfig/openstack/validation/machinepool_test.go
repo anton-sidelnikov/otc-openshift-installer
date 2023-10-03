@@ -8,7 +8,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"k8s.io/apimachinery/pkg/util/validation/field"
 
-	"github.com/openshift/installer/pkg/types/openstack"
+	"github.com/anton-sidelnikov/otc-openshift-installer/pkg/types/openstack"
 )
 
 const (

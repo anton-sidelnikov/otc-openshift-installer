@@ -2,6 +2,7 @@ package installconfig
 
 import (
 	"errors"
+	"github.com/anton-sidelnikov/otc-openshift-installer/pkg/types/openstack"
 	"os"
 	"testing"
 
@@ -10,12 +11,10 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/utils/pointer"
 
-	"github.com/openshift/installer/pkg/asset"
-	"github.com/openshift/installer/pkg/asset/mock"
-	"github.com/openshift/installer/pkg/ipnet"
-	"github.com/openshift/installer/pkg/types"
-	"github.com/openshift/installer/pkg/types/aws"
-	"github.com/openshift/installer/pkg/types/none"
+	"github.com/anton-sidelnikov/otc-openshift-installer/pkg/asset"
+	"github.com/anton-sidelnikov/otc-openshift-installer/pkg/asset/mock"
+	"github.com/anton-sidelnikov/otc-openshift-installer/pkg/ipnet"
+	"github.com/anton-sidelnikov/otc-openshift-installer/pkg/types"
 )
 
 func TestInstallConfigGenerate_FillsInDefaults(t *testing.T) {
@@ -24,7 +23,7 @@ func TestInstallConfigGenerate_FillsInDefaults(t *testing.T) {
 	clusterName := &clusterName{"test-cluster"}
 	pullSecret := &pullSecret{`{"auths":{"example.com":{"auth":"authorization value"}}}`}
 	platform := &platform{
-		Platform: types.Platform{None: &none.Platform{}},
+		Platform: types.Platform{OpenStack: &openstack.Platform{}},
 	}
 	installConfig := &InstallConfig{}
 	networking := &networking{}
@@ -77,7 +76,7 @@ func TestInstallConfigGenerate_FillsInDefaults(t *testing.T) {
 			},
 		},
 		Platform: types.Platform{
-			None: &none.Platform{},
+			OpenStack: &openstack.Platform{},
 		},
 		PullSecret: `{"auths":{"example.com":{"auth":"authorization value"}}}`,
 		Publish:    types.ExternalPublishingStrategy,
@@ -144,9 +143,7 @@ pullSecret: "{\"auths\":{\"example.com\":{\"auth\":\"authorization value\"}}}"
 					},
 				},
 				Platform: types.Platform{
-					AWS: &aws.Platform{
-						Region: "us-east-1",
-					},
+					OpenStack: &openstack.Platform{},
 				},
 				PullSecret: `{"auths":{"example.com":{"auth":"authorization value"}}}`,
 				Publish:    types.ExternalPublishingStrategy,
@@ -231,9 +228,7 @@ wrong_key: wrong_value
 					},
 				},
 				Platform: types.Platform{
-					AWS: &aws.Platform{
-						Region: "us-east-1",
-					},
+					OpenStack: &openstack.Platform{},
 				},
 				PullSecret: `{"auths":{"example.com":{"auth":"authorization value"}}}`,
 				Publish:    types.ExternalPublishingStrategy,
@@ -289,9 +284,7 @@ pullSecret: "{\"auths\":{\"example.com\":{\"auth\":\"authorization value\"}}}"
 					},
 				},
 				Platform: types.Platform{
-					AWS: &aws.Platform{
-						Region: "us-east-1",
-					},
+					OpenStack: &openstack.Platform{},
 				},
 				PullSecret: `{"auths":{"example.com":{"auth":"authorization value"}}}`,
 				Publish:    types.ExternalPublishingStrategy,
@@ -349,11 +342,7 @@ pullSecret: "{\"auths\":{\"example.com\":{\"auth\":\"authorization value\"}}}"
 					},
 				},
 				Platform: types.Platform{
-					AWS: &aws.Platform{
-						Region:                       "us-east-1",
-						ExperimentalPropagateUserTag: pointer.BoolPtr(false),
-						PropagateUserTag:             false,
-					},
+					OpenStack: &openstack.Platform{},
 				},
 				PullSecret: `{"auths":{"example.com":{"auth":"authorization value"}}}`,
 				Publish:    types.ExternalPublishingStrategy,
@@ -410,11 +399,7 @@ pullSecret: "{\"auths\":{\"example.com\":{\"auth\":\"authorization value\"}}}"
 					},
 				},
 				Platform: types.Platform{
-					AWS: &aws.Platform{
-						Region:                       "us-east-1",
-						ExperimentalPropagateUserTag: nil,
-						PropagateUserTag:             true,
-					},
+					OpenStack: &openstack.Platform{},
 				},
 				PullSecret: `{"auths":{"example.com":{"auth":"authorization value"}}}`,
 				Publish:    types.ExternalPublishingStrategy,
@@ -471,11 +456,7 @@ pullSecret: "{\"auths\":{\"example.com\":{\"auth\":\"authorization value\"}}}"
 					},
 				},
 				Platform: types.Platform{
-					AWS: &aws.Platform{
-						Region:                       "us-east-1",
-						ExperimentalPropagateUserTag: pointer.BoolPtr(true),
-						PropagateUserTag:             true,
-					},
+					OpenStack: &openstack.Platform{},
 				},
 				PullSecret: `{"auths":{"example.com":{"auth":"authorization value"}}}`,
 				Publish:    types.ExternalPublishingStrategy,

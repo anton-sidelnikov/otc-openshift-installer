@@ -12,9 +12,9 @@ import (
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 
+	"github.com/anton-sidelnikov/otc-openshift-installer/pkg/gather/ssh"
 	"github.com/openshift/assisted-service/client/installer"
 	"github.com/openshift/assisted-service/models"
-	"github.com/openshift/installer/pkg/gather/ssh"
 )
 
 // Cluster is a struct designed to help interact with the cluster that is

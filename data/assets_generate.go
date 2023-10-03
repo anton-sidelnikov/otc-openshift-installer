@@ -8,7 +8,7 @@ import (
 
 	"github.com/shurcooL/vfsgen"
 
-	"github.com/openshift/installer/data"
+	"github.com/anton-sidelnikov/otc-openshift-installer/data"
 )
 
 func main() {

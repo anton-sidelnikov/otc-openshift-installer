@@ -23,21 +23,18 @@ import (
 	"k8s.io/client-go/tools/clientcmd"
 	clientwatch "k8s.io/client-go/tools/watch"
 
+	"github.com/anton-sidelnikov/otc-openshift-installer/pkg/asset"
+	"github.com/anton-sidelnikov/otc-openshift-installer/pkg/asset/agent/agentconfig"
+	"github.com/anton-sidelnikov/otc-openshift-installer/pkg/asset/cluster"
+	"github.com/anton-sidelnikov/otc-openshift-installer/pkg/asset/logging"
+	assetstore "github.com/anton-sidelnikov/otc-openshift-installer/pkg/asset/store"
+	targetassets "github.com/anton-sidelnikov/otc-openshift-installer/pkg/asset/targets"
+	destroybootstrap "github.com/anton-sidelnikov/otc-openshift-installer/pkg/destroy/bootstrap"
+	"github.com/anton-sidelnikov/otc-openshift-installer/pkg/gather/service"
+	"github.com/anton-sidelnikov/otc-openshift-installer/pkg/metrics/timer"
 	configv1 "github.com/openshift/api/config/v1"
 	configclient "github.com/openshift/client-go/config/clientset/versioned"
 	routeclient "github.com/openshift/client-go/route/clientset/versioned"
-	"github.com/openshift/installer/pkg/asset"
-	"github.com/openshift/installer/pkg/asset/agent/agentconfig"
-	"github.com/openshift/installer/pkg/asset/cluster"
-	"github.com/openshift/installer/pkg/asset/installconfig"
-	"github.com/openshift/installer/pkg/asset/logging"
-	assetstore "github.com/openshift/installer/pkg/asset/store"
-	targetassets "github.com/openshift/installer/pkg/asset/targets"
-	destroybootstrap "github.com/openshift/installer/pkg/destroy/bootstrap"
-	"github.com/openshift/installer/pkg/gather/service"
-	timer "github.com/openshift/installer/pkg/metrics/timer"
-	"github.com/openshift/installer/pkg/types/baremetal"
-	"github.com/openshift/installer/pkg/types/vsphere"
 	cov1helpers "github.com/openshift/library-go/pkg/config/clusteroperator/v1helpers"
 	"github.com/openshift/library-go/pkg/route/routeapihelpers"
 )
@@ -423,15 +420,6 @@ func waitForBootstrapComplete(ctx context.Context, config *rest.Config) *cluster
 func waitForBootstrapConfigMap(ctx context.Context, client *kubernetes.Clientset) *clusterCreateError {
 	timeout := 30 * time.Minute
 
-	// Wait longer for baremetal, VSphere due to length of time it takes to boot
-	if assetStore, err := assetstore.NewStore(rootOpts.dir); err == nil {
-		if installConfig, err := assetStore.Load(&installconfig.InstallConfig{}); err == nil && installConfig != nil {
-			if installConfig.(*installconfig.InstallConfig).Config.Platform.Name() == baremetal.Name || installConfig.(*installconfig.InstallConfig).Config.Platform.Name() == vsphere.Name {
-				timeout = 60 * time.Minute
-			}
-		}
-	}
-
 	untilTime := time.Now().Add(timeout)
 	timezone, _ := untilTime.Zone()
 	logrus.Infof("Waiting up to %v (until %v %s) for bootstrapping to complete...",
@@ -476,17 +464,6 @@ func waitForBootstrapConfigMap(ctx context.Context, client *kubernetes.Clientset
 func waitForInitializedCluster(ctx context.Context, config *rest.Config) error {
 	// TODO revert this value back to 30 minutes.  It's currently at the end of 4.6 and we're trying to see if the
 	timeout := 40 * time.Minute
-
-	// Wait longer for baremetal, due to length of time it takes to boot
-	if assetStore, err := assetstore.NewStore(rootOpts.dir); err == nil {
-		if installConfig, err := assetStore.Load(&installconfig.InstallConfig{}); err == nil && installConfig != nil {
-			if installConfig.(*installconfig.InstallConfig).Config.Platform.Name() == baremetal.Name {
-				timeout = 60 * time.Minute
-			}
-		}
-
-		checkIfAgentCommand(assetStore)
-	}
 
 	untilTime := time.Now().Add(timeout)
 	timezone, _ := untilTime.Zone()

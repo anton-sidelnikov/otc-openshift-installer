@@ -9,11 +9,10 @@ import (
 	"github.com/stretchr/testify/assert"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
+	"github.com/anton-sidelnikov/otc-openshift-installer/pkg/asset"
+	"github.com/anton-sidelnikov/otc-openshift-installer/pkg/asset/mock"
+	"github.com/anton-sidelnikov/otc-openshift-installer/pkg/types/agent"
 	aiv1beta1 "github.com/openshift/assisted-service/api/v1beta1"
-	"github.com/openshift/installer/pkg/asset"
-	"github.com/openshift/installer/pkg/asset/mock"
-	"github.com/openshift/installer/pkg/types/agent"
-	"github.com/openshift/installer/pkg/types/baremetal"
 )
 
 func TestAgentConfig_LoadedFromDisk(t *testing.T) {
@@ -541,7 +540,6 @@ func defaultAgentHost(name string) *AgentHostBuilder {
 			iface("enp2s0", "98:af:65:a5:8d:01"),
 			iface("enp3s1", "28:d2:44:d2:b2:1a"),
 		).
-		defaultRootDeviceHints().
 		networkConfig("interfaces:")
 }
 
@@ -571,22 +569,6 @@ func (ahb *AgentHostBuilder) interfaces(builders ...*InterfacetBuilder) *AgentHo
 func (ahb *AgentHostBuilder) networkConfig(raw string) *AgentHostBuilder {
 	ahb.Host.NetworkConfig = aiv1beta1.NetConfig{
 		Raw: unmarshalJSON([]byte(raw)),
-	}
-	return ahb
-}
-
-// TODO: Create BaremetalRootDeviceHintsBuilder, for the current tests not required
-func (ahb *AgentHostBuilder) defaultRootDeviceHints() *AgentHostBuilder {
-	falseBool := false
-	ahb.Host.RootDeviceHints = baremetal.RootDeviceHints{
-		DeviceName:       "/dev/sda",
-		HCTL:             "hctl-value",
-		Model:            "model-value",
-		Vendor:           "vendor-value",
-		SerialNumber:     "serial-number-value",
-		MinSizeGigabytes: 20,
-		WWN:              "wwn-value",
-		Rotational:       &falseBool,
 	}
 	return ahb
 }

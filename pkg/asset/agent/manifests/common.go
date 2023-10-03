@@ -1,9 +1,9 @@
 package manifests
 
 import (
+	"github.com/anton-sidelnikov/otc-openshift-installer/pkg/asset/agent"
+	"github.com/anton-sidelnikov/otc-openshift-installer/pkg/version"
 	aiv1beta1 "github.com/openshift/assisted-service/api/v1beta1"
-	"github.com/openshift/installer/pkg/asset/agent"
-	"github.com/openshift/installer/pkg/version"
 )
 
 func getAgentClusterInstallName(ic *agent.OptionalInstallConfig) string {

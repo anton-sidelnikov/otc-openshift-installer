@@ -1,17 +1,13 @@
 package defaults
 
 import (
-	"github.com/openshift/installer/pkg/types"
-	"github.com/openshift/installer/pkg/types/libvirt"
-	"github.com/openshift/installer/pkg/version"
+	"github.com/anton-sidelnikov/otc-openshift-installer/pkg/types"
+	"github.com/anton-sidelnikov/otc-openshift-installer/pkg/version"
 )
 
 // SetMachinePoolDefaults sets the defaults for the machine pool.
 func SetMachinePoolDefaults(p *types.MachinePool, platform string) {
 	defaultReplicaCount := int64(3)
-	if platform == libvirt.Name {
-		defaultReplicaCount = 1
-	}
 	if p.Name == types.MachinePoolEdgeRoleName {
 		defaultReplicaCount = 0
 	}

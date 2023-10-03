@@ -8,24 +8,13 @@ import (
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 
-	assetstore "github.com/openshift/installer/pkg/asset/store"
-	"github.com/openshift/installer/pkg/destroy"
-	"github.com/openshift/installer/pkg/destroy/bootstrap"
-	quotaasset "github.com/openshift/installer/pkg/destroy/quota"
-	"github.com/openshift/installer/pkg/metrics/timer"
+	assetstore "github.com/anton-sidelnikov/otc-openshift-installer/pkg/asset/store"
+	"github.com/anton-sidelnikov/otc-openshift-installer/pkg/destroy"
+	"github.com/anton-sidelnikov/otc-openshift-installer/pkg/destroy/bootstrap"
+	quotaasset "github.com/anton-sidelnikov/otc-openshift-installer/pkg/destroy/quota"
+	"github.com/anton-sidelnikov/otc-openshift-installer/pkg/metrics/timer"
 
-	_ "github.com/openshift/installer/pkg/destroy/alibabacloud"
-	_ "github.com/openshift/installer/pkg/destroy/aws"
-	_ "github.com/openshift/installer/pkg/destroy/azure"
-	_ "github.com/openshift/installer/pkg/destroy/baremetal"
-	_ "github.com/openshift/installer/pkg/destroy/gcp"
-	_ "github.com/openshift/installer/pkg/destroy/ibmcloud"
-	_ "github.com/openshift/installer/pkg/destroy/libvirt"
-	_ "github.com/openshift/installer/pkg/destroy/nutanix"
-	_ "github.com/openshift/installer/pkg/destroy/openstack"
-	_ "github.com/openshift/installer/pkg/destroy/ovirt"
-	_ "github.com/openshift/installer/pkg/destroy/powervs"
-	_ "github.com/openshift/installer/pkg/destroy/vsphere"
+	_ "github.com/anton-sidelnikov/otc-openshift-installer/pkg/destroy/openstack"
 )
 
 func newDestroyCmd() *cobra.Command {

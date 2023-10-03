@@ -10,11 +10,10 @@ import (
 	"k8s.io/apimachinery/pkg/util/validation/field"
 	"sigs.k8s.io/yaml"
 
-	"github.com/openshift/installer/pkg/asset"
-	"github.com/openshift/installer/pkg/types/agent"
-	"github.com/openshift/installer/pkg/types/agent/conversion"
-	"github.com/openshift/installer/pkg/types/baremetal/validation"
-	"github.com/openshift/installer/pkg/validate"
+	"github.com/anton-sidelnikov/otc-openshift-installer/pkg/asset"
+	"github.com/anton-sidelnikov/otc-openshift-installer/pkg/types/agent"
+	"github.com/anton-sidelnikov/otc-openshift-installer/pkg/types/agent/conversion"
+	"github.com/anton-sidelnikov/otc-openshift-installer/pkg/validate"
 )
 
 var (
@@ -216,10 +215,6 @@ func (a *AgentConfig) validateHosts() field.ErrorList {
 			allErrs = append(allErrs, err...)
 		}
 
-		if err := a.validateHostRootDeviceHints(hostPath, host); err != nil {
-			allErrs = append(allErrs, err...)
-		}
-
 		if err := a.validateRoles(hostPath, host); err != nil {
 			allErrs = append(allErrs, err...)
 		}
@@ -253,22 +248,6 @@ func (a *AgentConfig) validateHostInterfaces(hostPath *field.Path, host agent.Ho
 			allErrs = append(allErrs, field.Invalid(macAddressPath, mac, "duplicate MAC address found"))
 		}
 		macs[mac] = true
-	}
-
-	return allErrs
-}
-
-func (a *AgentConfig) validateHostRootDeviceHints(hostPath *field.Path, host agent.Host) field.ErrorList {
-	rdhPath := hostPath.Child("rootDeviceHints")
-	allErrs := validation.ValidateHostRootDeviceHints(&host.RootDeviceHints, rdhPath)
-
-	if host.RootDeviceHints.WWNWithExtension != "" {
-		allErrs = append(allErrs, field.Forbidden(
-			rdhPath.Child("wwnWithExtension"), "WWN extensions are not supported in root device hints"))
-	}
-
-	if host.RootDeviceHints.WWNVendorExtension != "" {
-		allErrs = append(allErrs, field.Forbidden(rdhPath.Child("wwnVendorExtension"), "WWN vendor extensions are not supported in root device hints"))
 	}
 
 	return allErrs
@@ -357,14 +336,6 @@ func (a *AgentConfig) HostConfigFiles() (HostConfigFileMap, error) {
 
 		if len(macs) > 0 {
 			files[filepath.Join(name, "mac_addresses")] = []byte(strings.Join(macs, ""))
-		}
-
-		rdh, err := yaml.Marshal(host.RootDeviceHints)
-		if err != nil {
-			return nil, err
-		}
-		if len(rdh) > 0 && string(rdh) != "{}\n" {
-			files[filepath.Join(name, "root-device-hints.yaml")] = rdh
 		}
 
 		if len(host.Role) > 0 {

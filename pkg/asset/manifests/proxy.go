@@ -1,7 +1,6 @@
 package manifests
 
 import (
-	"fmt"
 	"net/url"
 	"path/filepath"
 	"strings"
@@ -11,15 +10,11 @@ import (
 	"k8s.io/apimachinery/pkg/util/sets"
 	"sigs.k8s.io/yaml"
 
+	"github.com/anton-sidelnikov/otc-openshift-installer/pkg/asset"
+	"github.com/anton-sidelnikov/otc-openshift-installer/pkg/asset/installconfig"
+	"github.com/anton-sidelnikov/otc-openshift-installer/pkg/types"
+	"github.com/anton-sidelnikov/otc-openshift-installer/pkg/types/openstack"
 	configv1 "github.com/openshift/api/config/v1"
-	"github.com/openshift/installer/pkg/asset"
-	"github.com/openshift/installer/pkg/asset/installconfig"
-	"github.com/openshift/installer/pkg/types"
-	"github.com/openshift/installer/pkg/types/alibabacloud"
-	"github.com/openshift/installer/pkg/types/aws"
-	"github.com/openshift/installer/pkg/types/azure"
-	"github.com/openshift/installer/pkg/types/gcp"
-	"github.com/openshift/installer/pkg/types/openstack"
 )
 
 var proxyCfgFilename = filepath.Join(manifestDir, "cluster-proxy-01-config.yaml")
@@ -140,36 +135,8 @@ func createNoProxy(installConfig *installconfig.InstallConfig, network *Networki
 	// FIXME: The cluster-network-operator duplicates this code in pkg/util/proxyconfig/no_proxy.go,
 	//  if altering this list of platforms, you must ALSO alter the code in cluster-network-operator.
 	switch platform {
-	case aws.Name, gcp.Name, azure.Name, openstack.Name:
+	case openstack.Name:
 		set.Insert("169.254.169.254")
-	case alibabacloud.Name:
-		set.Insert("100.100.100.200")
-	}
-
-	// TODO: Add support for additional cloud providers.
-	if platform == aws.Name {
-		region := installConfig.Config.AWS.Region
-		if region == "us-east-1" {
-			set.Insert(".ec2.internal")
-		} else {
-			set.Insert(fmt.Sprintf(".%s.compute.internal", region))
-		}
-	}
-
-	// TODO: IBM[#95]: proxy
-
-	if platform == azure.Name && installConfig.Azure.CloudName != azure.PublicCloud {
-		// https://learn.microsoft.com/en-us/azure/virtual-network/what-is-ip-address-168-63-129-16
-		set.Insert("168.63.129.16")
-		if installConfig.Azure.CloudName == azure.StackCloud {
-			set.Insert(installConfig.Config.Azure.ARMEndpoint)
-		}
-	}
-
-	// From https://cloud.google.com/vpc/docs/special-configurations add GCP metadata.
-	// "metadata.google.internal." added due to https://bugzilla.redhat.com/show_bug.cgi?id=1754049
-	if platform == gcp.Name {
-		set.Insert("metadata", "metadata.google.internal", "metadata.google.internal.")
 	}
 
 	for _, network := range installConfig.Config.Networking.ServiceNetwork {

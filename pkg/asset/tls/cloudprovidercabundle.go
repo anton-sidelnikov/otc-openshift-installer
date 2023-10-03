@@ -1,9 +1,8 @@
 package tls
 
 import (
-	"github.com/openshift/installer/pkg/asset"
-	"github.com/openshift/installer/pkg/asset/installconfig"
-	awstypes "github.com/openshift/installer/pkg/types/aws"
+	"github.com/anton-sidelnikov/otc-openshift-installer/pkg/asset"
+	"github.com/anton-sidelnikov/otc-openshift-installer/pkg/asset/installconfig"
 )
 
 // CloudProviderCABundle is the asset the generates the CA bundle for
@@ -28,12 +27,6 @@ func (a *CloudProviderCABundle) Generate(deps asset.Parents) error {
 	deps.Get(ic)
 
 	if ic.Config.AdditionalTrustBundle == "" {
-		return nil
-	}
-	if ic.Config.Platform.Name() != awstypes.Name {
-		return nil
-	}
-	if !awstypes.IsSecretRegion(ic.Config.Platform.AWS.Region) {
 		return nil
 	}
 

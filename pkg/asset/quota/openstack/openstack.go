@@ -4,16 +4,16 @@ import (
 	"github.com/gophercloud/gophercloud/openstack/compute/v2/flavors"
 	"github.com/sirupsen/logrus"
 
+	"github.com/anton-sidelnikov/otc-openshift-installer/pkg/asset/installconfig/openstack/validation"
+	"github.com/anton-sidelnikov/otc-openshift-installer/pkg/quota"
 	machinev1alpha1 "github.com/openshift/api/machine/v1alpha1"
 	machineapi "github.com/openshift/api/machine/v1beta1"
 	operv1 "github.com/openshift/api/operator/v1"
-	"github.com/openshift/installer/pkg/asset/installconfig/openstack/validation"
-	"github.com/openshift/installer/pkg/quota"
 )
 
 // These numbers should reflect what is documented here:
-// https://github.com/openshift/installer/tree/master/docs/user/openstack
-// https://github.com/openshift/installer/blob/master/docs/user/openstack/kuryr.md
+// https://github.com/anton-sidelnikov/otc-openshift-installer/tree/master/docs/user/openstack
+// https://github.com/anton-sidelnikov/otc-openshift-installer/blob/master/docs/user/openstack/kuryr.md
 // Number of ports, routers, subnets and routers here don't include the constraints needed
 // for each machine, which are calculated later
 var minNetworkConstraint = buildNetworkConstraint(4, 0, 0, 0, 2, 56)

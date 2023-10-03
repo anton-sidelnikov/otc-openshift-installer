@@ -9,7 +9,7 @@ import (
 	"github.com/spf13/cobra"
 	"k8s.io/client-go/tools/clientcmd"
 
-	timer "github.com/openshift/installer/pkg/metrics/timer"
+	timer "github.com/anton-sidelnikov/otc-openshift-installer/pkg/metrics/timer"
 )
 
 func newWaitForCmd() *cobra.Command {

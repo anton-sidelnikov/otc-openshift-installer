@@ -9,17 +9,17 @@ import (
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 
+	"github.com/anton-sidelnikov/otc-openshift-installer/pkg/asset/agent/agentconfig"
+	"github.com/anton-sidelnikov/otc-openshift-installer/pkg/asset/agent/image"
+	"github.com/anton-sidelnikov/otc-openshift-installer/pkg/asset/agent/manifests"
+	"github.com/anton-sidelnikov/otc-openshift-installer/pkg/asset/installconfig"
+	assetstore "github.com/anton-sidelnikov/otc-openshift-installer/pkg/asset/store"
+	"github.com/anton-sidelnikov/otc-openshift-installer/pkg/types/agent"
 	"github.com/openshift/assisted-service/api/v1beta1"
 	"github.com/openshift/assisted-service/client"
 	"github.com/openshift/assisted-service/client/events"
 	"github.com/openshift/assisted-service/client/installer"
 	"github.com/openshift/assisted-service/models"
-	"github.com/openshift/installer/pkg/asset/agent/agentconfig"
-	"github.com/openshift/installer/pkg/asset/agent/image"
-	"github.com/openshift/installer/pkg/asset/agent/manifests"
-	"github.com/openshift/installer/pkg/asset/installconfig"
-	assetstore "github.com/openshift/installer/pkg/asset/store"
-	"github.com/openshift/installer/pkg/types/agent"
 )
 
 // NodeZeroRestClient is a struct to interact with the Agent Rest API that is on node zero.

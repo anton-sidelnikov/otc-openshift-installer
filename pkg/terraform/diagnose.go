@@ -3,7 +3,7 @@ package terraform
 import (
 	"regexp"
 
-	"github.com/openshift/installer/pkg/diagnostics"
+	"github.com/anton-sidelnikov/otc-openshift-installer/pkg/diagnostics"
 )
 
 // diagnoseApplyError accepts an error from terraform runs and tries to diagnose the

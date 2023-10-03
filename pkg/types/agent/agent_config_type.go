@@ -4,7 +4,6 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
 	aiv1beta1 "github.com/openshift/assisted-service/api/v1beta1"
-	"github.com/openshift/installer/pkg/types/baremetal"
 )
 
 // AgentConfigVersion is the version supported by this package.
@@ -31,9 +30,8 @@ type Config struct {
 
 // Host defines per host configurations
 type Host struct {
-	Hostname        string                    `json:"hostname,omitempty"`
-	Role            string                    `json:"role,omitempty"`
-	RootDeviceHints baremetal.RootDeviceHints `json:"rootDeviceHints,omitempty"`
+	Hostname string `json:"hostname,omitempty"`
+	Role     string `json:"role,omitempty"`
 	// list of interfaces and mac addresses
 	Interfaces    []*aiv1beta1.Interface `json:"interfaces,omitempty"`
 	NetworkConfig aiv1beta1.NetConfig    `json:"networkConfig,omitempty"`

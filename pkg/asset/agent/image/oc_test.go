@@ -5,7 +5,7 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
-	"github.com/openshift/installer/pkg/asset/agent/mirror"
+	"github.com/anton-sidelnikov/otc-openshift-installer/pkg/asset/agent/mirror"
 )
 
 func TestGetIcspContents(t *testing.T) {

@@ -9,7 +9,7 @@ import (
 	"github.com/sirupsen/logrus"
 	"sigs.k8s.io/yaml"
 
-	openstackdefaults "github.com/openshift/installer/pkg/types/openstack/defaults"
+	openstackdefaults "github.com/anton-sidelnikov/otc-openshift-installer/pkg/types/openstack/defaults"
 )
 
 var onceLoggers = map[string]*sync.Once{}

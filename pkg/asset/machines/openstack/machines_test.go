@@ -5,8 +5,8 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/anton-sidelnikov/otc-openshift-installer/pkg/types/openstack"
 	machinev1 "github.com/openshift/api/machine/v1"
-	"github.com/openshift/installer/pkg/types/openstack"
 )
 
 func mpWithZones(zones ...string) func(*openstack.MachinePool) {

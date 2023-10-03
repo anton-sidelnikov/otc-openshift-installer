@@ -1,19 +1,17 @@
 package manifests
 
 import (
+	ostypes "github.com/anton-sidelnikov/otc-openshift-installer/pkg/types/openstack"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"sigs.k8s.io/yaml"
 
+	"github.com/anton-sidelnikov/otc-openshift-installer/pkg/asset"
+	"github.com/anton-sidelnikov/otc-openshift-installer/pkg/asset/installconfig"
+	"github.com/anton-sidelnikov/otc-openshift-installer/pkg/types"
 	configv1 "github.com/openshift/api/config/v1"
-	"github.com/openshift/installer/pkg/asset"
-	"github.com/openshift/installer/pkg/asset/installconfig"
-	"github.com/openshift/installer/pkg/types"
-	awstypes "github.com/openshift/installer/pkg/types/aws"
-	azuretypes "github.com/openshift/installer/pkg/types/azure"
-	nonetypes "github.com/openshift/installer/pkg/types/none"
 )
 
 func TestGenerateInfrastructure(t *testing.T) {
@@ -23,31 +21,9 @@ func TestGenerateInfrastructure(t *testing.T) {
 		expectedInfrastructure *configv1.Infrastructure
 	}{{
 		name:          "vanilla aws",
-		installConfig: icBuild.build(icBuild.forAWS()),
+		installConfig: icBuild.build(icBuild.forOpenstack()),
 		expectedInfrastructure: infraBuild.build(
-			infraBuild.forPlatform(configv1.AWSPlatformType),
-			infraBuild.withAWSPlatformSpec(),
-			infraBuild.withAWSPlatformStatus(),
-		),
-	}, {
-		name: "service endpoints",
-		installConfig: icBuild.build(
-			icBuild.forAWS(),
-			icBuild.withServiceEndpoint("service", "https://endpoint"),
-		),
-		expectedInfrastructure: infraBuild.build(
-			infraBuild.forPlatform(configv1.AWSPlatformType),
-			infraBuild.withServiceEndpoint("service", "https://endpoint"),
-		),
-	}, {
-		name: "azure resource tags",
-		installConfig: icBuild.build(
-			icBuild.forAzure(),
-			icBuild.withResourceTags(map[string]string{"key": "value"}),
-		),
-		expectedInfrastructure: infraBuild.build(
-			infraBuild.forPlatform(configv1.AzurePlatformType),
-			infraBuild.withResourceTags([]configv1.AzureResourceTag{{Key: "key", Value: "value"}}),
+			infraBuild.forPlatform(configv1.OpenStackPlatformType),
 		),
 	}}
 	for _, tc := range cases {
@@ -101,41 +77,19 @@ func (icBuildNamespace) build(opts ...icOption) *types.InstallConfig {
 	return ic
 }
 
-func (b icBuildNamespace) forAWS() icOption {
+func (b icBuildNamespace) forOpenstack() icOption {
 	return func(ic *types.InstallConfig) {
-		if ic.Platform.AWS != nil {
+		if ic.Platform.OpenStack != nil {
 			return
 		}
-		ic.Platform.AWS = &awstypes.Platform{}
+		ic.Platform.OpenStack = &ostypes.Platform{}
 	}
 }
 
-func (b icBuildNamespace) forNone() icOption {
+func (b icBuildNamespace) withLBType(lb configv1.OpenStackPlatformLoadBalancer) icOption {
 	return func(ic *types.InstallConfig) {
-		if ic.Platform.None != nil {
-			return
-		}
-		ic.Platform.None = &nonetypes.Platform{}
-	}
-}
-
-func (b icBuildNamespace) withServiceEndpoint(name, url string) icOption {
-	return func(ic *types.InstallConfig) {
-		b.forAWS()(ic)
-		ic.Platform.AWS.ServiceEndpoints = append(
-			ic.Platform.AWS.ServiceEndpoints,
-			awstypes.ServiceEndpoint{
-				Name: name,
-				URL:  url,
-			},
-		)
-	}
-}
-
-func (b icBuildNamespace) withLBType(lbType configv1.AWSLBType) icOption {
-	return func(ic *types.InstallConfig) {
-		b.forAWS()(ic)
-		ic.Platform.AWS.LBType = lbType
+		b.forOpenstack()(ic)
+		ic.Platform.OpenStack.LoadBalancer.Type = lb.Type
 	}
 }
 
@@ -178,68 +132,5 @@ func (b infraBuildNamespace) forPlatform(platform configv1.PlatformType) infraOp
 		infra.Spec.PlatformSpec.Type = platform
 		infra.Status.PlatformStatus.Type = platform
 		infra.Status.Platform = platform
-	}
-}
-
-func (b infraBuildNamespace) withAWSPlatformSpec() infraOption {
-	return func(infra *configv1.Infrastructure) {
-		if infra.Spec.PlatformSpec.AWS != nil {
-			return
-		}
-		infra.Spec.PlatformSpec.AWS = &configv1.AWSPlatformSpec{}
-	}
-}
-
-func (b infraBuildNamespace) withAWSPlatformStatus() infraOption {
-	return func(infra *configv1.Infrastructure) {
-		if infra.Status.PlatformStatus.AWS != nil {
-			return
-		}
-		infra.Status.PlatformStatus.AWS = &configv1.AWSPlatformStatus{}
-	}
-}
-
-func (b infraBuildNamespace) withServiceEndpoint(name, url string) infraOption {
-	return func(infra *configv1.Infrastructure) {
-		b.withAWSPlatformSpec()(infra)
-		b.withAWSPlatformStatus()(infra)
-		endpoint := configv1.AWSServiceEndpoint{Name: name, URL: url}
-		infra.Spec.PlatformSpec.AWS.ServiceEndpoints = append(infra.Spec.PlatformSpec.AWS.ServiceEndpoints, endpoint)
-		infra.Status.PlatformStatus.AWS.ServiceEndpoints = append(infra.Status.PlatformStatus.AWS.ServiceEndpoints, endpoint)
-	}
-}
-
-func (b icBuildNamespace) forAzure() icOption {
-	return func(ic *types.InstallConfig) {
-		if ic.Platform.Azure != nil {
-			return
-		}
-		ic.Platform.Azure = &azuretypes.Platform{}
-	}
-}
-
-func (b infraBuildNamespace) withAzurePlatformStatus() infraOption {
-	return func(infra *configv1.Infrastructure) {
-		if infra.Status.PlatformStatus.Azure != nil {
-			return
-		}
-		infra.Status.PlatformStatus.Azure = &configv1.AzurePlatformStatus{
-			ResourceGroupName:        infra.Status.InfrastructureName + "-rg",
-			NetworkResourceGroupName: infra.Status.InfrastructureName + "-rg",
-		}
-	}
-}
-
-func (b icBuildNamespace) withResourceTags(tags map[string]string) icOption {
-	return func(ic *types.InstallConfig) {
-		b.forAzure()(ic)
-		ic.Platform.Azure.UserTags = tags
-	}
-}
-
-func (b infraBuildNamespace) withResourceTags(tags []configv1.AzureResourceTag) infraOption {
-	return func(infra *configv1.Infrastructure) {
-		b.withAzurePlatformStatus()(infra)
-		infra.Status.PlatformStatus.Azure.ResourceTags = tags
 	}
 }

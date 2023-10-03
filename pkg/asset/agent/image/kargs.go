@@ -1,7 +1,7 @@
 package image
 
 import (
-	"github.com/openshift/installer/pkg/asset"
+	"github.com/anton-sidelnikov/otc-openshift-installer/pkg/asset"
 )
 
 // Kargs is an Asset the generates the additional kernel args.

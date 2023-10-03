@@ -9,7 +9,7 @@ import (
 	"github.com/sirupsen/logrus"
 	"k8s.io/apimachinery/pkg/util/wait"
 
-	openstackdefaults "github.com/openshift/installer/pkg/types/openstack/defaults"
+	openstackdefaults "github.com/anton-sidelnikov/otc-openshift-installer/pkg/types/openstack/defaults"
 )
 
 // DeleteGlanceImage deletes the image with the specified name

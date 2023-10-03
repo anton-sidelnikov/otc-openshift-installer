@@ -13,15 +13,15 @@ import (
 	"github.com/gophercloud/gophercloud/openstack/networking/v2/ports"
 	"github.com/gophercloud/utils/openstack/clientconfig"
 
+	"github.com/anton-sidelnikov/otc-openshift-installer/pkg/asset/installconfig"
+	installconfig_openstack "github.com/anton-sidelnikov/otc-openshift-installer/pkg/asset/installconfig/openstack"
+	"github.com/anton-sidelnikov/otc-openshift-installer/pkg/asset/machines"
+	"github.com/anton-sidelnikov/otc-openshift-installer/pkg/rhcos"
+	"github.com/anton-sidelnikov/otc-openshift-installer/pkg/types"
+	types_openstack "github.com/anton-sidelnikov/otc-openshift-installer/pkg/types/openstack"
+	openstackdefaults "github.com/anton-sidelnikov/otc-openshift-installer/pkg/types/openstack/defaults"
 	configv1 "github.com/openshift/api/config/v1"
 	machinev1alpha1 "github.com/openshift/api/machine/v1alpha1"
-	"github.com/openshift/installer/pkg/asset/installconfig"
-	installconfig_openstack "github.com/openshift/installer/pkg/asset/installconfig/openstack"
-	"github.com/openshift/installer/pkg/asset/machines"
-	"github.com/openshift/installer/pkg/rhcos"
-	"github.com/openshift/installer/pkg/types"
-	types_openstack "github.com/openshift/installer/pkg/types/openstack"
-	openstackdefaults "github.com/openshift/installer/pkg/types/openstack/defaults"
 )
 
 // TFVars generates OpenStack-specific Terraform variables.
@@ -94,7 +94,7 @@ func TFVars(
 		// factually rendering impossible to have two machinepools in
 		// the install-config YAML array.
 		//
-		// [1]: https://github.com/openshift/installer/blob/252facf5e6e1238ee60b5f78607214e8691a3eab/pkg/types/validation/installconfig.go#L404-L410
+		// [1]: https://github.com/anton-sidelnikov/otc-openshift-installer/blob/252facf5e6e1238ee60b5f78607214e8691a3eab/pkg/types/validation/installconfig.go#L404-L410
 		if len(installConfig.Config.Compute) > 1 {
 			panic("Multiple machine-pools are currently not supported by the OpenShift installer on OpenStack platform")
 		}

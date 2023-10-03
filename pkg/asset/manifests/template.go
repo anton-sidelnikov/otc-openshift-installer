@@ -1,8 +1,7 @@
 package manifests
 
 import (
-	"github.com/openshift/installer/pkg/types"
-	"github.com/openshift/installer/pkg/types/baremetal"
+	"github.com/anton-sidelnikov/otc-openshift-installer/pkg/types"
 )
 
 // AwsCredsSecretData holds encoded credentials and is used to generate cloud-creds secret
@@ -85,11 +84,6 @@ type bootkubeTemplateData struct {
 	PullSecretBase64           string
 	RootCaCert                 string
 	WorkerIgnConfig            string
-}
-
-type baremetalTemplateData struct {
-	Baremetal                 *baremetal.Platform
-	ProvisioningOSDownloadURL string
 }
 
 type openshiftTemplateData struct {

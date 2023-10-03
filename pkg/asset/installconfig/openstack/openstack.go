@@ -9,7 +9,7 @@ import (
 	survey "github.com/AlecAivazis/survey/v2"
 	"github.com/AlecAivazis/survey/v2/core"
 
-	"github.com/openshift/installer/pkg/types/openstack"
+	"github.com/anton-sidelnikov/otc-openshift-installer/pkg/types/openstack"
 )
 
 const (

@@ -6,7 +6,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
-	"github.com/openshift/installer/pkg/types/agent"
+	"github.com/anton-sidelnikov/otc-openshift-installer/pkg/types/agent"
 )
 
 func TestConvertAgentConfig(t *testing.T) {

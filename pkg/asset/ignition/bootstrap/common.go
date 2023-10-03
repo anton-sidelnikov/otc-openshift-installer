@@ -23,23 +23,19 @@ import (
 	"github.com/vincent-petithory/dataurl"
 	utilsnet "k8s.io/utils/net"
 
+	"github.com/anton-sidelnikov/otc-openshift-installer/data"
+	"github.com/anton-sidelnikov/otc-openshift-installer/pkg/asset"
+	"github.com/anton-sidelnikov/otc-openshift-installer/pkg/asset/ignition"
+	mcign "github.com/anton-sidelnikov/otc-openshift-installer/pkg/asset/ignition/machine"
+	"github.com/anton-sidelnikov/otc-openshift-installer/pkg/asset/installconfig"
+	"github.com/anton-sidelnikov/otc-openshift-installer/pkg/asset/kubeconfig"
+	"github.com/anton-sidelnikov/otc-openshift-installer/pkg/asset/machines"
+	"github.com/anton-sidelnikov/otc-openshift-installer/pkg/asset/manifests"
+	"github.com/anton-sidelnikov/otc-openshift-installer/pkg/asset/releaseimage"
+	"github.com/anton-sidelnikov/otc-openshift-installer/pkg/asset/rhcos"
+	"github.com/anton-sidelnikov/otc-openshift-installer/pkg/asset/tls"
+	"github.com/anton-sidelnikov/otc-openshift-installer/pkg/types"
 	configv1 "github.com/openshift/api/config/v1"
-	"github.com/openshift/installer/data"
-	"github.com/openshift/installer/pkg/asset"
-	"github.com/openshift/installer/pkg/asset/ignition"
-	"github.com/openshift/installer/pkg/asset/ignition/bootstrap/baremetal"
-	"github.com/openshift/installer/pkg/asset/ignition/bootstrap/vsphere"
-	mcign "github.com/openshift/installer/pkg/asset/ignition/machine"
-	"github.com/openshift/installer/pkg/asset/installconfig"
-	"github.com/openshift/installer/pkg/asset/kubeconfig"
-	"github.com/openshift/installer/pkg/asset/machines"
-	"github.com/openshift/installer/pkg/asset/manifests"
-	"github.com/openshift/installer/pkg/asset/releaseimage"
-	"github.com/openshift/installer/pkg/asset/rhcos"
-	"github.com/openshift/installer/pkg/asset/tls"
-	"github.com/openshift/installer/pkg/types"
-	baremetaltypes "github.com/openshift/installer/pkg/types/baremetal"
-	vspheretypes "github.com/openshift/installer/pkg/types/vsphere"
 )
 
 const (
@@ -74,7 +70,6 @@ type bootstrapTemplateData struct {
 	Proxy                 *configv1.ProxyStatus
 	Registries            []sysregistriesv2.Registry
 	BootImage             string
-	PlatformData          platformTemplateData
 	BootstrapInPlace      *types.BootstrapInPlace
 	UseIPv6ForNodeIP      bool
 	UseDualForNodeIP      bool
@@ -88,13 +83,6 @@ type bootstrapTemplateData struct {
 	Invoker               string
 }
 
-// platformTemplateData is the data to use to replace values in bootstrap
-// template files that are specific to one platform.
-type platformTemplateData struct {
-	BareMetal *baremetal.TemplateData
-	VSphere   *vsphere.TemplateData
-}
-
 // Common is an asset that generates the ignition config for bootstrap nodes.
 type Common struct {
 	Config *igntypes.Config
@@ -104,7 +92,6 @@ type Common struct {
 // Dependencies returns the assets on which the Bootstrap asset depends.
 func (a *Common) Dependencies() []asset.Asset {
 	return []asset.Asset{
-		&baremetal.IronicCreds{},
 		&CVOIgnore{},
 		&installconfig.InstallConfig{},
 		&kubeconfig.AdminInternalClient{},
@@ -239,8 +226,7 @@ func (a *Common) getTemplateData(dependencies asset.Parents, bootstrapInPlace bo
 	releaseImage := &releaseimage.Image{}
 	rhcosImage := new(rhcos.Image)
 	bootstrapSSHKeyPair := &tls.BootstrapSSHKeyPair{}
-	ironicCreds := &baremetal.IronicCreds{}
-	dependencies.Get(installConfig, proxy, releaseImage, rhcosImage, bootstrapSSHKeyPair, ironicCreds)
+	dependencies.Get(installConfig, proxy, releaseImage, rhcosImage, bootstrapSSHKeyPair)
 
 	etcdEndpoints := make([]string, *installConfig.Config.ControlPlane.Replicas)
 
@@ -270,14 +256,6 @@ func (a *Common) getTemplateData(dependencies asset.Parents, bootstrapInPlace bo
 	}
 
 	// Generate platform-specific bootstrap data
-	var platformData platformTemplateData
-
-	switch installConfig.Config.Platform.Name() {
-	case baremetaltypes.Name:
-		platformData.BareMetal = baremetal.GetTemplateData(installConfig.Config.Platform.BareMetal, installConfig.Config.MachineNetwork, ironicCreds.Username, ironicCreds.Password)
-	case vspheretypes.Name:
-		platformData.VSphere = vsphere.GetTemplateData(installConfig.Config.Platform.VSphere)
-	}
 
 	bootstrapNodeIP := os.Getenv("OPENSHIFT_INSTALL_BOOTSTRAP_NODE_IP")
 	if bootstrapNodeIP != "" && net.ParseIP(bootstrapNodeIP) == nil {
@@ -323,7 +301,6 @@ func (a *Common) getTemplateData(dependencies asset.Parents, bootstrapInPlace bo
 		Proxy:                 &proxy.Config.Status,
 		Registries:            registries,
 		BootImage:             string(*rhcosImage),
-		PlatformData:          platformData,
 		ClusterProfile:        clusterProfile,
 		BootstrapInPlace:      bootstrapInPlaceConfig,
 		UseIPv6ForNodeIP:      APIIntVIPonIPv6,
@@ -394,7 +371,7 @@ func AddStorageFiles(config *igntypes.Config, base string, uri string, templateD
 		appendToFile = true
 	} else if filename == "registries.conf" {
 		// Having the mode be private breaks rpm-ostree, xref
-		// https://github.com/openshift/installer/pull/6789
+		// https://github.com/anton-sidelnikov/otc-openshift-installer/pull/6789
 		mode = 0644
 	} else {
 		mode = 0600
@@ -689,16 +666,8 @@ func apiVIPs(p *types.Platform) []string {
 	switch {
 	case p == nil:
 		return nil
-	case p.BareMetal != nil:
-		return p.BareMetal.APIVIPs
 	case p.OpenStack != nil:
 		return p.OpenStack.APIVIPs
-	case p.VSphere != nil:
-		return p.VSphere.APIVIPs
-	case p.Ovirt != nil:
-		return p.Ovirt.APIVIPs
-	case p.Nutanix != nil:
-		return p.Nutanix.APIVIPs
 	default:
 		return nil
 	}

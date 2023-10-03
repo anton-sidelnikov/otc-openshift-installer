@@ -8,8 +8,8 @@ import (
 	"github.com/gophercloud/gophercloud/pagination"
 	network_utils "github.com/gophercloud/utils/openstack/networking/v2/networks"
 
+	types_openstack "github.com/anton-sidelnikov/otc-openshift-installer/pkg/types/openstack"
 	machinev1alpha1 "github.com/openshift/api/machine/v1alpha1"
-	types_openstack "github.com/openshift/installer/pkg/types/openstack"
 )
 
 type terraformFixedIP struct {

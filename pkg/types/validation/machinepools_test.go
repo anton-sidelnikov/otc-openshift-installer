@@ -7,12 +7,8 @@ import (
 	"k8s.io/apimachinery/pkg/util/validation/field"
 	"k8s.io/utils/pointer"
 
-	"github.com/openshift/installer/pkg/types"
-	"github.com/openshift/installer/pkg/types/aws"
-	"github.com/openshift/installer/pkg/types/azure"
-	"github.com/openshift/installer/pkg/types/gcp"
-	"github.com/openshift/installer/pkg/types/libvirt"
-	"github.com/openshift/installer/pkg/types/openstack"
+	"github.com/anton-sidelnikov/otc-openshift-installer/pkg/types"
+	"github.com/anton-sidelnikov/otc-openshift-installer/pkg/types/openstack"
 )
 
 func validMachinePool(name string) *types.MachinePool {
@@ -32,86 +28,6 @@ func TestValidateMachinePool(t *testing.T) {
 		valid    bool
 	}{
 		{
-			name:     "minimal",
-			platform: &types.Platform{AWS: &aws.Platform{Region: "us-east-1"}},
-			pool:     validMachinePool("test-name"),
-			valid:    true,
-		},
-		{
-			name:     "missing replicas",
-			platform: &types.Platform{AWS: &aws.Platform{Region: "us-east-1"}},
-			pool: func() *types.MachinePool {
-				p := validMachinePool("test-name")
-				p.Replicas = nil
-				return p
-			}(),
-			valid: false,
-		},
-		{
-			name:     "invalid replicas",
-			platform: &types.Platform{AWS: &aws.Platform{Region: "us-east-1"}},
-			pool: func() *types.MachinePool {
-				p := validMachinePool("test-name")
-				p.Replicas = pointer.Int64Ptr(-1)
-				return p
-			}(),
-			valid: false,
-		},
-		{
-			name:     "valid aws",
-			platform: &types.Platform{AWS: &aws.Platform{Region: "us-east-1"}},
-			pool: func() *types.MachinePool {
-				p := validMachinePool("test-name")
-				p.Platform = types.MachinePoolPlatform{
-					AWS: &aws.MachinePool{},
-				}
-				return p
-			}(),
-			valid: true,
-		},
-		{
-			name:     "invalid aws",
-			platform: &types.Platform{AWS: &aws.Platform{Region: "us-east-1"}},
-			pool: func() *types.MachinePool {
-				p := validMachinePool("test-name")
-				p.Platform = types.MachinePoolPlatform{
-					AWS: &aws.MachinePool{
-						EC2RootVolume: aws.EC2RootVolume{
-							Type: "io1",
-							Size: 128,
-							IOPS: -10,
-						},
-					},
-				}
-				return p
-			}(),
-			valid: false,
-		},
-		{
-			name:     "valid azure",
-			platform: &types.Platform{Azure: &azure.Platform{Region: "eastus"}},
-			pool: func() *types.MachinePool {
-				p := validMachinePool("test-name")
-				p.Platform = types.MachinePoolPlatform{
-					Azure: &azure.MachinePool{},
-				}
-				return p
-			}(),
-			valid: true,
-		},
-		{
-			name:     "valid libvirt",
-			platform: &types.Platform{Libvirt: &libvirt.Platform{}},
-			pool: func() *types.MachinePool {
-				p := validMachinePool("test-name")
-				p.Platform = types.MachinePoolPlatform{
-					Libvirt: &libvirt.MachinePool{},
-				}
-				return p
-			}(),
-			valid: true,
-		},
-		{
 			name:     "valid openstack",
 			platform: &types.Platform{OpenStack: &openstack.Platform{}},
 			pool: func() *types.MachinePool {
@@ -122,115 +38,6 @@ func TestValidateMachinePool(t *testing.T) {
 				return p
 			}(),
 			valid: true,
-		},
-		{
-			name:     "mis-matched platform",
-			platform: &types.Platform{Libvirt: &libvirt.Platform{}},
-			pool: func() *types.MachinePool {
-				p := validMachinePool("test-name")
-				p.Platform = types.MachinePoolPlatform{
-					AWS: &aws.MachinePool{},
-				}
-				return p
-			}(),
-			valid: false,
-		},
-		{
-			name:     "multiple platforms",
-			platform: &types.Platform{AWS: &aws.Platform{Region: "us-east-1"}},
-			pool: func() *types.MachinePool {
-				p := validMachinePool("test-name")
-				p.Platform = types.MachinePoolPlatform{
-					AWS:     &aws.MachinePool{},
-					Libvirt: &libvirt.MachinePool{},
-				}
-				return p
-			}(),
-			valid: false,
-		},
-		{
-			name:     "valid GCP",
-			platform: &types.Platform{GCP: &gcp.Platform{Region: "us-east-1"}},
-			pool: func() *types.MachinePool {
-				p := validMachinePool("test-name")
-				p.Platform = types.MachinePoolPlatform{
-					GCP: &gcp.MachinePool{},
-				}
-				p.Platform.GCP.OSDisk.DiskSizeGB = 100
-				p.Platform.GCP.OSDisk.DiskType = "pd-standard"
-				return p
-			}(),
-			valid: true,
-		},
-		{
-			name:     "invalid GCP disk size",
-			platform: &types.Platform{GCP: &gcp.Platform{Region: "us-east-1"}},
-			pool: func() *types.MachinePool {
-				p := validMachinePool("test-name")
-				p.Platform = types.MachinePoolPlatform{
-					GCP: &gcp.MachinePool{},
-				}
-				p.Platform.GCP.OSDisk.DiskSizeGB = -100
-				p.Platform.GCP.OSDisk.DiskType = "pd-standard"
-				return p
-			}(),
-			valid: false,
-		},
-		{
-			name:     "invalid GCP disk type",
-			platform: &types.Platform{GCP: &gcp.Platform{Region: "us-east-1"}},
-			pool: func() *types.MachinePool {
-				p := validMachinePool("test-name")
-				p.Platform = types.MachinePoolPlatform{
-					GCP: &gcp.MachinePool{},
-				}
-				p.Platform.GCP.OSDisk.DiskSizeGB = 100
-				p.Platform.GCP.OSDisk.DiskType = "pd-"
-				return p
-			}(),
-			valid: false,
-		},
-		{
-			name:     "valid GCP service account use",
-			platform: &types.Platform{GCP: &gcp.Platform{Region: "us-east-1", NetworkProjectID: "ExampleNetworkProject"}},
-			pool: func() *types.MachinePool {
-				p := validMachinePool("master")
-				p.Platform = types.MachinePoolPlatform{
-					GCP: &gcp.MachinePool{
-						ServiceAccount: "ExampleServiceAccount@ExampleServiceAccount.com",
-					},
-				}
-				return p
-			}(),
-			valid: true,
-		},
-		{
-			name:     "invalid GCP service account on machine pool type",
-			platform: &types.Platform{GCP: &gcp.Platform{Region: "us-east-1"}},
-			pool: func() *types.MachinePool {
-				p := validMachinePool("worker")
-				p.Platform = types.MachinePoolPlatform{
-					GCP: &gcp.MachinePool{
-						ServiceAccount: "ExampleServiceAccount@ExampleServiceAccount.com",
-					},
-				}
-				return p
-			}(),
-			valid: false,
-		},
-		{
-			name:     "invalid GCP service account non xpn install",
-			platform: &types.Platform{GCP: &gcp.Platform{Region: "us-east-1"}},
-			pool: func() *types.MachinePool {
-				p := validMachinePool("master")
-				p.Platform = types.MachinePoolPlatform{
-					GCP: &gcp.MachinePool{
-						ServiceAccount: "ExampleServiceAccount@ExampleServiceAccount.com",
-					},
-				}
-				return p
-			}(),
-			valid: false,
 		},
 	}
 	for _, tc := range cases {

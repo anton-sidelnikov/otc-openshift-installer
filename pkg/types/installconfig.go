@@ -6,22 +6,9 @@ import (
 
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
+	"github.com/anton-sidelnikov/otc-openshift-installer/pkg/ipnet"
+	"github.com/anton-sidelnikov/otc-openshift-installer/pkg/types/openstack"
 	configv1 "github.com/openshift/api/config/v1"
-	"github.com/openshift/installer/pkg/ipnet"
-	"github.com/openshift/installer/pkg/types/alibabacloud"
-	"github.com/openshift/installer/pkg/types/aws"
-	"github.com/openshift/installer/pkg/types/azure"
-	"github.com/openshift/installer/pkg/types/baremetal"
-	"github.com/openshift/installer/pkg/types/external"
-	"github.com/openshift/installer/pkg/types/gcp"
-	"github.com/openshift/installer/pkg/types/ibmcloud"
-	"github.com/openshift/installer/pkg/types/libvirt"
-	"github.com/openshift/installer/pkg/types/none"
-	"github.com/openshift/installer/pkg/types/nutanix"
-	"github.com/openshift/installer/pkg/types/openstack"
-	"github.com/openshift/installer/pkg/types/ovirt"
-	"github.com/openshift/installer/pkg/types/powervs"
-	"github.com/openshift/installer/pkg/types/vsphere"
 )
 
 const (
@@ -36,24 +23,12 @@ var (
 	// platform names in alphabetical order. This is the list of
 	// platforms presented to the user in the interactive wizard.
 	PlatformNames = []string{
-		alibabacloud.Name,
-		aws.Name,
-		azure.Name,
-		gcp.Name,
-		ibmcloud.Name,
-		nutanix.Name,
 		openstack.Name,
-		powervs.Name,
-		vsphere.Name,
 	}
 	// HiddenPlatformNames is a slice with all the
 	// hidden-but-supported platform names. This list isn't presented
 	// to the user in the interactive wizard.
-	HiddenPlatformNames = []string{
-		baremetal.Name,
-		external.Name,
-		none.Name,
-	}
+	HiddenPlatformNames = []string{}
 
 	// FCOS is a setting to enable Fedora CoreOS-only modifications
 	FCOS = false
@@ -255,61 +230,9 @@ const (
 // Platform is the configuration for the specific platform upon which to perform
 // the installation. Only one of the platform configuration should be set.
 type Platform struct {
-	// AlibabaCloud is the configuration used when installing on Alibaba Cloud.
-	// +optional
-	AlibabaCloud *alibabacloud.Platform `json:"alibabacloud,omitempty"`
-
-	// AWS is the configuration used when installing on AWS.
-	// +optional
-	AWS *aws.Platform `json:"aws,omitempty"`
-
-	// Azure is the configuration used when installing on Azure.
-	// +optional
-	Azure *azure.Platform `json:"azure,omitempty"`
-
-	// BareMetal is the configuration used when installing on bare metal.
-	// +optional
-	BareMetal *baremetal.Platform `json:"baremetal,omitempty"`
-
-	// GCP is the configuration used when installing on Google Cloud Platform.
-	// +optional
-	GCP *gcp.Platform `json:"gcp,omitempty"`
-
-	// IBMCloud is the configuration used when installing on IBM Cloud.
-	// +optional
-	IBMCloud *ibmcloud.Platform `json:"ibmcloud,omitempty"`
-
-	// Libvirt is the configuration used when installing on libvirt.
-	// +optional
-	Libvirt *libvirt.Platform `json:"libvirt,omitempty"`
-
-	// None is the empty configuration used when installing on an unsupported
-	// platform.
-	None *none.Platform `json:"none,omitempty"`
-
-	// External is the configuration used when installing on
-	// an external cloud provider.
-	External *external.Platform `json:"external,omitempty"`
-
 	// OpenStack is the configuration used when installing on OpenStack.
 	// +optional
 	OpenStack *openstack.Platform `json:"openstack,omitempty"`
-
-	// PowerVS is the configuration used when installing on Power VS.
-	// +optional
-	PowerVS *powervs.Platform `json:"powervs,omitempty"`
-
-	// VSphere is the configuration used when installing on vSphere.
-	// +optional
-	VSphere *vsphere.Platform `json:"vsphere,omitempty"`
-
-	// Ovirt is the configuration used when installing on oVirt.
-	// +optional
-	Ovirt *ovirt.Platform `json:"ovirt,omitempty"`
-
-	// Nutanix is the configuration used when installing on Nutanix.
-	// +optional
-	Nutanix *nutanix.Platform `json:"nutanix,omitempty"`
 }
 
 // Name returns a string representation of the platform (e.g. "aws" if
@@ -319,34 +242,8 @@ func (p *Platform) Name() string {
 	switch {
 	case p == nil:
 		return ""
-	case p.AlibabaCloud != nil:
-		return alibabacloud.Name
-	case p.AWS != nil:
-		return aws.Name
-	case p.Azure != nil:
-		return azure.Name
-	case p.BareMetal != nil:
-		return baremetal.Name
-	case p.GCP != nil:
-		return gcp.Name
-	case p.IBMCloud != nil:
-		return ibmcloud.Name
-	case p.Libvirt != nil:
-		return libvirt.Name
-	case p.None != nil:
-		return none.Name
-	case p.External != nil:
-		return external.Name
 	case p.OpenStack != nil:
 		return openstack.Name
-	case p.VSphere != nil:
-		return vsphere.Name
-	case p.Ovirt != nil:
-		return ovirt.Name
-	case p.PowerVS != nil:
-		return powervs.Name
-	case p.Nutanix != nil:
-		return nutanix.Name
 	default:
 		return ""
 	}

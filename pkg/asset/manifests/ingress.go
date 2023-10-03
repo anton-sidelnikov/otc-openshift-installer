@@ -8,12 +8,11 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"sigs.k8s.io/yaml"
 
+	"github.com/anton-sidelnikov/otc-openshift-installer/pkg/asset"
+	"github.com/anton-sidelnikov/otc-openshift-installer/pkg/asset/installconfig"
+	"github.com/anton-sidelnikov/otc-openshift-installer/pkg/types"
 	configv1 "github.com/openshift/api/config/v1"
 	operatorv1 "github.com/openshift/api/operator/v1"
-	"github.com/openshift/installer/pkg/asset"
-	"github.com/openshift/installer/pkg/asset/installconfig"
-	"github.com/openshift/installer/pkg/types"
-	"github.com/openshift/installer/pkg/types/aws"
 )
 
 var (
@@ -83,7 +82,7 @@ func (ing *Ingress) generateClusterConfig(config *types.InstallConfig) ([]byte, 
 	isSingleControlPlaneNode := controlPlaneTopology == configv1.SingleReplicaTopologyMode
 
 	defaultPlacement := configv1.DefaultPlacementWorkers
-	if config.Platform.None != nil && isSingleControlPlaneNode {
+	if isSingleControlPlaneNode {
 		// A none-platform single control-plane node cluster doesn't need a
 		// load balancer, the API and ingress traffic for such cluster can be
 		// directed at the single node directly. We want to maintain that even
@@ -116,21 +115,6 @@ func (ing *Ingress) generateClusterConfig(config *types.InstallConfig) ([]byte, 
 		},
 	}
 
-	switch config.Platform.Name() {
-	case aws.Name:
-		lbType := configv1.Classic
-		if config.AWS.LBType == configv1.NLB {
-			lbType = configv1.NLB
-		}
-		obj.Spec.LoadBalancer = configv1.LoadBalancer{
-			Platform: configv1.IngressPlatformSpec{
-				AWS: &configv1.AWSIngressSpec{
-					Type: lbType,
-				},
-				Type: configv1.AWSPlatformType,
-			},
-		}
-	}
 	return yaml.Marshal(obj)
 }
 

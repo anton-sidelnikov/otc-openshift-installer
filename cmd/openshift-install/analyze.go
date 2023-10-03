@@ -7,7 +7,7 @@ import (
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 
-	"github.com/openshift/installer/pkg/gather/service"
+	"github.com/anton-sidelnikov/otc-openshift-installer/pkg/gather/service"
 )
 
 var (

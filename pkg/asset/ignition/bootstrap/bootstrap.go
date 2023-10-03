@@ -1,7 +1,7 @@
 package bootstrap
 
 import (
-	"github.com/openshift/installer/pkg/asset"
+	"github.com/anton-sidelnikov/otc-openshift-installer/pkg/asset"
 )
 
 const (

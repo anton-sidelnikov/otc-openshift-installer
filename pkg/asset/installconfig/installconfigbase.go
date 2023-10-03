@@ -8,10 +8,10 @@ import (
 	"github.com/sirupsen/logrus"
 	"sigs.k8s.io/yaml"
 
-	"github.com/openshift/installer/pkg/asset"
-	"github.com/openshift/installer/pkg/types"
-	"github.com/openshift/installer/pkg/types/conversion"
-	"github.com/openshift/installer/pkg/types/defaults"
+	"github.com/anton-sidelnikov/otc-openshift-installer/pkg/asset"
+	"github.com/anton-sidelnikov/otc-openshift-installer/pkg/types"
+	"github.com/anton-sidelnikov/otc-openshift-installer/pkg/types/conversion"
+	"github.com/anton-sidelnikov/otc-openshift-installer/pkg/types/defaults"
 )
 
 // AssetBase is the base structure for the separate InstallConfig assets used

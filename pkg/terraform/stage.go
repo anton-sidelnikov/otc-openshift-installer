@@ -1,8 +1,8 @@
 package terraform
 
 import (
-	"github.com/openshift/installer/pkg/terraform/providers"
-	"github.com/openshift/installer/pkg/types"
+	"github.com/anton-sidelnikov/otc-openshift-installer/pkg/terraform/providers"
+	"github.com/anton-sidelnikov/otc-openshift-installer/pkg/types"
 )
 
 // Stage is an individual stage of terraform infrastructure provisioning.

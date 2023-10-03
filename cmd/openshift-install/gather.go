@@ -17,19 +17,15 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/rest"
 
+	"github.com/anton-sidelnikov/otc-openshift-installer/pkg/asset/installconfig"
+	assetstore "github.com/anton-sidelnikov/otc-openshift-installer/pkg/asset/store"
+	"github.com/anton-sidelnikov/otc-openshift-installer/pkg/asset/tls"
+	serialgather "github.com/anton-sidelnikov/otc-openshift-installer/pkg/gather"
+	"github.com/anton-sidelnikov/otc-openshift-installer/pkg/gather/service"
+	"github.com/anton-sidelnikov/otc-openshift-installer/pkg/gather/ssh"
+	platformstages "github.com/anton-sidelnikov/otc-openshift-installer/pkg/terraform/stages/platform"
 	configv1 "github.com/openshift/api/config/v1"
 	configclient "github.com/openshift/client-go/config/clientset/versioned"
-	"github.com/openshift/installer/pkg/asset/installconfig"
-	assetstore "github.com/openshift/installer/pkg/asset/store"
-	"github.com/openshift/installer/pkg/asset/tls"
-	serialgather "github.com/openshift/installer/pkg/gather"
-	"github.com/openshift/installer/pkg/gather/service"
-	"github.com/openshift/installer/pkg/gather/ssh"
-	platformstages "github.com/openshift/installer/pkg/terraform/stages/platform"
-
-	_ "github.com/openshift/installer/pkg/gather/aws"
-	_ "github.com/openshift/installer/pkg/gather/azure"
-	_ "github.com/openshift/installer/pkg/gather/gcp"
 )
 
 func newGatherCmd() *cobra.Command {

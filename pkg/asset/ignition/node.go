@@ -10,7 +10,7 @@ import (
 	"github.com/vincent-petithory/dataurl"
 	"k8s.io/apimachinery/pkg/runtime"
 
-	"github.com/openshift/installer/pkg/asset"
+	"github.com/anton-sidelnikov/otc-openshift-installer/pkg/asset"
 )
 
 // Marshal is a helper function to use the marshaler function from "github.com/clarketm/json".

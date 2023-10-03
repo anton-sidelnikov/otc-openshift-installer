@@ -6,8 +6,8 @@ import (
 	"github.com/gophercloud/utils/openstack/clientconfig"
 	"github.com/stretchr/testify/assert"
 
-	"github.com/openshift/installer/pkg/types"
-	"github.com/openshift/installer/pkg/types/openstack"
+	"github.com/anton-sidelnikov/otc-openshift-installer/pkg/types"
+	"github.com/anton-sidelnikov/otc-openshift-installer/pkg/types/openstack"
 )
 
 func TestCloudProviderConfigSecret(t *testing.T) {

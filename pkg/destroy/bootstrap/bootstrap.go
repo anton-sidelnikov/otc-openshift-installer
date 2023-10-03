@@ -8,13 +8,12 @@ import (
 
 	"github.com/pkg/errors"
 
-	"github.com/openshift/installer/pkg/asset/cluster"
-	openstackasset "github.com/openshift/installer/pkg/asset/cluster/openstack"
-	osp "github.com/openshift/installer/pkg/destroy/openstack"
-	"github.com/openshift/installer/pkg/terraform"
-	platformstages "github.com/openshift/installer/pkg/terraform/stages/platform"
-	typesazure "github.com/openshift/installer/pkg/types/azure"
-	"github.com/openshift/installer/pkg/types/openstack"
+	"github.com/anton-sidelnikov/otc-openshift-installer/pkg/asset/cluster"
+	openstackasset "github.com/anton-sidelnikov/otc-openshift-installer/pkg/asset/cluster/openstack"
+	osp "github.com/anton-sidelnikov/otc-openshift-installer/pkg/destroy/openstack"
+	"github.com/anton-sidelnikov/otc-openshift-installer/pkg/terraform"
+	platformstages "github.com/anton-sidelnikov/otc-openshift-installer/pkg/terraform/stages/platform"
+	"github.com/anton-sidelnikov/otc-openshift-installer/pkg/types/openstack"
 )
 
 // Destroy uses Terraform to remove bootstrap resources.
@@ -38,11 +37,6 @@ func Destroy(dir string) (err error) {
 		if err := osp.DeleteGlanceImage(imageName, metadata.OpenStack.Cloud); err != nil {
 			return errors.Wrapf(err, "Failed to delete glance image %s", imageName)
 		}
-	}
-
-	// Azure Stack uses the Azure platform but has its own Terraform configuration.
-	if platform == typesazure.Name && metadata.Azure.CloudName == typesazure.StackCloud {
-		platform = typesazure.StackTerraformName
 	}
 
 	varFiles := []string{cluster.TfVarsFileName, cluster.TfPlatformVarsFileName}

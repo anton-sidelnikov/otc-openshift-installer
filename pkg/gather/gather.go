@@ -11,8 +11,8 @@ import (
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 
-	"github.com/openshift/installer/pkg/asset/cluster"
-	"github.com/openshift/installer/pkg/gather/providers"
+	"github.com/anton-sidelnikov/otc-openshift-installer/pkg/asset/cluster"
+	"github.com/anton-sidelnikov/otc-openshift-installer/pkg/gather/providers"
 )
 
 // New returns a Gather based on `metadata.json` in `rootDir`.

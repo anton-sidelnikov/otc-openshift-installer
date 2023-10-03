@@ -4,8 +4,8 @@ import (
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 
-	"github.com/openshift/installer/pkg/asset/cluster"
-	"github.com/openshift/installer/pkg/destroy/providers"
+	"github.com/anton-sidelnikov/otc-openshift-installer/pkg/asset/cluster"
+	"github.com/anton-sidelnikov/otc-openshift-installer/pkg/destroy/providers"
 )
 
 // New returns a Destroyer based on `metadata.json` in `rootDir`.

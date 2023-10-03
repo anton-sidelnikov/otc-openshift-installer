@@ -7,11 +7,11 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/anton-sidelnikov/otc-openshift-installer/pkg/asset"
+	config "github.com/anton-sidelnikov/otc-openshift-installer/pkg/asset/agent/agentconfig"
+	"github.com/anton-sidelnikov/otc-openshift-installer/pkg/asset/agent/manifests"
+	"github.com/anton-sidelnikov/otc-openshift-installer/pkg/asset/agent/mirror"
 	"github.com/openshift/assisted-image-service/pkg/isoeditor"
-	"github.com/openshift/installer/pkg/asset"
-	config "github.com/openshift/installer/pkg/asset/agent/agentconfig"
-	"github.com/openshift/installer/pkg/asset/agent/manifests"
-	"github.com/openshift/installer/pkg/asset/agent/mirror"
 )
 
 const (

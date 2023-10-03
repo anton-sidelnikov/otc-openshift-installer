@@ -1,7 +1,6 @@
 package quota
 
 import (
-	"context"
 	"fmt"
 	"os"
 	"strings"
@@ -9,33 +8,14 @@ import (
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 
-	"github.com/openshift/installer/pkg/asset"
-	"github.com/openshift/installer/pkg/asset/installconfig"
-	configgcp "github.com/openshift/installer/pkg/asset/installconfig/gcp"
-	openstackvalidation "github.com/openshift/installer/pkg/asset/installconfig/openstack/validation"
-	configpowervs "github.com/openshift/installer/pkg/asset/installconfig/powervs"
-	"github.com/openshift/installer/pkg/asset/machines"
-	"github.com/openshift/installer/pkg/asset/quota/aws"
-	"github.com/openshift/installer/pkg/asset/quota/gcp"
-	"github.com/openshift/installer/pkg/asset/quota/openstack"
-	"github.com/openshift/installer/pkg/diagnostics"
-	"github.com/openshift/installer/pkg/quota"
-	quotaaws "github.com/openshift/installer/pkg/quota/aws"
-	quotagcp "github.com/openshift/installer/pkg/quota/gcp"
-	"github.com/openshift/installer/pkg/types/alibabacloud"
-	typesaws "github.com/openshift/installer/pkg/types/aws"
-	"github.com/openshift/installer/pkg/types/azure"
-	"github.com/openshift/installer/pkg/types/baremetal"
-	"github.com/openshift/installer/pkg/types/external"
-	typesgcp "github.com/openshift/installer/pkg/types/gcp"
-	"github.com/openshift/installer/pkg/types/ibmcloud"
-	"github.com/openshift/installer/pkg/types/libvirt"
-	"github.com/openshift/installer/pkg/types/none"
-	"github.com/openshift/installer/pkg/types/nutanix"
-	typesopenstack "github.com/openshift/installer/pkg/types/openstack"
-	"github.com/openshift/installer/pkg/types/ovirt"
-	"github.com/openshift/installer/pkg/types/powervs"
-	"github.com/openshift/installer/pkg/types/vsphere"
+	"github.com/anton-sidelnikov/otc-openshift-installer/pkg/asset"
+	"github.com/anton-sidelnikov/otc-openshift-installer/pkg/asset/installconfig"
+	openstackvalidation "github.com/anton-sidelnikov/otc-openshift-installer/pkg/asset/installconfig/openstack/validation"
+	"github.com/anton-sidelnikov/otc-openshift-installer/pkg/asset/machines"
+	"github.com/anton-sidelnikov/otc-openshift-installer/pkg/asset/quota/openstack"
+	"github.com/anton-sidelnikov/otc-openshift-installer/pkg/diagnostics"
+	"github.com/anton-sidelnikov/otc-openshift-installer/pkg/quota"
+	typesopenstack "github.com/anton-sidelnikov/otc-openshift-installer/pkg/types/openstack"
 )
 
 // PlatformQuotaCheck is an asset that validates the install-config platform for
@@ -73,61 +53,6 @@ func (a *PlatformQuotaCheck) Generate(dependencies asset.Parents) error {
 
 	platform := ic.Config.Platform.Name()
 	switch platform {
-	case typesaws.Name:
-		if !quotaaws.SupportedRegions.Has(ic.AWS.Region) {
-			logrus.Debugf("%s does not support API for checking quotas, therefore skipping.", ic.AWS.Region)
-			return nil
-		}
-		services := []string{"ec2", "vpc"}
-		session, err := ic.AWS.Session(context.TODO())
-		if err != nil {
-			return errors.Wrap(err, "failed to load AWS session")
-		}
-		q, err := quotaaws.Load(context.TODO(), session, ic.AWS.Region, services...)
-		if quotaaws.IsUnauthorized(err) {
-			logrus.Debugf("Missing permissions to fetch Quotas and therefore will skip checking them: %v, make sure you have `servicequotas:ListAWSDefaultServiceQuotas` permission available to the user.", err)
-			logrus.Info("Skipping quota checks")
-			return nil
-		}
-		if err != nil {
-			return errors.Wrapf(err, "failed to load Quota for services: %s", strings.Join(services, ", "))
-		}
-		instanceTypes, err := aws.InstanceTypes(context.TODO(), session, ic.AWS.Region)
-		if quotaaws.IsUnauthorized(err) {
-			logrus.Warnf("Missing permissions to fetch instance types and therefore will skip checking Quotas: %v, make sure you have `ec2:DescribeInstanceTypes` permission available to the user.", err)
-			return nil
-		}
-		if err != nil {
-			return errors.Wrapf(err, "failed to load instance types for %s", ic.AWS.Region)
-		}
-		reports, err := quota.Check(q, aws.Constraints(ic.Config, masters, workers, instanceTypes))
-		if err != nil {
-			return summarizeFailingReport(reports)
-		}
-		summarizeReport(reports)
-	case typesgcp.Name:
-		services := []string{"compute.googleapis.com", "iam.googleapis.com"}
-		q, err := quotagcp.Load(context.TODO(), ic.Config.Platform.GCP.ProjectID, services...)
-		if quotagcp.IsUnauthorized(err) {
-			logrus.Warnf("Missing permissions to fetch Quotas and therefore will skip checking them: %v, make sure you have `roles/servicemanagement.quotaViewer` assigned to the user.", err)
-			return nil
-		}
-		if err != nil {
-			return errors.Wrapf(err, "failed to load Quota for services: %s", strings.Join(services, ", "))
-		}
-		session, err := configgcp.GetSession(context.TODO())
-		if err != nil {
-			return errors.Wrap(err, "failed to load GCP session")
-		}
-		client, err := gcp.NewClient(context.TODO(), session, ic.Config.Platform.GCP.ProjectID)
-		if err != nil {
-			return errors.Wrap(err, "failed to create client for quota constraints")
-		}
-		reports, err := quota.Check(q, gcp.Constraints(client, ic.Config, masters, workers))
-		if err != nil {
-			return summarizeFailingReport(reports)
-		}
-		summarizeReport(reports)
 	case typesopenstack.Name:
 		if skip := os.Getenv("OPENSHIFT_INSTALL_SKIP_PREFLIGHT_VALIDATIONS"); skip == "1" {
 			logrus.Warnf("OVERRIDE: pre-flight validation disabled.")
@@ -146,45 +71,6 @@ func (a *PlatformQuotaCheck) Generate(dependencies asset.Parents) error {
 			return summarizeFailingReport(reports)
 		}
 		summarizeReport(reports)
-	case powervs.Name:
-		// We need to prompt for missing variables because NewPISession requires them!
-		bxCli, err := configpowervs.NewBxClient(true)
-		if err != nil {
-			return errors.Wrap(err, "failed to create bluemix client")
-		}
-
-		err = bxCli.NewPISession()
-		if err != nil {
-			return errors.Wrap(err, "failed to create a new PISession")
-		}
-
-		transitGatewayEnabled := configpowervs.TransitGatewayEnabledZone(ic.Config.Platform.PowerVS.Zone)
-
-		if !transitGatewayEnabled {
-			// Only check that there isn't an existing Cloud connection if we're not re-using one
-			if ic.Config.Platform.PowerVS.CloudConnectionName == "" {
-				err = bxCli.ValidateCloudConnectionInPowerVSRegion(context.TODO(), ic.Config.Platform.PowerVS.ServiceInstanceID)
-				if err != nil {
-					return fmt.Errorf("failed to meet the prerequisite for Cloud Connections: %w", err)
-				}
-			}
-		}
-
-		err = bxCli.ValidateCapacity(context.TODO(), masters, workers, ic.Config.Platform.PowerVS.ServiceInstanceID)
-		if err != nil {
-			return err
-		}
-
-		if !transitGatewayEnabled {
-			if ic.Config.Platform.PowerVS.PVSNetworkName == "" {
-				err = bxCli.ValidateDhcpService(context.TODO(), ic.Config.Platform.PowerVS.ServiceInstanceID, ic.Config.MachineNetwork)
-				if err != nil {
-					return fmt.Errorf("failed to meet the prerequisite of one DHCP service per Power VS instance: %w", err)
-				}
-			}
-		}
-	case alibabacloud.Name, azure.Name, baremetal.Name, ibmcloud.Name, libvirt.Name, external.Name, none.Name, ovirt.Name, vsphere.Name, nutanix.Name:
-		// no special provisioning requirements to check
 	default:
 		err = fmt.Errorf("unknown platform type %q", platform)
 	}

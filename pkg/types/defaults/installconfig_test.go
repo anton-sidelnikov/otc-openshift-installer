@@ -3,23 +3,11 @@ package defaults
 import (
 	"testing"
 
+	"github.com/anton-sidelnikov/otc-openshift-installer/pkg/ipnet"
+	"github.com/anton-sidelnikov/otc-openshift-installer/pkg/types"
+	"github.com/anton-sidelnikov/otc-openshift-installer/pkg/types/openstack"
+	openstackdefaults "github.com/anton-sidelnikov/otc-openshift-installer/pkg/types/openstack/defaults"
 	"github.com/stretchr/testify/assert"
-	"k8s.io/utils/pointer"
-
-	"github.com/openshift/installer/pkg/ipnet"
-	"github.com/openshift/installer/pkg/types"
-	"github.com/openshift/installer/pkg/types/aws"
-	awsdefaults "github.com/openshift/installer/pkg/types/aws/defaults"
-	"github.com/openshift/installer/pkg/types/azure"
-	azuredefaults "github.com/openshift/installer/pkg/types/azure/defaults"
-	"github.com/openshift/installer/pkg/types/libvirt"
-	libvirtdefaults "github.com/openshift/installer/pkg/types/libvirt/defaults"
-	"github.com/openshift/installer/pkg/types/none"
-	nonedefaults "github.com/openshift/installer/pkg/types/none/defaults"
-	"github.com/openshift/installer/pkg/types/openstack"
-	openstackdefaults "github.com/openshift/installer/pkg/types/openstack/defaults"
-	"github.com/openshift/installer/pkg/types/ovirt"
-	ovirtdefaults "github.com/openshift/installer/pkg/types/ovirt/defaults"
 )
 
 func defaultInstallConfig() *types.InstallConfig {
@@ -50,30 +38,6 @@ func defaultInstallConfigWithEdge() *types.InstallConfig {
 	return c
 }
 
-func defaultAWSInstallConfig() *types.InstallConfig {
-	c := defaultInstallConfig()
-	c.Platform.AWS = &aws.Platform{}
-	awsdefaults.SetPlatformDefaults(c.Platform.AWS)
-	return c
-}
-
-func defaultAzureInstallConfig() *types.InstallConfig {
-	c := defaultInstallConfig()
-	c.Platform.Azure = &azure.Platform{}
-	azuredefaults.SetPlatformDefaults(c.Platform.Azure)
-	return c
-}
-
-func defaultLibvirtInstallConfig() *types.InstallConfig {
-	c := defaultInstallConfig()
-	c.Networking.MachineNetwork[0].CIDR = *libvirtdefaults.DefaultMachineCIDR
-	c.Platform.Libvirt = &libvirt.Platform{}
-	libvirtdefaults.SetPlatformDefaults(c.Platform.Libvirt)
-	c.ControlPlane.Replicas = pointer.Int64Ptr(1)
-	c.Compute[0].Replicas = pointer.Int64Ptr(1)
-	return c
-}
-
 func defaultOpenStackInstallConfig() *types.InstallConfig {
 	c := defaultInstallConfig()
 	c.Platform.OpenStack = &openstack.Platform{}
@@ -81,26 +45,8 @@ func defaultOpenStackInstallConfig() *types.InstallConfig {
 	return c
 }
 
-func defaultOvirtInstallConfig() *types.InstallConfig {
-	c := defaultInstallConfig()
-	c.Platform.Ovirt = &ovirt.Platform{}
-	ovirtdefaults.SetPlatformDefaults(c.Platform.Ovirt)
-	ovirtdefaults.SetControlPlaneDefaults(c.Platform.Ovirt, c.ControlPlane)
-	for i := range c.Compute {
-		ovirtdefaults.SetComputeDefaults(c.Platform.Ovirt, &c.Compute[i])
-	}
-	return c
-}
-
 func defaultAdditionalTrustBundlePolicy() types.PolicyType {
 	return types.PolicyProxyOnly
-}
-
-func defaultNoneInstallConfig() *types.InstallConfig {
-	c := defaultInstallConfig()
-	c.Platform.None = &none.Platform{}
-	nonedefaults.SetPlatformDefaults(c.Platform.None)
-	return c
 }
 
 func TestSetInstallConfigDefaults(t *testing.T) {
@@ -115,33 +61,6 @@ func TestSetInstallConfigDefaults(t *testing.T) {
 			expected: defaultInstallConfig(),
 		},
 		{
-			name: "empty AWS",
-			config: &types.InstallConfig{
-				Platform: types.Platform{
-					AWS: &aws.Platform{},
-				},
-			},
-			expected: defaultAWSInstallConfig(),
-		},
-		{
-			name: "empty Azure",
-			config: &types.InstallConfig{
-				Platform: types.Platform{
-					Azure: &azure.Platform{},
-				},
-			},
-			expected: defaultAzureInstallConfig(),
-		},
-		{
-			name: "empty Libvirt",
-			config: &types.InstallConfig{
-				Platform: types.Platform{
-					Libvirt: &libvirt.Platform{},
-				},
-			},
-			expected: defaultLibvirtInstallConfig(),
-		},
-		{
 			name: "empty OpenStack",
 			config: &types.InstallConfig{
 				Platform: types.Platform{
@@ -149,15 +68,6 @@ func TestSetInstallConfigDefaults(t *testing.T) {
 				},
 			},
 			expected: defaultOpenStackInstallConfig(),
-		},
-		{
-			name: "empty oVirt",
-			config: &types.InstallConfig{
-				Platform: types.Platform{
-					Ovirt: &ovirt.Platform{},
-				},
-			},
-			expected: defaultOvirtInstallConfig(),
 		},
 		{
 			name: "Networking present",
@@ -248,45 +158,6 @@ func TestSetInstallConfigDefaults(t *testing.T) {
 			}(),
 		},
 		{
-			name: "AWS platform present",
-			config: &types.InstallConfig{
-				Platform: types.Platform{
-					AWS: &aws.Platform{},
-				},
-			},
-			expected: func() *types.InstallConfig {
-				c := defaultAWSInstallConfig()
-				return c
-			}(),
-		},
-		{
-			name: "Azure platform present",
-			config: &types.InstallConfig{
-				Platform: types.Platform{
-					Azure: &azure.Platform{},
-				},
-			},
-			expected: func() *types.InstallConfig {
-				c := defaultAzureInstallConfig()
-				return c
-			}(),
-		},
-		{
-			name: "Libvirt platform present",
-			config: &types.InstallConfig{
-				Platform: types.Platform{
-					Libvirt: &libvirt.Platform{
-						URI: "test-uri",
-					},
-				},
-			},
-			expected: func() *types.InstallConfig {
-				c := defaultLibvirtInstallConfig()
-				c.Platform.Libvirt.URI = "test-uri"
-				return c
-			}(),
-		},
-		{
 			name: "OpenStack platform present",
 			config: &types.InstallConfig{
 				Platform: types.Platform{
@@ -295,18 +166,6 @@ func TestSetInstallConfigDefaults(t *testing.T) {
 			},
 			expected: func() *types.InstallConfig {
 				c := defaultOpenStackInstallConfig()
-				return c
-			}(),
-		},
-		{
-			name: "None platform present",
-			config: &types.InstallConfig{
-				Platform: types.Platform{
-					None: &none.Platform{},
-				},
-			},
-			expected: func() *types.InstallConfig {
-				c := defaultNoneInstallConfig()
 				return c
 			}(),
 		},

@@ -9,7 +9,7 @@ import (
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 
-	"github.com/openshift/installer/pkg/version"
+	"github.com/anton-sidelnikov/otc-openshift-installer/pkg/version"
 )
 
 type fileHook struct {

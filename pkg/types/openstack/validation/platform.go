@@ -3,11 +3,11 @@ package validation
 import (
 	"k8s.io/apimachinery/pkg/util/validation/field"
 
+	"github.com/anton-sidelnikov/otc-openshift-installer/pkg/asset/installconfig/openstack/validation"
+	"github.com/anton-sidelnikov/otc-openshift-installer/pkg/types"
+	"github.com/anton-sidelnikov/otc-openshift-installer/pkg/types/openstack"
+	"github.com/anton-sidelnikov/otc-openshift-installer/pkg/validate"
 	configv1 "github.com/openshift/api/config/v1"
-	"github.com/openshift/installer/pkg/asset/installconfig/openstack/validation"
-	"github.com/openshift/installer/pkg/types"
-	"github.com/openshift/installer/pkg/types/openstack"
-	"github.com/openshift/installer/pkg/validate"
 )
 
 // ValidatePlatform checks that the specified platform is valid.

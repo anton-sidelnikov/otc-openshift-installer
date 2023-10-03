@@ -1,8 +1,8 @@
 package manifests
 
 import (
+	"github.com/anton-sidelnikov/otc-openshift-installer/pkg/types"
 	configv1 "github.com/openshift/api/config/v1"
-	"github.com/openshift/installer/pkg/types"
 )
 
 // determineTopologies determines the Infrastructure CR's

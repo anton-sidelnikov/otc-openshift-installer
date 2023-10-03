@@ -14,8 +14,8 @@ import (
 	"github.com/gophercloud/utils/openstack/clientconfig"
 	"github.com/sirupsen/logrus"
 
-	"github.com/openshift/installer/pkg/tfvars/internal/cache"
-	openstackdefaults "github.com/openshift/installer/pkg/types/openstack/defaults"
+	"github.com/anton-sidelnikov/otc-openshift-installer/pkg/tfvars/internal/cache"
+	openstackdefaults "github.com/anton-sidelnikov/otc-openshift-installer/pkg/types/openstack/defaults"
 )
 
 // uploadBaseImage creates a new image in Glance and uploads the RHCOS image there
@@ -79,7 +79,7 @@ func uploadBaseImage(cloud string, baseImage, imageName string, infraID string, 
 	// FIXME(mfedosin): We have to temporary disable image import, because it looks
 	// like there are problems on the server side.
 	// Revert this patch when the problems are fixed.
-	// https://github.com/openshift/installer/issues/3403
+	// https://github.com/anton-sidelnikov/otc-openshift-installer/issues/3403
 	// useImageImport, err := isImageImportSupported(cloud)
 	// if err != nil {
 	// 	return err

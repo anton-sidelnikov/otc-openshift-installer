@@ -11,12 +11,11 @@ import (
 	"github.com/pkg/errors"
 	"sigs.k8s.io/yaml"
 
-	"github.com/openshift/installer/pkg/asset"
-	"github.com/openshift/installer/pkg/asset/installconfig"
-	"github.com/openshift/installer/pkg/asset/templates/content/bootkube"
-	"github.com/openshift/installer/pkg/asset/tls"
-	"github.com/openshift/installer/pkg/types"
-	"github.com/openshift/installer/pkg/types/vsphere"
+	"github.com/anton-sidelnikov/otc-openshift-installer/pkg/asset"
+	"github.com/anton-sidelnikov/otc-openshift-installer/pkg/asset/installconfig"
+	"github.com/anton-sidelnikov/otc-openshift-installer/pkg/asset/templates/content/bootkube"
+	"github.com/anton-sidelnikov/otc-openshift-installer/pkg/asset/tls"
+	"github.com/anton-sidelnikov/otc-openshift-installer/pkg/types"
 )
 
 const (
@@ -236,35 +235,6 @@ func redactedInstallConfig(config types.InstallConfig) ([]byte, error) {
 	newConfig := config
 
 	newConfig.PullSecret = ""
-	if newConfig.Platform.VSphere != nil {
-		p := config.VSphere
-		newVCenters := make([]vsphere.VCenter, len(p.VCenters))
-		for i, v := range p.VCenters {
-			newVCenters[i].Server = v.Server
-			newVCenters[i].Datacenters = v.Datacenters
-		}
-		newVSpherePlatform := vsphere.Platform{
-			DeprecatedVCenter:          p.DeprecatedVCenter,
-			DeprecatedUsername:         "",
-			DeprecatedPassword:         "",
-			DeprecatedDatacenter:       p.DeprecatedDatacenter,
-			DeprecatedDefaultDatastore: p.DeprecatedDefaultDatastore,
-			DeprecatedFolder:           p.DeprecatedFolder,
-			DeprecatedCluster:          p.DeprecatedCluster,
-			DeprecatedResourcePool:     p.DeprecatedResourcePool,
-			ClusterOSImage:             p.ClusterOSImage,
-			DeprecatedAPIVIP:           p.DeprecatedAPIVIP,
-			APIVIPs:                    p.APIVIPs,
-			DeprecatedIngressVIP:       p.DeprecatedIngressVIP,
-			IngressVIPs:                p.IngressVIPs,
-			DefaultMachinePlatform:     p.DefaultMachinePlatform,
-			DeprecatedNetwork:          p.DeprecatedNetwork,
-			DiskType:                   p.DiskType,
-			VCenters:                   newVCenters,
-			FailureDomains:             p.FailureDomains,
-		}
-		newConfig.Platform.VSphere = &newVSpherePlatform
-	}
 
 	return yaml.Marshal(newConfig)
 }

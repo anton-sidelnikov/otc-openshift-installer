@@ -13,9 +13,9 @@ import (
 	"github.com/coreos/stream-metadata-go/arch"
 	"github.com/sirupsen/logrus"
 
+	"github.com/anton-sidelnikov/otc-openshift-installer/pkg/asset"
+	"github.com/anton-sidelnikov/otc-openshift-installer/pkg/types"
 	"github.com/openshift/assisted-image-service/pkg/isoeditor"
-	"github.com/openshift/installer/pkg/asset"
-	"github.com/openshift/installer/pkg/types"
 )
 
 // AgentPXEFiles is an asset that generates the bootable image used to install clusters.

@@ -5,7 +5,7 @@ import (
 
 	"k8s.io/apimachinery/pkg/util/validation/field"
 
-	"github.com/openshift/installer/pkg/types/agent"
+	"github.com/anton-sidelnikov/otc-openshift-installer/pkg/types/agent"
 )
 
 // ConvertAgentConfig is modeled after the k8s conversion schemes, which is

@@ -1,7 +1,7 @@
 package openstack
 
 import (
-	"github.com/openshift/installer/pkg/destroy/providers"
+	"github.com/anton-sidelnikov/otc-openshift-installer/pkg/destroy/providers"
 )
 
 func init() {
