@@ -3,7 +3,7 @@ package providers
 import (
 	"github.com/sirupsen/logrus"
 
-	"github.com/openshift/installer/pkg/types"
+	"github.com/anton-sidelnikov/otc-openshift-installer/pkg/types"
 )
 
 // Gather allows multiple implementations of gather

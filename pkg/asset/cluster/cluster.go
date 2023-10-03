@@ -1,7 +1,6 @@
 package cluster
 
 import (
-	"context"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -11,19 +10,15 @@ import (
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 
-	"github.com/openshift/installer/pkg/asset"
-	"github.com/openshift/installer/pkg/asset/cluster/aws"
-	"github.com/openshift/installer/pkg/asset/cluster/azure"
-	"github.com/openshift/installer/pkg/asset/cluster/openstack"
-	"github.com/openshift/installer/pkg/asset/installconfig"
-	"github.com/openshift/installer/pkg/asset/password"
-	"github.com/openshift/installer/pkg/asset/quota"
-	"github.com/openshift/installer/pkg/metrics/timer"
-	"github.com/openshift/installer/pkg/terraform"
-	platformstages "github.com/openshift/installer/pkg/terraform/stages/platform"
-	typesaws "github.com/openshift/installer/pkg/types/aws"
-	typesazure "github.com/openshift/installer/pkg/types/azure"
-	typesopenstack "github.com/openshift/installer/pkg/types/openstack"
+	"github.com/anton-sidelnikov/otc-openshift-installer/pkg/asset"
+	"github.com/anton-sidelnikov/otc-openshift-installer/pkg/asset/cluster/openstack"
+	"github.com/anton-sidelnikov/otc-openshift-installer/pkg/asset/installconfig"
+	"github.com/anton-sidelnikov/otc-openshift-installer/pkg/asset/password"
+	"github.com/anton-sidelnikov/otc-openshift-installer/pkg/asset/quota"
+	"github.com/anton-sidelnikov/otc-openshift-installer/pkg/metrics/timer"
+	"github.com/anton-sidelnikov/otc-openshift-installer/pkg/terraform"
+	platformstages "github.com/anton-sidelnikov/otc-openshift-installer/pkg/terraform/stages/platform"
+	typesopenstack "github.com/anton-sidelnikov/otc-openshift-installer/pkg/types/openstack"
 )
 
 var (
@@ -78,19 +73,11 @@ func (c *Cluster) Generate(parents asset.Parents) (err error) {
 		logrus.Warnf("FeatureSet %q is enabled. This FeatureSet does not allow upgrades and may affect the supportability of the cluster.", fs)
 	}
 
-	if installConfig.Config.Platform.None != nil {
-		return errors.New("cluster cannot be created with platform set to 'none'")
-	}
-
 	if installConfig.Config.BootstrapInPlace != nil {
 		return errors.New("cluster cannot be created with bootstrapInPlace set")
 	}
 
 	platform := installConfig.Config.Platform.Name()
-
-	if azure := installConfig.Config.Platform.Azure; azure != nil && azure.CloudName == typesazure.StackCloud {
-		platform = typesazure.StackTerraformName
-	}
 
 	stages := platformstages.StagesForPlatform(platform)
 
@@ -109,14 +96,6 @@ func (c *Cluster) Generate(parents asset.Parents) (err error) {
 
 	logrus.Infof("Creating infrastructure resources...")
 	switch platform {
-	case typesaws.Name:
-		if err := aws.PreTerraform(context.TODO(), clusterID.InfraID, installConfig); err != nil {
-			return err
-		}
-	case typesazure.Name, typesazure.StackTerraformName:
-		if err := azure.PreTerraform(context.TODO(), clusterID.InfraID, installConfig); err != nil {
-			return err
-		}
 	case typesopenstack.Name:
 		if err := openstack.PreTerraform(); err != nil {
 			return err

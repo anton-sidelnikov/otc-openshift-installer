@@ -4,7 +4,7 @@ import (
 	"io"
 	"path"
 
-	"github.com/openshift/installer/data"
+	"github.com/anton-sidelnikov/otc-openshift-installer/data"
 )
 
 const (

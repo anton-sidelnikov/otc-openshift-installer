@@ -6,7 +6,7 @@ import (
 	igntypes "github.com/coreos/ignition/v2/config/v3_2/types"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
-	"github.com/openshift/installer/pkg/asset/ignition"
+	"github.com/anton-sidelnikov/otc-openshift-installer/pkg/asset/ignition"
 	mcfgv1 "github.com/openshift/machine-config-operator/pkg/apis/machineconfiguration.openshift.io/v1"
 )
 

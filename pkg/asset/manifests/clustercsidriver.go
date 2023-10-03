@@ -3,16 +3,8 @@ package manifests
 import (
 	"path/filepath"
 
-	"github.com/pkg/errors"
-
-	"github.com/openshift/installer/pkg/asset"
-	"github.com/openshift/installer/pkg/asset/installconfig"
-	"github.com/openshift/installer/pkg/asset/manifests/aws"
-	"github.com/openshift/installer/pkg/asset/manifests/azure"
-	"github.com/openshift/installer/pkg/asset/manifests/gcp"
-	awstypes "github.com/openshift/installer/pkg/types/aws"
-	azuretypes "github.com/openshift/installer/pkg/types/azure"
-	gcptypes "github.com/openshift/installer/pkg/types/gcp"
+	"github.com/anton-sidelnikov/otc-openshift-installer/pkg/asset"
+	"github.com/anton-sidelnikov/otc-openshift-installer/pkg/asset/installconfig"
 )
 
 var (
@@ -46,69 +38,6 @@ func (csi *ClusterCSIDriverConfig) Generate(dependencies asset.Parents) error {
 	installConfig := &installconfig.InstallConfig{}
 	clusterID := &installconfig.ClusterID{}
 	dependencies.Get(installConfig, clusterID)
-
-	switch installConfig.Config.Platform.Name() {
-	case awstypes.Name:
-		platform := installConfig.Config.Platform.AWS.DefaultMachinePlatform
-		if platform == nil || platform.EC2RootVolume.KMSKeyARN == "" {
-			return nil
-		}
-		configData, err := aws.ClusterCSIDriverConfig{
-			KMSKeyARN: platform.EC2RootVolume.KMSKeyARN,
-		}.YAML()
-		if err != nil {
-			return errors.Wrap(err, "could not create CSI cluster driver config")
-		}
-		csi.File = &asset.File{
-			Filename: clusterCSIDriverConfigFileName,
-			Data:     configData,
-		}
-
-	case azuretypes.Name:
-		platform := installConfig.Config.Platform.Azure.DefaultMachinePlatform
-		if platform == nil || platform.OSDisk.DiskEncryptionSet == nil {
-			return nil
-		}
-		subscriptionID := platform.OSDisk.DiskEncryptionSet.SubscriptionID
-		if subscriptionID == "" {
-			session, err := installConfig.Azure.Session()
-			if err != nil {
-				return errors.Wrap(err, "could not get azure session")
-			}
-			subscriptionID = session.Credentials.SubscriptionID
-		}
-		configData, err := azure.ClusterCSIDriverConfig{
-			SubscriptionID:        subscriptionID,
-			ResourceGroupName:     platform.OSDisk.DiskEncryptionSet.ResourceGroup,
-			DiskEncryptionSetName: platform.OSDisk.DiskEncryptionSet.Name,
-		}.YAML()
-		if err != nil {
-			return errors.Wrap(err, "could not create CSI cluster driver config")
-		}
-		csi.File = &asset.File{
-			Filename: clusterCSIDriverConfigFileName,
-			Data:     configData,
-		}
-	case gcptypes.Name:
-		platform := installConfig.Config.Platform.GCP.DefaultMachinePlatform
-		if platform == nil || platform.OSDisk.EncryptionKey == nil || platform.OSDisk.EncryptionKey.KMSKey == nil {
-			return nil
-		}
-		kmsKey := platform.OSDisk.EncryptionKey.KMSKey
-		configData, err := gcp.ClusterCSIDriverConfig{
-			Name:      kmsKey.Name,
-			KeyRing:   kmsKey.KeyRing,
-			ProjectID: kmsKey.ProjectID,
-			Location:  kmsKey.Location,
-		}.YAML()
-		if err != nil {
-			return errors.Wrap(err, "could not create CSI cluster driver config")
-		}
-		csi.File = &asset.File{
-			Filename: clusterCSIDriverConfigFileName,
-			Data:     configData,
-		}
-	}
 
 	return nil
 }

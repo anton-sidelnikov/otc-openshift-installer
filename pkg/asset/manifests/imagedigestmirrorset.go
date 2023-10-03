@@ -7,9 +7,9 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"sigs.k8s.io/yaml"
 
+	"github.com/anton-sidelnikov/otc-openshift-installer/pkg/asset"
+	"github.com/anton-sidelnikov/otc-openshift-installer/pkg/asset/installconfig"
 	apicfgv1 "github.com/openshift/api/config/v1"
-	"github.com/openshift/installer/pkg/asset"
-	"github.com/openshift/installer/pkg/asset/installconfig"
 )
 
 var imageDigestMirrorSetFilename = "image-digest-mirror-set.yaml"

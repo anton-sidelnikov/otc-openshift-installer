@@ -7,12 +7,12 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/utils/pointer"
 
-	"github.com/openshift/installer/pkg/asset"
-	"github.com/openshift/installer/pkg/asset/ignition/machine"
-	"github.com/openshift/installer/pkg/asset/installconfig"
-	"github.com/openshift/installer/pkg/asset/rhcos"
-	"github.com/openshift/installer/pkg/types"
-	awstypes "github.com/openshift/installer/pkg/types/aws"
+	"github.com/anton-sidelnikov/otc-openshift-installer/pkg/asset"
+	"github.com/anton-sidelnikov/otc-openshift-installer/pkg/asset/ignition/machine"
+	"github.com/anton-sidelnikov/otc-openshift-installer/pkg/asset/installconfig"
+	"github.com/anton-sidelnikov/otc-openshift-installer/pkg/asset/rhcos"
+	"github.com/anton-sidelnikov/otc-openshift-installer/pkg/types"
+	ostypes "github.com/anton-sidelnikov/otc-openshift-installer/pkg/types/openstack"
 )
 
 func TestWorkerGenerate(t *testing.T) {
@@ -136,18 +136,15 @@ spec:
 						SSHKey:     tc.key,
 						BaseDomain: "test-domain",
 						Platform: types.Platform{
-							AWS: &awstypes.Platform{
-								Region: "us-east-1",
-							},
+							OpenStack: &ostypes.Platform{},
 						},
 						Compute: []types.MachinePool{
 							{
 								Replicas:       pointer.Int64Ptr(1),
 								Hyperthreading: tc.hyperthreading,
 								Platform: types.MachinePoolPlatform{
-									AWS: &awstypes.MachinePool{
-										Zones:        []string{"us-east-1a"},
-										InstanceType: "m5.large",
+									OpenStack: &ostypes.MachinePool{
+										Zones: []string{"us-east-1a"},
 									},
 								},
 							},
@@ -188,11 +185,8 @@ func TestComputeIsNotModified(t *testing.T) {
 			SSHKey:     "ssh-rsa: dummy-key",
 			BaseDomain: "test-domain",
 			Platform: types.Platform{
-				AWS: &awstypes.Platform{
-					Region: "us-east-1",
-					DefaultMachinePlatform: &awstypes.MachinePool{
-						InstanceType: "TEST_INSTANCE_TYPE",
-					},
+				OpenStack: &ostypes.Platform{
+					DefaultMachinePlatform: &ostypes.MachinePool{},
 				},
 			},
 			Compute: []types.MachinePool{
@@ -200,9 +194,8 @@ func TestComputeIsNotModified(t *testing.T) {
 					Replicas:       pointer.Int64Ptr(1),
 					Hyperthreading: types.HyperthreadingDisabled,
 					Platform: types.MachinePoolPlatform{
-						AWS: &awstypes.MachinePool{
-							Zones:        []string{"us-east-1a"},
-							InstanceType: "",
+						OpenStack: &ostypes.MachinePool{
+							Zones: []string{"us-east-1a"},
 						},
 					},
 				},
@@ -229,7 +222,7 @@ func TestComputeIsNotModified(t *testing.T) {
 		t.Fatalf("failed to generate master machines: %v", err)
 	}
 
-	if installConfig.Config.Compute[0].Platform.AWS.Type != "" {
+	if installConfig.Config.Compute[0].Platform.OpenStack.FlavorName != "" {
 		t.Fatalf("compute in the install config has been modified")
 	}
 }
@@ -238,40 +231,23 @@ func TestDefaultAWSMachinePoolPlatform(t *testing.T) {
 	type testCase struct {
 		name                string
 		poolName            string
-		expectedMachinePool awstypes.MachinePool
+		expectedMachinePool ostypes.MachinePool
 		assert              func(tc *testCase)
 	}
 	cases := []testCase{
 		{
 			name:     "default EBS type for compute pool",
 			poolName: types.MachinePoolComputeRoleName,
-			expectedMachinePool: awstypes.MachinePool{
-				EC2RootVolume: awstypes.EC2RootVolume{
-					Type: awstypes.VolumeTypeGp3,
+			expectedMachinePool: ostypes.MachinePool{
+				RootVolume: &ostypes.RootVolume{
 					Size: decimalRootVolumeSize,
 				},
 			},
 			assert: func(tc *testCase) {
-				mp := defaultAWSMachinePoolPlatform(tc.poolName)
-				want := tc.expectedMachinePool.EC2RootVolume.Type
-				got := mp.EC2RootVolume.Type
-				assert.Equal(t, want, got, "unexepcted EBS type")
-			},
-		},
-		{
-			name:     "default EBS type for edge pool",
-			poolName: types.MachinePoolEdgeRoleName,
-			expectedMachinePool: awstypes.MachinePool{
-				EC2RootVolume: awstypes.EC2RootVolume{
-					Type: awstypes.VolumeTypeGp2,
-					Size: decimalRootVolumeSize,
-				},
-			},
-			assert: func(tc *testCase) {
-				mp := defaultAWSMachinePoolPlatform(tc.poolName)
-				want := tc.expectedMachinePool.EC2RootVolume.Type
-				got := mp.EC2RootVolume.Type
-				assert.Equal(t, want, got, "unexepcted EBS type")
+				mp := defaultOpenStackMachinePoolPlatform()
+				want := tc.expectedMachinePool.RootVolume.Size
+				got := mp.RootVolume.Size
+				assert.Equal(t, want, got, "unexpected EBS Size")
 			},
 		},
 	}

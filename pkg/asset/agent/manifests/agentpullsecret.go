@@ -12,9 +12,9 @@ import (
 	"k8s.io/apimachinery/pkg/util/validation/field"
 	"sigs.k8s.io/yaml"
 
-	"github.com/openshift/installer/pkg/asset"
-	"github.com/openshift/installer/pkg/asset/agent"
-	"github.com/openshift/installer/pkg/validate"
+	"github.com/anton-sidelnikov/otc-openshift-installer/pkg/asset"
+	"github.com/anton-sidelnikov/otc-openshift-installer/pkg/asset/agent"
+	"github.com/anton-sidelnikov/otc-openshift-installer/pkg/validate"
 )
 
 const (

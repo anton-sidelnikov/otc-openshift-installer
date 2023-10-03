@@ -6,10 +6,10 @@ import (
 	"github.com/stretchr/testify/assert"
 	"k8s.io/apimachinery/pkg/util/validation/field"
 
+	"github.com/anton-sidelnikov/otc-openshift-installer/pkg/ipnet"
+	"github.com/anton-sidelnikov/otc-openshift-installer/pkg/types"
+	"github.com/anton-sidelnikov/otc-openshift-installer/pkg/types/openstack"
 	configv1 "github.com/openshift/api/config/v1"
-	"github.com/openshift/installer/pkg/ipnet"
-	"github.com/openshift/installer/pkg/types"
-	"github.com/openshift/installer/pkg/types/openstack"
 )
 
 func validPlatform() *openstack.Platform {

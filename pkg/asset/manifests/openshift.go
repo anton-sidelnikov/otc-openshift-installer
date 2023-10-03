@@ -1,41 +1,25 @@
 package manifests
 
 import (
-	"context"
 	"encoding/base64"
-	"os"
-	"path/filepath"
-	"strconv"
-	"strings"
-
 	"github.com/gophercloud/utils/openstack/clientconfig"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"k8s.io/apimachinery/pkg/util/sets"
+	"path/filepath"
 	"sigs.k8s.io/yaml"
 
-	"github.com/openshift/installer/pkg/asset"
-	"github.com/openshift/installer/pkg/asset/installconfig"
-	installconfigaws "github.com/openshift/installer/pkg/asset/installconfig/aws"
-	"github.com/openshift/installer/pkg/asset/installconfig/gcp"
-	"github.com/openshift/installer/pkg/asset/installconfig/ibmcloud"
-	"github.com/openshift/installer/pkg/asset/installconfig/ovirt"
-	"github.com/openshift/installer/pkg/asset/machines"
-	osmachine "github.com/openshift/installer/pkg/asset/machines/openstack"
-	openstackmanifests "github.com/openshift/installer/pkg/asset/manifests/openstack"
-	"github.com/openshift/installer/pkg/asset/openshiftinstall"
-	"github.com/openshift/installer/pkg/asset/password"
-	"github.com/openshift/installer/pkg/asset/rhcos"
-	"github.com/openshift/installer/pkg/asset/templates/content/openshift"
-	"github.com/openshift/installer/pkg/types"
-	awstypes "github.com/openshift/installer/pkg/types/aws"
-	azuretypes "github.com/openshift/installer/pkg/types/azure"
-	baremetaltypes "github.com/openshift/installer/pkg/types/baremetal"
-	gcptypes "github.com/openshift/installer/pkg/types/gcp"
-	ibmcloudtypes "github.com/openshift/installer/pkg/types/ibmcloud"
-	openstacktypes "github.com/openshift/installer/pkg/types/openstack"
-	ovirttypes "github.com/openshift/installer/pkg/types/ovirt"
-	vspheretypes "github.com/openshift/installer/pkg/types/vsphere"
+	"github.com/anton-sidelnikov/otc-openshift-installer/pkg/asset"
+	"github.com/anton-sidelnikov/otc-openshift-installer/pkg/asset/installconfig"
+	"github.com/anton-sidelnikov/otc-openshift-installer/pkg/asset/machines"
+	osmachine "github.com/anton-sidelnikov/otc-openshift-installer/pkg/asset/machines/openstack"
+	openstackmanifests "github.com/anton-sidelnikov/otc-openshift-installer/pkg/asset/manifests/openstack"
+	"github.com/anton-sidelnikov/otc-openshift-installer/pkg/asset/openshiftinstall"
+	"github.com/anton-sidelnikov/otc-openshift-installer/pkg/asset/password"
+	"github.com/anton-sidelnikov/otc-openshift-installer/pkg/asset/rhcos"
+	"github.com/anton-sidelnikov/otc-openshift-installer/pkg/asset/templates/content/openshift"
+	"github.com/anton-sidelnikov/otc-openshift-installer/pkg/types"
+	openstacktypes "github.com/anton-sidelnikov/otc-openshift-installer/pkg/types/openstack"
 )
 
 const (
@@ -86,68 +70,6 @@ func (o *Openshift) Generate(dependencies asset.Parents) error {
 	var cloudCreds cloudCredsSecretData
 	platform := installConfig.Config.Platform.Name()
 	switch platform {
-	case awstypes.Name:
-		ssn, err := installConfig.AWS.Session(context.TODO())
-		if err != nil {
-			return err
-		}
-		creds, err := ssn.Config.Credentials.Get()
-		if err != nil {
-			return err
-		}
-		if !installconfigaws.IsStaticCredentials(creds) {
-			switch {
-			case installConfig.Config.CredentialsMode == "":
-				return errors.Errorf("AWS credentials provided by %s are not valid for default credentials mode", creds.ProviderName)
-			case installConfig.Config.CredentialsMode != types.ManualCredentialsMode:
-				return errors.Errorf("AWS credentials provided by %s are not valid for %s credentials mode", creds.ProviderName, installConfig.Config.CredentialsMode)
-			}
-		}
-		cloudCreds = cloudCredsSecretData{
-			AWS: &AwsCredsSecretData{
-				Base64encodeAccessKeyID:     base64.StdEncoding.EncodeToString([]byte(creds.AccessKeyID)),
-				Base64encodeSecretAccessKey: base64.StdEncoding.EncodeToString([]byte(creds.SecretAccessKey)),
-			},
-		}
-	case azuretypes.Name:
-		resourceGroupName := installConfig.Config.Azure.ClusterResourceGroupName(clusterID.InfraID)
-		session, err := installConfig.Azure.Session()
-		if err != nil {
-			return err
-		}
-		creds := session.Credentials
-		cloudCreds = cloudCredsSecretData{
-			Azure: &AzureCredsSecretData{
-				Base64encodeSubscriptionID: base64.StdEncoding.EncodeToString([]byte(creds.SubscriptionID)),
-				Base64encodeClientID:       base64.StdEncoding.EncodeToString([]byte(creds.ClientID)),
-				Base64encodeClientSecret:   base64.StdEncoding.EncodeToString([]byte(creds.ClientSecret)),
-				Base64encodeTenantID:       base64.StdEncoding.EncodeToString([]byte(creds.TenantID)),
-				Base64encodeResourcePrefix: base64.StdEncoding.EncodeToString([]byte(clusterID.InfraID)),
-				Base64encodeResourceGroup:  base64.StdEncoding.EncodeToString([]byte(resourceGroupName)),
-				Base64encodeRegion:         base64.StdEncoding.EncodeToString([]byte(installConfig.Config.Azure.Region)),
-			},
-		}
-	case gcptypes.Name:
-		session, err := gcp.GetSession(context.TODO())
-		if err != nil {
-			return err
-		}
-		creds := session.Credentials.JSON
-		cloudCreds = cloudCredsSecretData{
-			GCP: &GCPCredsSecretData{
-				Base64encodeServiceAccount: base64.StdEncoding.EncodeToString(creds),
-			},
-		}
-	case ibmcloudtypes.Name:
-		client, err := ibmcloud.NewClient()
-		if err != nil {
-			return err
-		}
-		cloudCreds = cloudCredsSecretData{
-			IBMCloud: &IBMCloudCredsSecretData{
-				Base64encodeAPIKey: base64.StdEncoding.EncodeToString([]byte(client.GetAPIKey())),
-			},
-		}
 	case openstacktypes.Name:
 		opts := new(clientconfig.ClientOpts)
 		opts.Cloud = installConfig.Config.Platform.OpenStack.Cloud
@@ -194,44 +116,6 @@ func (o *Openshift) Generate(dependencies asset.Parents) error {
 				Base64encodeCloudCredsINI: credsINIEncoded,
 			},
 		}
-	case vspheretypes.Name:
-		vsphereCredList := make([]*VSphereCredsSecretData, 0)
-
-		for _, vCenter := range installConfig.Config.VSphere.VCenters {
-			vsphereCred := VSphereCredsSecretData{
-				VCenter:              vCenter.Server,
-				Base64encodeUsername: base64.StdEncoding.EncodeToString([]byte(vCenter.Username)),
-				Base64encodePassword: base64.StdEncoding.EncodeToString([]byte(vCenter.Password)),
-			}
-			vsphereCredList = append(vsphereCredList, &vsphereCred)
-		}
-
-		cloudCreds = cloudCredsSecretData{
-			VSphere: &vsphereCredList,
-		}
-	case ovirttypes.Name:
-		conf, err := ovirt.NewConfig()
-		if err != nil {
-			return err
-		}
-
-		if len(conf.CABundle) == 0 && len(conf.CAFile) > 0 {
-			content, err := os.ReadFile(conf.CAFile)
-			if err != nil {
-				return errors.Wrapf(err, "failed to read the cert file: %s", conf.CAFile)
-			}
-			conf.CABundle = strings.TrimSpace(string(content))
-		}
-
-		cloudCreds = cloudCredsSecretData{
-			Ovirt: &OvirtCredsSecretData{
-				Base64encodeURL:      base64.StdEncoding.EncodeToString([]byte(conf.URL)),
-				Base64encodeUsername: base64.StdEncoding.EncodeToString([]byte(conf.Username)),
-				Base64encodePassword: base64.StdEncoding.EncodeToString([]byte(conf.Password)),
-				Base64encodeInsecure: base64.StdEncoding.EncodeToString([]byte(strconv.FormatBool(conf.Insecure))),
-				Base64encodeCABundle: base64.StdEncoding.EncodeToString([]byte(conf.CABundle)),
-			},
-		}
 	}
 
 	templateData := &openshiftTemplateData{
@@ -257,50 +141,12 @@ func (o *Openshift) Generate(dependencies asset.Parents) error {
 	}
 
 	switch platform {
-	case awstypes.Name, openstacktypes.Name, vspheretypes.Name, azuretypes.Name, gcptypes.Name, ibmcloudtypes.Name, ovirttypes.Name:
+	case openstacktypes.Name:
 		if installConfig.Config.CredentialsMode != types.ManualCredentialsMode {
 			assetData["99_cloud-creds-secret.yaml"] = applyTemplateData(cloudCredsSecret.Files()[0].Data, templateData)
 		}
 		assetData["99_role-cloud-creds-secret-reader.yaml"] = applyTemplateData(roleCloudCredsSecretReader.Files()[0].Data, templateData)
-	case baremetaltypes.Name:
-		bmTemplateData := baremetalTemplateData{
-			Baremetal:                 installConfig.Config.Platform.BareMetal,
-			ProvisioningOSDownloadURL: string(*rhcosImage),
-		}
-		assetData["99_baremetal-provisioning-config.yaml"] = applyTemplateData(baremetalConfig.Files()[0].Data, bmTemplateData)
 	}
-
-	if platform == azuretypes.Name && installConfig.Config.Azure.IsARO() {
-		// config is used to created compatible secret to trigger azure cloud
-		// controller config merge behaviour
-		// https://github.com/openshift/origin/blob/90c050f5afb4c52ace82b15e126efe98fa798d88/vendor/k8s.io/legacy-cloud-providers/azure/azure_config.go#L83
-		session, err := installConfig.Azure.Session()
-		if err != nil {
-			return err
-		}
-		config := struct {
-			AADClientID     string `json:"aadClientId" yaml:"aadClientId"`
-			AADClientSecret string `json:"aadClientSecret" yaml:"aadClientSecret"`
-		}{
-			AADClientID:     session.Credentials.ClientID,
-			AADClientSecret: session.Credentials.ClientSecret,
-		}
-
-		b, err := yaml.Marshal(config)
-		if err != nil {
-			return err
-		}
-
-		azureCloudProviderSecret := &openshift.AzureCloudProviderSecret{}
-		dependencies.Get(azureCloudProviderSecret)
-		for _, f := range azureCloudProviderSecret.Files() {
-			name := strings.TrimSuffix(filepath.Base(f.Filename), ".template")
-			assetData[name] = applyTemplateData(f.Data, map[string]string{
-				"CloudConfig": string(b),
-			})
-		}
-	}
-
 	o.FileList = []*asset.File{}
 	for name, data := range assetData {
 		if len(data) == 0 {

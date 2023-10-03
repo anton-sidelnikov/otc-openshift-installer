@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"net"
 	"net/url"
-	"os"
 	"regexp"
 	"sort"
 	"strconv"
@@ -19,35 +18,13 @@ import (
 	"k8s.io/apimachinery/pkg/util/validation/field"
 	utilsnet "k8s.io/utils/net"
 
+	"github.com/anton-sidelnikov/otc-openshift-installer/pkg/ipnet"
+	"github.com/anton-sidelnikov/otc-openshift-installer/pkg/types"
+	"github.com/anton-sidelnikov/otc-openshift-installer/pkg/types/openstack"
+	openstackvalidation "github.com/anton-sidelnikov/otc-openshift-installer/pkg/types/openstack/validation"
+	"github.com/anton-sidelnikov/otc-openshift-installer/pkg/validate"
 	configv1 "github.com/openshift/api/config/v1"
 	operv1 "github.com/openshift/api/operator/v1"
-	"github.com/openshift/installer/pkg/ipnet"
-	"github.com/openshift/installer/pkg/types"
-	"github.com/openshift/installer/pkg/types/alibabacloud"
-	alibabacloudvalidation "github.com/openshift/installer/pkg/types/alibabacloud/validation"
-	"github.com/openshift/installer/pkg/types/aws"
-	awsvalidation "github.com/openshift/installer/pkg/types/aws/validation"
-	"github.com/openshift/installer/pkg/types/azure"
-	azurevalidation "github.com/openshift/installer/pkg/types/azure/validation"
-	"github.com/openshift/installer/pkg/types/baremetal"
-	baremetalvalidation "github.com/openshift/installer/pkg/types/baremetal/validation"
-	"github.com/openshift/installer/pkg/types/gcp"
-	gcpvalidation "github.com/openshift/installer/pkg/types/gcp/validation"
-	"github.com/openshift/installer/pkg/types/ibmcloud"
-	ibmcloudvalidation "github.com/openshift/installer/pkg/types/ibmcloud/validation"
-	"github.com/openshift/installer/pkg/types/libvirt"
-	libvirtvalidation "github.com/openshift/installer/pkg/types/libvirt/validation"
-	"github.com/openshift/installer/pkg/types/nutanix"
-	nutanixvalidation "github.com/openshift/installer/pkg/types/nutanix/validation"
-	"github.com/openshift/installer/pkg/types/openstack"
-	openstackvalidation "github.com/openshift/installer/pkg/types/openstack/validation"
-	"github.com/openshift/installer/pkg/types/ovirt"
-	ovirtvalidation "github.com/openshift/installer/pkg/types/ovirt/validation"
-	"github.com/openshift/installer/pkg/types/powervs"
-	powervsvalidation "github.com/openshift/installer/pkg/types/powervs/validation"
-	"github.com/openshift/installer/pkg/types/vsphere"
-	vspherevalidation "github.com/openshift/installer/pkg/types/vsphere/validation"
-	"github.com/openshift/installer/pkg/validate"
 )
 
 // list of known plugins that require hostPrefix to be set
@@ -89,10 +66,7 @@ func ValidateInstallConfig(c *types.InstallConfig, usingAgentMethod bool) field.
 		}
 	}
 	nameErr := validate.ClusterName(c.ObjectMeta.Name)
-	if c.Platform.GCP != nil || c.Platform.Azure != nil {
-		nameErr = validate.ClusterName1035(c.ObjectMeta.Name)
-	}
-	if c.Platform.VSphere != nil || c.Platform.BareMetal != nil || c.Platform.OpenStack != nil || c.Platform.Nutanix != nil {
+	if c.Platform.OpenStack != nil {
 		nameErr = validate.OnPremClusterName(c.ObjectMeta.Name)
 	}
 	if nameErr != nil {
@@ -143,17 +117,12 @@ func ValidateInstallConfig(c *types.InstallConfig, usingAgentMethod bool) field.
 	if len(c.DeprecatedImageContentSources) != 0 {
 		logrus.Warningln("imageContentSources is deprecated, please use ImageDigestSource")
 	}
-	allErrs = append(allErrs, validateCloudCredentialsMode(c.CredentialsMode, field.NewPath("credentialsMode"), c.Platform)...)
 	if c.Capabilities != nil {
 		allErrs = append(allErrs, validateCapabilities(c.Capabilities, field.NewPath("capabilities"))...)
 	}
 
 	if c.Publish == types.InternalPublishingStrategy {
-		switch platformName := c.Platform.Name(); platformName {
-		case aws.Name, azure.Name, gcp.Name, alibabacloud.Name, ibmcloud.Name, powervs.Name:
-		default:
-			allErrs = append(allErrs, field.Invalid(field.NewPath("publish"), c.Publish, fmt.Sprintf("Internal publish strategy is not supported on %q platform", platformName)))
-		}
+		allErrs = append(allErrs, field.Invalid(field.NewPath("publish"), c.Publish, fmt.Sprintf("Internal publish strategy is not supported on %q platform", c.Platform.Name())))
 	}
 
 	if c.Capabilities != nil {
@@ -254,21 +223,8 @@ func validateNetworkingIPVersion(n *types.Networking, p *types.Platform) field.E
 		}
 
 		allowV6Primary := false
-		experimentalDualStackEnabled, _ := strconv.ParseBool(os.Getenv("OPENSHIFT_INSTALL_EXPERIMENTAL_DUAL_STACK"))
 		switch {
-		case p.Azure != nil && experimentalDualStackEnabled:
-			logrus.Warnf("Using experimental Azure dual-stack support")
-		case p.BareMetal != nil:
-			// We now support ipv6-primary dual stack on baremetal
-			allowV6Primary = true
-		case p.VSphere != nil:
-			// as well as on vSphere
-			allowV6Primary = true
 		case p.OpenStack != nil:
-		case p.Ovirt != nil:
-		case p.Nutanix != nil:
-		case p.None != nil:
-		case p.External != nil:
 		default:
 			allErrs = append(allErrs, field.Invalid(field.NewPath("networking"), "DualStack", "dual-stack IPv4/IPv6 is not supported for this platform, specify only one type of address"))
 		}
@@ -294,15 +250,7 @@ func validateNetworkingIPVersion(n *types.Networking, p *types.Platform) field.E
 		}
 
 		switch {
-		case p.BareMetal != nil:
-		case p.VSphere != nil:
 		case p.OpenStack != nil:
-		case p.Ovirt != nil:
-		case p.Nutanix != nil:
-		case p.None != nil:
-		case p.External != nil:
-		case p.Azure != nil && p.Azure.CloudName == azure.StackCloud:
-			allErrs = append(allErrs, field.Invalid(field.NewPath("networking"), "IPv6", "Azure Stack does not support IPv6"))
 		default:
 			allErrs = append(allErrs, field.Invalid(field.NewPath("networking"), "IPv6", "single-stack IPv6 is not supported for this platform"))
 		}
@@ -374,40 +322,21 @@ func validateNetworking(n *types.Networking, singleNodeOpenShift bool, fldPath *
 
 func validateNetworkingForPlatform(n *types.Networking, platform *types.Platform, fldPath *field.Path) field.ErrorList {
 	allErrs := field.ErrorList{}
-	switch {
-	case platform.Libvirt != nil:
-		errMsg := "overlaps with default Docker Bridge subnet"
-		for idx, mn := range n.MachineNetwork {
-			if validate.DoCIDRsOverlap(&mn.CIDR.IPNet, validate.DockerBridgeCIDR) {
-				allErrs = append(allErrs, field.Invalid(fldPath.Child("machineNewtork").Index(idx), mn.CIDR.String(), errMsg))
-			}
+
+	warningMsgFmt := "%s: %s overlaps with default Docker Bridge subnet"
+	for idx, mn := range n.MachineNetwork {
+		if validate.DoCIDRsOverlap(&mn.CIDR.IPNet, validate.DockerBridgeCIDR) {
+			logrus.Warnf(warningMsgFmt, fldPath.Child("machineNetwork").Index(idx), mn.CIDR.String())
 		}
-		for idx, sn := range n.ServiceNetwork {
-			if validate.DoCIDRsOverlap(&sn.IPNet, validate.DockerBridgeCIDR) {
-				allErrs = append(allErrs, field.Invalid(fldPath.Child("serviceNetwork").Index(idx), sn.String(), errMsg))
-			}
+	}
+	for idx, sn := range n.ServiceNetwork {
+		if validate.DoCIDRsOverlap(&sn.IPNet, validate.DockerBridgeCIDR) {
+			logrus.Warnf(warningMsgFmt, fldPath.Child("serviceNetwork").Index(idx), sn.String())
 		}
-		for idx, cn := range n.ClusterNetwork {
-			if validate.DoCIDRsOverlap(&cn.CIDR.IPNet, validate.DockerBridgeCIDR) {
-				allErrs = append(allErrs, field.Invalid(fldPath.Child("clusterNetwork").Index(idx), cn.CIDR.String(), errMsg))
-			}
-		}
-	default:
-		warningMsgFmt := "%s: %s overlaps with default Docker Bridge subnet"
-		for idx, mn := range n.MachineNetwork {
-			if validate.DoCIDRsOverlap(&mn.CIDR.IPNet, validate.DockerBridgeCIDR) {
-				logrus.Warnf(warningMsgFmt, fldPath.Child("machineNetwork").Index(idx), mn.CIDR.String())
-			}
-		}
-		for idx, sn := range n.ServiceNetwork {
-			if validate.DoCIDRsOverlap(&sn.IPNet, validate.DockerBridgeCIDR) {
-				logrus.Warnf(warningMsgFmt, fldPath.Child("serviceNetwork").Index(idx), sn.String())
-			}
-		}
-		for idx, cn := range n.ClusterNetwork {
-			if validate.DoCIDRsOverlap(&cn.CIDR.IPNet, validate.DockerBridgeCIDR) {
-				logrus.Warnf(warningMsgFmt, fldPath.Child("clusterNetwork").Index(idx), cn.CIDR.String())
-			}
+	}
+	for idx, cn := range n.ClusterNetwork {
+		if validate.DoCIDRsOverlap(&cn.CIDR.IPNet, validate.DockerBridgeCIDR) {
+			logrus.Warnf(warningMsgFmt, fldPath.Child("clusterNetwork").Index(idx), cn.CIDR.String())
 		}
 	}
 	return allErrs
@@ -461,9 +390,7 @@ func validateControlPlane(platform *types.Platform, pool *types.MachinePool, fld
 
 func validateComputeEdge(platform *types.Platform, pName string, fldPath *field.Path, pfld *field.Path) field.ErrorList {
 	allErrs := field.ErrorList{}
-	if platform.Name() != aws.Name {
-		allErrs = append(allErrs, field.NotSupported(pfld.Child("name"), pName, []string{types.MachinePoolComputeRoleName}))
-	}
+	allErrs = append(allErrs, field.NotSupported(pfld.Child("name"), pName, []string{types.MachinePoolComputeRoleName}))
 
 	return allErrs
 }
@@ -475,8 +402,6 @@ func validateCompute(platform *types.Platform, control *types.MachinePool, pools
 		poolFldPath := fldPath.Index(i)
 		switch p.Name {
 		case types.MachinePoolComputeRoleName:
-		case types.MachinePoolEdgeRoleName:
-			allErrs = append(allErrs, validateComputeEdge(platform, p.Name, poolFldPath, poolFldPath)...)
 		default:
 			allErrs = append(allErrs, field.NotSupported(poolFldPath.Child("name"), p.Name, []string{types.MachinePoolComputeRoleName, types.MachinePoolEdgeRoleName}))
 		}
@@ -517,23 +442,6 @@ func validateVIPsForPlatform(network *types.Networking, platform *types.Platform
 		IngressVIPs: "ingressVIPs",
 	}
 	switch {
-	case platform.BareMetal != nil:
-		virtualIPs = vips{
-			API:     platform.BareMetal.APIVIPs,
-			Ingress: platform.BareMetal.IngressVIPs,
-		}
-
-		allErrs = append(allErrs, validateAPIAndIngressVIPs(virtualIPs, newVIPsFields, true, true, network, fldPath.Child(baremetal.Name))...)
-	case platform.Nutanix != nil:
-		allErrs = append(allErrs, ensureIPv4IsFirstInDualStackSlice(&platform.Nutanix.APIVIPs, fldPath.Child(nutanix.Name, newVIPsFields.APIVIPs))...)
-		allErrs = append(allErrs, ensureIPv4IsFirstInDualStackSlice(&platform.Nutanix.IngressVIPs, fldPath.Child(nutanix.Name, newVIPsFields.IngressVIPs))...)
-
-		virtualIPs = vips{
-			API:     platform.Nutanix.APIVIPs,
-			Ingress: platform.Nutanix.IngressVIPs,
-		}
-
-		allErrs = append(allErrs, validateAPIAndIngressVIPs(virtualIPs, newVIPsFields, false, false, network, fldPath.Child(nutanix.Name))...)
 	case platform.OpenStack != nil:
 		allErrs = append(allErrs, ensureIPv4IsFirstInDualStackSlice(&platform.OpenStack.APIVIPs, fldPath.Child(openstack.Name, newVIPsFields.APIVIPs))...)
 		allErrs = append(allErrs, ensureIPv4IsFirstInDualStackSlice(&platform.OpenStack.IngressVIPs, fldPath.Child(openstack.Name, newVIPsFields.IngressVIPs))...)
@@ -544,27 +452,6 @@ func validateVIPsForPlatform(network *types.Networking, platform *types.Platform
 		}
 
 		allErrs = append(allErrs, validateAPIAndIngressVIPs(virtualIPs, newVIPsFields, true, true, network, fldPath.Child(openstack.Name))...)
-	case platform.VSphere != nil:
-		virtualIPs = vips{
-			API:     platform.VSphere.APIVIPs,
-			Ingress: platform.VSphere.IngressVIPs,
-		}
-
-		allErrs = append(allErrs, validateAPIAndIngressVIPs(virtualIPs, newVIPsFields, false, false, network, fldPath.Child(vsphere.Name))...)
-	case platform.Ovirt != nil:
-		allErrs = append(allErrs, ensureIPv4IsFirstInDualStackSlice(&platform.Ovirt.APIVIPs, fldPath.Child(ovirt.Name, newVIPsFields.APIVIPs))...)
-		allErrs = append(allErrs, ensureIPv4IsFirstInDualStackSlice(&platform.Ovirt.IngressVIPs, fldPath.Child(ovirt.Name, newVIPsFields.IngressVIPs))...)
-
-		newVIPsFields = vipFields{
-			APIVIPs:     "api_vips",
-			IngressVIPs: "ingress_vips",
-		}
-		virtualIPs = vips{
-			API:     platform.Ovirt.APIVIPs,
-			Ingress: platform.Ovirt.IngressVIPs,
-		}
-
-		allErrs = append(allErrs, validateAPIAndIngressVIPs(virtualIPs, newVIPsFields, true, true, network, fldPath.Child(ovirt.Name))...)
 	default:
 		//no vips to validate on this platform
 	}
@@ -729,56 +616,9 @@ func validatePlatform(platform *types.Platform, usingAgentMethod bool, fldPath *
 		}
 		allErrs = append(allErrs, validation(fldPath.Child(n))...)
 	}
-	if platform.AlibabaCloud != nil {
-		validate(alibabacloud.Name, platform.AlibabaCloud, func(f *field.Path) field.ErrorList {
-			return alibabacloudvalidation.ValidatePlatform(platform.AlibabaCloud, network, f)
-		})
-	}
-	if platform.AWS != nil {
-		validate(aws.Name, platform.AWS, func(f *field.Path) field.ErrorList {
-			return awsvalidation.ValidatePlatform(platform.AWS, c.CredentialsMode, f)
-		})
-	}
-	if platform.Azure != nil {
-		validate(azure.Name, platform.Azure, func(f *field.Path) field.ErrorList {
-			return azurevalidation.ValidatePlatform(platform.Azure, c.Publish, f, c)
-		})
-	}
-	if platform.GCP != nil {
-		validate(gcp.Name, platform.GCP, func(f *field.Path) field.ErrorList { return gcpvalidation.ValidatePlatform(platform.GCP, f, c) })
-	}
-	if platform.IBMCloud != nil {
-		validate(ibmcloud.Name, platform.IBMCloud, func(f *field.Path) field.ErrorList { return ibmcloudvalidation.ValidatePlatform(platform.IBMCloud, f) })
-	}
-	if platform.Libvirt != nil {
-		validate(libvirt.Name, platform.Libvirt, func(f *field.Path) field.ErrorList { return libvirtvalidation.ValidatePlatform(platform.Libvirt, f) })
-	}
 	if platform.OpenStack != nil {
 		validate(openstack.Name, platform.OpenStack, func(f *field.Path) field.ErrorList {
 			return openstackvalidation.ValidatePlatform(platform.OpenStack, network, f, c)
-		})
-	}
-	if platform.PowerVS != nil {
-		validate(powervs.Name, platform.PowerVS, func(f *field.Path) field.ErrorList { return powervsvalidation.ValidatePlatform(platform.PowerVS, f) })
-	}
-	if platform.VSphere != nil {
-		validate(vsphere.Name, platform.VSphere, func(f *field.Path) field.ErrorList {
-			return vspherevalidation.ValidatePlatform(platform.VSphere, usingAgentMethod, f, c)
-		})
-	}
-	if platform.BareMetal != nil {
-		validate(baremetal.Name, platform.BareMetal, func(f *field.Path) field.ErrorList {
-			return baremetalvalidation.ValidatePlatform(platform.BareMetal, usingAgentMethod, network, f, c)
-		})
-	}
-	if platform.Ovirt != nil {
-		validate(ovirt.Name, platform.Ovirt, func(f *field.Path) field.ErrorList {
-			return ovirtvalidation.ValidatePlatform(platform.Ovirt, f, c)
-		})
-	}
-	if platform.Nutanix != nil {
-		validate(nutanix.Name, platform.Nutanix, func(f *field.Path) field.ErrorList {
-			return nutanixvalidation.ValidatePlatform(platform.Nutanix, f, c)
 		})
 	}
 	return allErrs
@@ -901,42 +741,6 @@ var (
 		return v
 	}()
 )
-
-func validateCloudCredentialsMode(mode types.CredentialsMode, fldPath *field.Path, platform types.Platform) field.ErrorList {
-	if mode == "" {
-		return nil
-	}
-	allErrs := field.ErrorList{}
-
-	allowedAzureModes := []types.CredentialsMode{types.PassthroughCredentialsMode, types.ManualCredentialsMode}
-	if platform.Azure != nil && platform.Azure.CloudName == azure.StackCloud {
-		allowedAzureModes = []types.CredentialsMode{types.ManualCredentialsMode}
-	}
-
-	// validPlatformCredentialsModes is a map from the platform name to a slice of credentials modes that are valid
-	// for the platform. If a platform name is not in the map, then the credentials mode cannot be set for that platform.
-	validPlatformCredentialsModes := map[string][]types.CredentialsMode{
-		alibabacloud.Name: {types.ManualCredentialsMode},
-		aws.Name:          {types.MintCredentialsMode, types.PassthroughCredentialsMode, types.ManualCredentialsMode},
-		azure.Name:        allowedAzureModes,
-		gcp.Name:          {types.MintCredentialsMode, types.PassthroughCredentialsMode, types.ManualCredentialsMode},
-		ibmcloud.Name:     {types.ManualCredentialsMode},
-		powervs.Name:      {types.ManualCredentialsMode},
-		nutanix.Name:      {types.ManualCredentialsMode},
-	}
-	if validModes, ok := validPlatformCredentialsModes[platform.Name()]; ok {
-		validModesSet := sets.NewString()
-		for _, m := range validModes {
-			validModesSet.Insert(string(m))
-		}
-		if !validModesSet.Has(string(mode)) {
-			allErrs = append(allErrs, field.NotSupported(fldPath, mode, validModesSet.List()))
-		}
-	} else {
-		allErrs = append(allErrs, field.Invalid(fldPath, mode, fmt.Sprintf("cannot be set when using the %q platform", platform.Name())))
-	}
-	return allErrs
-}
 
 // validateURI checks if the given url is of the right format. It also checks if the scheme of the uri
 // provided is within the list of accepted schema provided as part of the input.
@@ -1069,21 +873,6 @@ func validateFeatureSet(c *types.InstallConfig) field.ErrorList {
 		if c.OpenStack != nil {
 			for _, f := range openstackvalidation.FilledInTechPreviewFields(c) {
 				allErrs = append(allErrs, field.Forbidden(f, errMsg))
-			}
-		}
-
-		if c.VSphere != nil {
-			if len(c.VSphere.Hosts) > 0 {
-				allErrs = append(allErrs, field.Forbidden(field.NewPath("platform", "vsphere", "hosts"), errMsg))
-			}
-		}
-
-		if c.GCP != nil {
-			if len(c.GCP.UserTags) > 0 {
-				allErrs = append(allErrs, field.Forbidden(field.NewPath("platform", "gcp", "userTags"), errMsg))
-			}
-			if len(c.GCP.UserLabels) > 0 {
-				allErrs = append(allErrs, field.Forbidden(field.NewPath("platform", "gcp", "userLabels"), errMsg))
 			}
 		}
 	}

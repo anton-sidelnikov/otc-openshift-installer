@@ -2,17 +2,8 @@
 package rhcos
 
 import (
-	"context"
-	"fmt"
-	"time"
-
-	"github.com/coreos/stream-metadata-go/arch"
-
-	"github.com/openshift/installer/pkg/asset"
-	"github.com/openshift/installer/pkg/asset/installconfig"
-	"github.com/openshift/installer/pkg/rhcos"
-	"github.com/openshift/installer/pkg/types"
-	"github.com/openshift/installer/pkg/types/azure"
+	"github.com/anton-sidelnikov/otc-openshift-installer/pkg/asset"
+	"github.com/anton-sidelnikov/otc-openshift-installer/pkg/asset/installconfig"
 )
 
 // Release is a string which denotes the rhcos release, eg: 412.86.202208101040-0.
@@ -38,8 +29,7 @@ func (r *Release) Dependencies() []asset.Asset {
 func (r *Release) Generate(p asset.Parents) error {
 	ic := &installconfig.InstallConfig{}
 	p.Get(ic)
-	config := ic.Config
-	release, err := release(config)
+	release, err := release()
 	if err != nil {
 		return err
 	}
@@ -47,34 +37,8 @@ func (r *Release) Generate(p asset.Parents) error {
 	return nil
 }
 
-func release(config *types.InstallConfig) (string, error) {
-	ctx, cancel := context.WithTimeout(context.TODO(), 30*time.Second)
-	defer cancel()
-
-	archName := arch.RpmArch(string(config.ControlPlane.Architecture))
-
-	st, err := rhcos.FetchCoreOSBuild(ctx)
-	if err != nil {
-		return "", err
-	}
-	streamArch, err := st.GetArchitecture(archName)
-	if err != nil {
-		return "", err
-	}
-	switch config.Platform.Name() {
-	case azure.Name:
-		ext := streamArch.RHELCoreOSExtensions
-		if ext == nil {
-			return "", fmt.Errorf("%s: No azure build found", st.FormatPrefix(archName))
-		}
-		azd := ext.AzureDisk
-		if azd == nil {
-			return "", fmt.Errorf("%s: No azure build found", st.FormatPrefix(archName))
-		}
-		return azd.Release, nil
-	default:
-		return "", nil
-	}
+func release() (string, error) {
+	return "", nil
 }
 
 // GetAzureReleaseVersion - generates a modified string for Azure image gallery images. Image gallery image versions cannot have

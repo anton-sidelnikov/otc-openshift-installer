@@ -10,13 +10,9 @@ import (
 	"github.com/vincent-petithory/dataurl"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
-	"github.com/openshift/installer/pkg/asset/ignition"
-	"github.com/openshift/installer/pkg/types"
-	baremetaltypes "github.com/openshift/installer/pkg/types/baremetal"
-	nutanixtypes "github.com/openshift/installer/pkg/types/nutanix"
-	openstacktypes "github.com/openshift/installer/pkg/types/openstack"
-	ovirttypes "github.com/openshift/installer/pkg/types/ovirt"
-	vspheretypes "github.com/openshift/installer/pkg/types/vsphere"
+	"github.com/anton-sidelnikov/otc-openshift-installer/pkg/asset/ignition"
+	"github.com/anton-sidelnikov/otc-openshift-installer/pkg/types"
+	openstacktypes "github.com/anton-sidelnikov/otc-openshift-installer/pkg/types/openstack"
 	mcfgv1 "github.com/openshift/machine-config-operator/pkg/apis/machineconfiguration.openshift.io/v1"
 )
 
@@ -30,22 +26,8 @@ func pointerIgnitionConfig(installConfig *types.InstallConfig, rootCA []byte, ro
 	ignitionHost = fmt.Sprintf("api-int.%s:22623", installConfig.ClusterDomain())
 	// Update ignitionHost as necessary for platform
 	switch installConfig.Platform.Name() {
-	case baremetaltypes.Name:
-		// Baremetal needs to point directly at the VIP because we don't have a
-		// way to configure DNS before Ignition runs.
-		ignitionHost = net.JoinHostPort(installConfig.BareMetal.APIVIPs[0], "22623")
-	case nutanixtypes.Name:
-		if len(installConfig.Nutanix.APIVIPs) > 0 {
-			ignitionHost = net.JoinHostPort(installConfig.Nutanix.APIVIPs[0], "22623")
-		}
 	case openstacktypes.Name:
 		ignitionHost = net.JoinHostPort(installConfig.OpenStack.APIVIPs[0], "22623")
-	case ovirttypes.Name:
-		ignitionHost = net.JoinHostPort(installConfig.Ovirt.APIVIPs[0], "22623")
-	case vspheretypes.Name:
-		if len(installConfig.VSphere.APIVIPs) > 0 {
-			ignitionHost = net.JoinHostPort(installConfig.VSphere.APIVIPs[0], "22623")
-		}
 	}
 	return &igntypes.Config{
 		Ignition: igntypes.Ignition{

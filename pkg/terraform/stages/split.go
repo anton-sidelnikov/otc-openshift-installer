@@ -9,9 +9,9 @@ import (
 	"github.com/hashicorp/terraform-exec/tfexec"
 	"github.com/pkg/errors"
 
-	"github.com/openshift/installer/pkg/terraform"
-	"github.com/openshift/installer/pkg/terraform/providers"
-	"github.com/openshift/installer/pkg/types"
+	"github.com/anton-sidelnikov/otc-openshift-installer/pkg/terraform"
+	"github.com/anton-sidelnikov/otc-openshift-installer/pkg/terraform/providers"
+	"github.com/anton-sidelnikov/otc-openshift-installer/pkg/types"
 )
 
 // StageOption is an option for configuring a split stage.

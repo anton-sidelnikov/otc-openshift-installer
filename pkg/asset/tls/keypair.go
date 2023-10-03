@@ -3,7 +3,7 @@ package tls
 import (
 	"github.com/pkg/errors"
 
-	"github.com/openshift/installer/pkg/asset"
+	"github.com/anton-sidelnikov/otc-openshift-installer/pkg/asset"
 )
 
 // KeyPairInterface contains a private key and a public key.

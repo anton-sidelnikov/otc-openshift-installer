@@ -9,8 +9,8 @@ import (
 	"github.com/gophercloud/utils/openstack/clientconfig"
 	networkutils "github.com/gophercloud/utils/openstack/networking/v2/networks"
 
-	"github.com/openshift/installer/pkg/asset/installconfig/openstack"
-	"github.com/openshift/installer/pkg/types"
+	"github.com/anton-sidelnikov/otc-openshift-installer/pkg/asset/installconfig/openstack"
+	"github.com/anton-sidelnikov/otc-openshift-installer/pkg/types"
 )
 
 // Error represents a failure while generating OpenStack provider

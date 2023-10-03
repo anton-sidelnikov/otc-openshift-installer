@@ -12,13 +12,12 @@ import (
 	"k8s.io/utils/pointer"
 	"sigs.k8s.io/yaml"
 
-	"github.com/openshift/installer/pkg/asset"
-	"github.com/openshift/installer/pkg/asset/ignition/machine"
-	"github.com/openshift/installer/pkg/asset/installconfig"
-	"github.com/openshift/installer/pkg/asset/rhcos"
-	"github.com/openshift/installer/pkg/types"
-	awstypes "github.com/openshift/installer/pkg/types/aws"
-	"github.com/openshift/installer/pkg/types/baremetal"
+	"github.com/anton-sidelnikov/otc-openshift-installer/pkg/asset"
+	"github.com/anton-sidelnikov/otc-openshift-installer/pkg/asset/ignition/machine"
+	"github.com/anton-sidelnikov/otc-openshift-installer/pkg/asset/installconfig"
+	"github.com/anton-sidelnikov/otc-openshift-installer/pkg/asset/rhcos"
+	"github.com/anton-sidelnikov/otc-openshift-installer/pkg/types"
+	ostypes "github.com/anton-sidelnikov/otc-openshift-installer/pkg/types/openstack"
 )
 
 func TestMasterGenerateMachineConfigs(t *testing.T) {
@@ -142,17 +141,14 @@ spec:
 						SSHKey:     tc.key,
 						BaseDomain: "test-domain",
 						Platform: types.Platform{
-							AWS: &awstypes.Platform{
-								Region: "us-east-1",
-							},
+							OpenStack: &ostypes.Platform{},
 						},
 						ControlPlane: &types.MachinePool{
 							Hyperthreading: tc.hyperthreading,
 							Replicas:       pointer.Int64Ptr(1),
 							Platform: types.MachinePoolPlatform{
-								AWS: &awstypes.MachinePool{
-									Zones:        []string{"us-east-1a"},
-									InstanceType: "m5.xlarge",
+								OpenStack: &ostypes.MachinePool{
+									Zones: []string{"us-east-1a"},
 								},
 							},
 						},
@@ -192,18 +188,15 @@ func TestControlPlaneIsNotModified(t *testing.T) {
 			SSHKey:     "ssh-rsa: dummy-key",
 			BaseDomain: "test-domain",
 			Platform: types.Platform{
-				AWS: &awstypes.Platform{
-					Region: "us-east-1",
-					DefaultMachinePlatform: &awstypes.MachinePool{
-						InstanceType: "TEST_INSTANCE_TYPE",
-					},
+				OpenStack: &ostypes.Platform{
+					DefaultMachinePlatform: &ostypes.MachinePool{},
 				},
 			},
 			ControlPlane: &types.MachinePool{
 				Hyperthreading: types.HyperthreadingDisabled,
 				Replicas:       pointer.Int64Ptr(1),
 				Platform: types.MachinePoolPlatform{
-					AWS: &awstypes.MachinePool{
+					OpenStack: &ostypes.MachinePool{
 						Zones: []string{"us-east-1a"},
 					},
 				},
@@ -230,83 +223,9 @@ func TestControlPlaneIsNotModified(t *testing.T) {
 		t.Fatalf("failed to generate master machines: %v", err)
 	}
 
-	if installConfig.Config.ControlPlane.Platform.AWS.Type != "" {
+	if installConfig.Config.ControlPlane.Platform.OpenStack.FlavorName != "" {
 		t.Fatalf("control plance in the install config has been modified")
 	}
-}
-
-func TestBaremetalGeneratedAssetFiles(t *testing.T) {
-	parents := asset.Parents{}
-	installConfig := installconfig.MakeAsset(
-		&types.InstallConfig{
-			ObjectMeta: metav1.ObjectMeta{
-				Name: "test-cluster",
-			},
-			Platform: types.Platform{
-				BareMetal: &baremetal.Platform{
-					Hosts: []*baremetal.Host{
-						{
-							Name: "master-0",
-							Role: "master",
-							BMC: baremetal.BMC{
-								Username: "usr-0",
-								Password: "pwd-0",
-							},
-							NetworkConfig: networkConfig("interfaces:"),
-						},
-						{
-							Name: "worker-0",
-							Role: "worker",
-							BMC: baremetal.BMC{
-								Username: "usr-1",
-								Password: "pwd-1",
-							},
-						},
-					},
-				},
-			},
-			ControlPlane: &types.MachinePool{
-				Replicas: pointer.Int64Ptr(1),
-				Platform: types.MachinePoolPlatform{
-					BareMetal: &baremetal.MachinePool{},
-				},
-			},
-			Compute: []types.MachinePool{
-				{
-					Replicas: pointer.Int64Ptr(1),
-					Platform: types.MachinePoolPlatform{},
-				},
-			},
-		})
-
-	parents.Add(
-		&installconfig.ClusterID{
-			UUID:    "test-uuid",
-			InfraID: "test-infra-id",
-		},
-		installConfig,
-		(*rhcos.Image)(pointer.StringPtr("test-image")),
-		(*rhcos.Release)(pointer.StringPtr("412.86.202208101040-0")),
-		&machine.Master{
-			File: &asset.File{
-				Filename: "master-ignition",
-				Data:     []byte("test-ignition"),
-			},
-		},
-	)
-	master := &Master{}
-	assert.NoError(t, master.Generate(parents))
-
-	assert.Len(t, master.HostFiles, 2)
-	verifyHost(t, master.HostFiles[0], "openshift/99_openshift-cluster-api_hosts-0.yaml", "master-0")
-	verifyHost(t, master.HostFiles[1], "openshift/99_openshift-cluster-api_hosts-1.yaml", "worker-0")
-
-	assert.Len(t, master.SecretFiles, 2)
-	verifySecret(t, master.SecretFiles[0], "openshift/99_openshift-cluster-api_host-bmc-secrets-0.yaml", "master-0-bmc-secret", "map[password:[112 119 100 45 48] username:[117 115 114 45 48]]")
-	verifySecret(t, master.SecretFiles[1], "openshift/99_openshift-cluster-api_host-bmc-secrets-1.yaml", "worker-0-bmc-secret", "map[password:[112 119 100 45 49] username:[117 115 114 45 49]]")
-
-	assert.Len(t, master.NetworkConfigSecretFiles, 1)
-	verifySecret(t, master.NetworkConfigSecretFiles[0], "openshift/99_openshift-cluster-api_host-network-config-secrets-0.yaml", "master-0-network-config-secret", "map[nmstate:[105 110 116 101 114 102 97 99 101 115 58 32 110 117 108 108 10]]")
 }
 
 func verifyHost(t *testing.T, a *asset.File, eFilename, eName string) {

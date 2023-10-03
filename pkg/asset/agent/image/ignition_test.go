@@ -15,17 +15,17 @@ import (
 	v1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
+	"github.com/anton-sidelnikov/otc-openshift-installer/pkg/asset"
+	"github.com/anton-sidelnikov/otc-openshift-installer/pkg/asset/agent/agentconfig"
+	"github.com/anton-sidelnikov/otc-openshift-installer/pkg/asset/agent/manifests"
+	"github.com/anton-sidelnikov/otc-openshift-installer/pkg/asset/agent/mirror"
+	"github.com/anton-sidelnikov/otc-openshift-installer/pkg/asset/password"
+	"github.com/anton-sidelnikov/otc-openshift-installer/pkg/asset/tls"
+	"github.com/anton-sidelnikov/otc-openshift-installer/pkg/types/agent"
 	hiveext "github.com/openshift/assisted-service/api/hiveextension/v1beta1"
 	aiv1beta1 "github.com/openshift/assisted-service/api/v1beta1"
 	"github.com/openshift/assisted-service/models"
 	hivev1 "github.com/openshift/hive/apis/hive/v1"
-	"github.com/openshift/installer/pkg/asset"
-	"github.com/openshift/installer/pkg/asset/agent/agentconfig"
-	"github.com/openshift/installer/pkg/asset/agent/manifests"
-	"github.com/openshift/installer/pkg/asset/agent/mirror"
-	"github.com/openshift/installer/pkg/asset/password"
-	"github.com/openshift/installer/pkg/asset/tls"
-	"github.com/openshift/installer/pkg/types/agent"
 )
 
 // Unable to test Generate because bootstrap.AddStorageFiles

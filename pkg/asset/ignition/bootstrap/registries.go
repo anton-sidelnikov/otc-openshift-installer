@@ -3,7 +3,7 @@ package bootstrap
 import (
 	"k8s.io/apimachinery/pkg/util/sets"
 
-	"github.com/openshift/installer/pkg/types"
+	"github.com/anton-sidelnikov/otc-openshift-installer/pkg/types"
 )
 
 // MergedMirrorSets consolidates a list of ImageDigestSources so that each

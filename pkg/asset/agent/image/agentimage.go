@@ -10,10 +10,10 @@ import (
 
 	"github.com/sirupsen/logrus"
 
+	"github.com/anton-sidelnikov/otc-openshift-installer/pkg/asset"
+	"github.com/anton-sidelnikov/otc-openshift-installer/pkg/asset/agent/manifests"
 	"github.com/openshift/assisted-image-service/pkg/isoeditor"
 	hiveext "github.com/openshift/assisted-service/api/hiveextension/v1beta1"
-	"github.com/openshift/installer/pkg/asset"
-	"github.com/openshift/installer/pkg/asset/agent/manifests"
 )
 
 const (

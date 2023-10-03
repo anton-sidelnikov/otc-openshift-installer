@@ -10,8 +10,8 @@ import (
 	"github.com/AlecAivazis/survey/v2/core"
 	"github.com/pkg/errors"
 
-	"github.com/openshift/installer/pkg/asset"
-	"github.com/openshift/installer/pkg/validate"
+	"github.com/anton-sidelnikov/otc-openshift-installer/pkg/asset"
+	"github.com/anton-sidelnikov/otc-openshift-installer/pkg/validate"
 )
 
 const (

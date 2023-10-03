@@ -3,8 +3,8 @@ package installconfig
 import (
 	survey "github.com/AlecAivazis/survey/v2"
 
-	"github.com/openshift/installer/pkg/asset"
-	"github.com/openshift/installer/pkg/types"
+	"github.com/anton-sidelnikov/otc-openshift-installer/pkg/asset"
+	"github.com/anton-sidelnikov/otc-openshift-installer/pkg/types"
 )
 
 type networking struct {

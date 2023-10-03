@@ -11,12 +11,12 @@ import (
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 
-	"github.com/openshift/installer/pkg/asset"
-	"github.com/openshift/installer/pkg/asset/agent/manifests"
-	"github.com/openshift/installer/pkg/asset/agent/mirror"
-	"github.com/openshift/installer/pkg/asset/ignition"
-	"github.com/openshift/installer/pkg/asset/ignition/bootstrap"
-	"github.com/openshift/installer/pkg/types"
+	"github.com/anton-sidelnikov/otc-openshift-installer/pkg/asset"
+	"github.com/anton-sidelnikov/otc-openshift-installer/pkg/asset/agent/manifests"
+	"github.com/anton-sidelnikov/otc-openshift-installer/pkg/asset/agent/mirror"
+	"github.com/anton-sidelnikov/otc-openshift-installer/pkg/asset/ignition"
+	"github.com/anton-sidelnikov/otc-openshift-installer/pkg/asset/ignition/bootstrap"
+	"github.com/anton-sidelnikov/otc-openshift-installer/pkg/types"
 )
 
 const (

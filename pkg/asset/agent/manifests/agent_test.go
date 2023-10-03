@@ -7,11 +7,11 @@ import (
 	corev1 "k8s.io/api/core/v1"
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
+	"github.com/anton-sidelnikov/otc-openshift-installer/pkg/asset"
 	hiveext "github.com/openshift/assisted-service/api/hiveextension/v1beta1"
 	aiv1beta1 "github.com/openshift/assisted-service/api/v1beta1"
 	"github.com/openshift/assisted-service/models"
 	hivev1 "github.com/openshift/hive/apis/hive/v1"
-	"github.com/openshift/installer/pkg/asset"
 )
 
 func TestAgentManifests_Generate(t *testing.T) {

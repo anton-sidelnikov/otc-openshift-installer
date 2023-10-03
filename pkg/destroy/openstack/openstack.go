@@ -34,10 +34,10 @@ import (
 	k8serrors "k8s.io/apimachinery/pkg/util/errors"
 	"k8s.io/apimachinery/pkg/util/wait"
 
-	"github.com/openshift/installer/pkg/destroy/providers"
-	"github.com/openshift/installer/pkg/types"
-	openstackdefaults "github.com/openshift/installer/pkg/types/openstack/defaults"
-	"github.com/openshift/installer/pkg/types/openstack/validation/networkextensions"
+	"github.com/anton-sidelnikov/otc-openshift-installer/pkg/destroy/providers"
+	"github.com/anton-sidelnikov/otc-openshift-installer/pkg/types"
+	openstackdefaults "github.com/anton-sidelnikov/otc-openshift-installer/pkg/types/openstack/defaults"
+	"github.com/anton-sidelnikov/otc-openshift-installer/pkg/types/openstack/validation/networkextensions"
 )
 
 const (

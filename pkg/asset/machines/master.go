@@ -1,68 +1,29 @@
 package machines
 
 import (
-	"context"
 	"fmt"
-	"os"
-	"path/filepath"
-	"strings"
-
 	baremetalhost "github.com/metal3-io/baremetal-operator/apis/metal3.io/v1alpha1"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/runtime/serializer"
+	"os"
+	"path/filepath"
 	"sigs.k8s.io/yaml"
 
-	configv1 "github.com/openshift/api/config/v1"
+	"github.com/anton-sidelnikov/otc-openshift-installer/pkg/asset"
+	"github.com/anton-sidelnikov/otc-openshift-installer/pkg/asset/ignition/machine"
+	"github.com/anton-sidelnikov/otc-openshift-installer/pkg/asset/installconfig"
+	"github.com/anton-sidelnikov/otc-openshift-installer/pkg/asset/machines/machineconfig"
+	"github.com/anton-sidelnikov/otc-openshift-installer/pkg/asset/machines/openstack"
+	"github.com/anton-sidelnikov/otc-openshift-installer/pkg/asset/rhcos"
+	rhcosutils "github.com/anton-sidelnikov/otc-openshift-installer/pkg/rhcos"
+	"github.com/anton-sidelnikov/otc-openshift-installer/pkg/types"
+	openstacktypes "github.com/anton-sidelnikov/otc-openshift-installer/pkg/types/openstack"
 	machinev1 "github.com/openshift/api/machine/v1"
 	machinev1alpha1 "github.com/openshift/api/machine/v1alpha1"
 	machinev1beta1 "github.com/openshift/api/machine/v1beta1"
-	baremetalapi "github.com/openshift/cluster-api-provider-baremetal/pkg/apis"
-	baremetalprovider "github.com/openshift/cluster-api-provider-baremetal/pkg/apis/baremetal/v1alpha1"
-	libvirtapi "github.com/openshift/cluster-api-provider-libvirt/pkg/apis"
-	libvirtprovider "github.com/openshift/cluster-api-provider-libvirt/pkg/apis/libvirtproviderconfig/v1beta1"
-	ovirtproviderapi "github.com/openshift/cluster-api-provider-ovirt/pkg/apis"
-	ovirtprovider "github.com/openshift/cluster-api-provider-ovirt/pkg/apis/ovirtprovider/v1beta1"
-	"github.com/openshift/installer/pkg/asset"
-	"github.com/openshift/installer/pkg/asset/ignition/machine"
-	"github.com/openshift/installer/pkg/asset/installconfig"
-	icazure "github.com/openshift/installer/pkg/asset/installconfig/azure"
-	"github.com/openshift/installer/pkg/asset/machines/alibabacloud"
-	"github.com/openshift/installer/pkg/asset/machines/aws"
-	"github.com/openshift/installer/pkg/asset/machines/azure"
-	"github.com/openshift/installer/pkg/asset/machines/baremetal"
-	"github.com/openshift/installer/pkg/asset/machines/gcp"
-	"github.com/openshift/installer/pkg/asset/machines/ibmcloud"
-	"github.com/openshift/installer/pkg/asset/machines/libvirt"
-	"github.com/openshift/installer/pkg/asset/machines/machineconfig"
-	"github.com/openshift/installer/pkg/asset/machines/nutanix"
-	"github.com/openshift/installer/pkg/asset/machines/openstack"
-	"github.com/openshift/installer/pkg/asset/machines/ovirt"
-	"github.com/openshift/installer/pkg/asset/machines/powervs"
-	"github.com/openshift/installer/pkg/asset/machines/vsphere"
-	"github.com/openshift/installer/pkg/asset/rhcos"
-	rhcosutils "github.com/openshift/installer/pkg/rhcos"
-	"github.com/openshift/installer/pkg/types"
-	alibabacloudtypes "github.com/openshift/installer/pkg/types/alibabacloud"
-	awstypes "github.com/openshift/installer/pkg/types/aws"
-	awsdefaults "github.com/openshift/installer/pkg/types/aws/defaults"
-	azuretypes "github.com/openshift/installer/pkg/types/azure"
-	azuredefaults "github.com/openshift/installer/pkg/types/azure/defaults"
-	baremetaltypes "github.com/openshift/installer/pkg/types/baremetal"
-	externaltypes "github.com/openshift/installer/pkg/types/external"
-	gcptypes "github.com/openshift/installer/pkg/types/gcp"
-	ibmcloudtypes "github.com/openshift/installer/pkg/types/ibmcloud"
-	libvirttypes "github.com/openshift/installer/pkg/types/libvirt"
-	nonetypes "github.com/openshift/installer/pkg/types/none"
-	nutanixtypes "github.com/openshift/installer/pkg/types/nutanix"
-	openstacktypes "github.com/openshift/installer/pkg/types/openstack"
-	ovirttypes "github.com/openshift/installer/pkg/types/ovirt"
-	powervstypes "github.com/openshift/installer/pkg/types/powervs"
-	vspheretypes "github.com/openshift/installer/pkg/types/vsphere"
-	ibmcloudapi "github.com/openshift/machine-api-provider-ibmcloud/pkg/apis"
-	ibmcloudprovider "github.com/openshift/machine-api-provider-ibmcloud/pkg/apis/ibmcloudprovider/v1"
 	mcfgv1 "github.com/openshift/machine-config-operator/pkg/apis/machineconfiguration.openshift.io/v1"
 )
 
@@ -146,7 +107,6 @@ func (m *Master) Dependencies() []asset.Asset {
 
 // Generate generates the Master asset.
 func (m *Master) Generate(dependencies asset.Parents) error {
-	ctx := context.TODO()
 	clusterID := &installconfig.ClusterID{}
 	installConfig := &installconfig.InstallConfig{}
 	rhcosImage := new(rhcos.Image)
@@ -162,167 +122,6 @@ func (m *Master) Generate(dependencies asset.Parents) error {
 	machines := []machinev1beta1.Machine{}
 	var controlPlaneMachineSet *machinev1.ControlPlaneMachineSet
 	switch ic.Platform.Name() {
-	case alibabacloudtypes.Name:
-		client, err := installConfig.AlibabaCloud.Client()
-		if err != nil {
-			return err
-		}
-		vswitchMaps, err := installConfig.AlibabaCloud.VSwitchMaps()
-		if err != nil {
-			return errors.Wrap(err, "failed to get VSwitchs map")
-		}
-		mpool := alibabacloudtypes.DefaultMasterMachinePoolPlatform()
-		mpool.ImageID = string(*rhcosImage)
-		mpool.Set(ic.Platform.AlibabaCloud.DefaultMachinePlatform)
-		mpool.Set(pool.Platform.AlibabaCloud)
-		if len(mpool.Zones) == 0 {
-			if len(vswitchMaps) > 0 {
-				for zone := range vswitchMaps {
-					mpool.Zones = append(mpool.Zones, zone)
-				}
-			} else {
-				azs, err := client.GetAvailableZonesByInstanceType(mpool.InstanceType)
-				if err != nil || len(azs) == 0 {
-					return errors.Wrap(err, "failed to fetch availability zones")
-				}
-				mpool.Zones = azs
-			}
-		}
-
-		pool.Platform.AlibabaCloud = &mpool
-		machines, err = alibabacloud.Machines(clusterID.InfraID, ic, &pool, "master", masterUserDataSecretName, installConfig.Config.Platform.AlibabaCloud.Tags, vswitchMaps)
-		if err != nil {
-			return errors.Wrap(err, "failed to create master machine objects")
-		}
-	case awstypes.Name:
-		subnets := map[string]string{}
-		if len(ic.Platform.AWS.Subnets) > 0 {
-			subnetMeta, err := installConfig.AWS.PrivateSubnets(ctx)
-			if err != nil {
-				return err
-			}
-			for id, subnet := range subnetMeta {
-				subnets[subnet.Zone.Name] = id
-			}
-		}
-
-		mpool := defaultAWSMachinePoolPlatform("master")
-
-		osImage := strings.SplitN(string(*rhcosImage), ",", 2)
-		osImageID := osImage[0]
-		if len(osImage) == 2 {
-			osImageID = "" // the AMI will be generated later on
-		}
-		mpool.AMIID = osImageID
-
-		mpool.Set(ic.Platform.AWS.DefaultMachinePlatform)
-		mpool.Set(pool.Platform.AWS)
-		zoneDefaults := false
-		if len(mpool.Zones) == 0 {
-			if len(subnets) > 0 {
-				for zone := range subnets {
-					mpool.Zones = append(mpool.Zones, zone)
-				}
-			} else {
-				mpool.Zones, err = installConfig.AWS.AvailabilityZones(ctx)
-				if err != nil {
-					return err
-				}
-				zoneDefaults = true
-			}
-		}
-
-		if mpool.InstanceType == "" {
-			topology := configv1.HighlyAvailableTopologyMode
-			if pool.Replicas != nil && *pool.Replicas == 1 {
-				topology = configv1.SingleReplicaTopologyMode
-			}
-			mpool.InstanceType, err = aws.PreferredInstanceType(ctx, installConfig.AWS, awsdefaults.InstanceTypes(installConfig.Config.Platform.AWS.Region, installConfig.Config.ControlPlane.Architecture, topology), mpool.Zones)
-			if err != nil {
-				logrus.Warn(errors.Wrap(err, "failed to find default instance type"))
-				mpool.InstanceType = awsdefaults.InstanceTypes(installConfig.Config.Platform.AWS.Region, installConfig.Config.ControlPlane.Architecture, topology)[0]
-			}
-		}
-
-		// if the list of zones is the default we need to try to filter the list in case there are some zones where the instance might not be available
-		if zoneDefaults {
-			mpool.Zones, err = aws.FilterZonesBasedOnInstanceType(ctx, installConfig.AWS, mpool.InstanceType, mpool.Zones)
-			if err != nil {
-				logrus.Warn(errors.Wrap(err, "failed to filter zone list"))
-			}
-		}
-
-		pool.Platform.AWS = &mpool
-		machines, controlPlaneMachineSet, err = aws.Machines(
-			clusterID.InfraID,
-			installConfig.Config.Platform.AWS.Region,
-			subnets,
-			&pool,
-			"master",
-			masterUserDataSecretName,
-			installConfig.Config.Platform.AWS.UserTags,
-		)
-		if err != nil {
-			return errors.Wrap(err, "failed to create master machine objects")
-		}
-		aws.ConfigMasters(machines, controlPlaneMachineSet, clusterID.InfraID, ic.Publish)
-	case gcptypes.Name:
-		mpool := defaultGCPMachinePoolPlatform(pool.Architecture)
-		mpool.Set(ic.Platform.GCP.DefaultMachinePlatform)
-		mpool.Set(pool.Platform.GCP)
-		if len(mpool.Zones) == 0 {
-			azs, err := gcp.ZonesForInstanceType(ic.Platform.GCP.ProjectID, ic.Platform.GCP.Region, mpool.InstanceType)
-			if err != nil {
-				return errors.Wrap(err, "failed to fetch availability zones")
-			}
-			mpool.Zones = azs
-		}
-		pool.Platform.GCP = &mpool
-		machines, controlPlaneMachineSet, err = gcp.Machines(clusterID.InfraID, ic, &pool, string(*rhcosImage), "master", masterUserDataSecretName)
-		if err != nil {
-			return errors.Wrap(err, "failed to create master machine objects")
-		}
-		err := gcp.ConfigMasters(machines, controlPlaneMachineSet, clusterID.InfraID, ic.Publish)
-		if err != nil {
-			return err
-		}
-	case ibmcloudtypes.Name:
-		subnets := map[string]string{}
-		if len(ic.Platform.IBMCloud.ControlPlaneSubnets) > 0 {
-			subnetMetas, err := installConfig.IBMCloud.ControlPlaneSubnets(ctx)
-			if err != nil {
-				return err
-			}
-			for _, subnet := range subnetMetas {
-				subnets[subnet.Zone] = subnet.Name
-			}
-		}
-		mpool := defaultIBMCloudMachinePoolPlatform()
-		mpool.Set(ic.Platform.IBMCloud.DefaultMachinePlatform)
-		mpool.Set(pool.Platform.IBMCloud)
-		if len(mpool.Zones) == 0 {
-			azs, err := ibmcloud.AvailabilityZones(ic.Platform.IBMCloud.Region)
-			if err != nil {
-				return errors.Wrap(err, "failed to fetch availability zones")
-			}
-			mpool.Zones = azs
-		}
-		pool.Platform.IBMCloud = &mpool
-		machines, err = ibmcloud.Machines(clusterID.InfraID, ic, subnets, &pool, "master", masterUserDataSecretName)
-		if err != nil {
-			return errors.Wrap(err, "failed to create master machine objects")
-		}
-		// TODO: IBM: implement ConfigMasters() if needed
-		// ibmcloud.ConfigMasters(machines, clusterID.InfraID, ic.Publish)
-	case libvirttypes.Name:
-		mpool := defaultLibvirtMachinePoolPlatform()
-		mpool.Set(ic.Platform.Libvirt.DefaultMachinePlatform)
-		mpool.Set(pool.Platform.Libvirt)
-		pool.Platform.Libvirt = &mpool
-		machines, err = libvirt.Machines(clusterID.InfraID, ic, &pool, "master", masterUserDataSecretName)
-		if err != nil {
-			return errors.Wrap(err, "failed to create master machine objects")
-		}
 	case openstacktypes.Name:
 		mpool := defaultOpenStackMachinePoolPlatform()
 		mpool.Set(ic.Platform.OpenStack.DefaultMachinePlatform)
@@ -336,180 +135,6 @@ func (m *Master) Generate(dependencies asset.Parents) error {
 			return errors.Wrap(err, "failed to create master machine objects")
 		}
 		openstack.ConfigMasters(machines, clusterID.InfraID)
-	case azuretypes.Name:
-		mpool := defaultAzureMachinePoolPlatform()
-		mpool.InstanceType = azuredefaults.ControlPlaneInstanceType(
-			installConfig.Config.Platform.Azure.CloudName,
-			installConfig.Config.Platform.Azure.Region,
-			installConfig.Config.ControlPlane.Architecture,
-		)
-		mpool.OSDisk.DiskSizeGB = 1024
-		if installConfig.Config.Platform.Azure.CloudName == azuretypes.StackCloud {
-			mpool.OSDisk.DiskSizeGB = azuredefaults.AzurestackMinimumDiskSize
-		}
-		mpool.Set(ic.Platform.Azure.DefaultMachinePlatform)
-		mpool.Set(pool.Platform.Azure)
-
-		session, err := installConfig.Azure.Session()
-		if err != nil {
-			return errors.Wrap(err, "failed to fetch session")
-		}
-
-		client := icazure.NewClient(session)
-		if len(mpool.Zones) == 0 {
-			azs, err := client.GetAvailabilityZones(context.TODO(), ic.Platform.Azure.Region, mpool.InstanceType)
-			if err != nil {
-				return errors.Wrap(err, "failed to fetch availability zones")
-			}
-			mpool.Zones = azs
-			if len(azs) == 0 {
-				// if no azs are given we set to []string{""} for convenience over later operations.
-				// It means no-zoned for the machine API
-				mpool.Zones = []string{""}
-			}
-		}
-
-		if mpool.OSImage.Publisher != "" {
-			img, ierr := client.GetMarketplaceImage(context.TODO(), ic.Platform.Azure.Region, mpool.OSImage.Publisher, mpool.OSImage.Offer, mpool.OSImage.SKU, mpool.OSImage.Version)
-			if ierr != nil {
-				return fmt.Errorf("failed to fetch marketplace image: %w", ierr)
-			}
-			// Publisher is case-sensitive and matched against exactly. Also the
-			// Plan's publisher might not be exactly the same as the Image's
-			// publisher
-			if img.Plan != nil && img.Plan.Publisher != nil {
-				mpool.OSImage.Publisher = *img.Plan.Publisher
-			}
-		}
-		pool.Platform.Azure = &mpool
-
-		capabilities, err := client.GetVMCapabilities(context.TODO(), mpool.InstanceType, installConfig.Config.Platform.Azure.Region)
-		if err != nil {
-			return err
-		}
-		useImageGallery := installConfig.Azure.CloudName != azuretypes.StackCloud
-		machines, controlPlaneMachineSet, err = azure.Machines(clusterID.InfraID, ic, &pool, string(*rhcosImage), "master", masterUserDataSecretName, capabilities, useImageGallery)
-		if err != nil {
-			return errors.Wrap(err, "failed to create master machine objects")
-		}
-		err = azure.ConfigMasters(machines, controlPlaneMachineSet, clusterID.InfraID)
-		if err != nil {
-			return err
-		}
-	case baremetaltypes.Name:
-		mpool := defaultBareMetalMachinePoolPlatform()
-		mpool.Set(ic.Platform.BareMetal.DefaultMachinePlatform)
-		mpool.Set(pool.Platform.BareMetal)
-		pool.Platform.BareMetal = &mpool
-
-		// Use managed user data secret, since we always have up to date images
-		// available in the cluster
-		masterUserDataSecretName = "master-user-data-managed"
-		machines, err = baremetal.Machines(clusterID.InfraID, ic, &pool, "master", masterUserDataSecretName)
-		if err != nil {
-			return errors.Wrap(err, "failed to create master machine objects")
-		}
-
-		hostSettings, err := baremetal.Hosts(ic, machines)
-		if err != nil {
-			return errors.Wrap(err, "failed to assemble host data")
-		}
-
-		hosts, err := createHostAssetFiles(hostSettings.Hosts, hostFileName)
-		if err != nil {
-			return err
-		}
-		m.HostFiles = append(m.HostFiles, hosts...)
-
-		secrets, err := createSecretAssetFiles(hostSettings.Secrets, secretFileName)
-		if err != nil {
-			return err
-		}
-		m.SecretFiles = append(m.SecretFiles, secrets...)
-
-		networkSecrets, err := createSecretAssetFiles(hostSettings.NetworkConfigSecrets, networkConfigSecretFileName)
-		if err != nil {
-			return err
-		}
-		m.NetworkConfigSecretFiles = append(m.NetworkConfigSecretFiles, networkSecrets...)
-
-	case ovirttypes.Name:
-		mpool := defaultOvirtMachinePoolPlatform()
-		mpool.VMType = ovirttypes.VMTypeHighPerformance
-		mpool.Set(ic.Platform.Ovirt.DefaultMachinePlatform)
-		mpool.Set(pool.Platform.Ovirt)
-		pool.Platform.Ovirt = &mpool
-
-		imageName, _ := rhcosutils.GenerateOpenStackImageName(string(*rhcosImage), clusterID.InfraID)
-
-		machines, err = ovirt.Machines(clusterID.InfraID, ic, &pool, imageName, "master", masterUserDataSecretName)
-		if err != nil {
-			return errors.Wrap(err, "failed to create master machine objects for ovirt provider")
-		}
-	case vspheretypes.Name:
-		mpool := defaultVSphereMachinePoolPlatform()
-		mpool.NumCPUs = 4
-		mpool.NumCoresPerSocket = 4
-		mpool.MemoryMiB = 16384
-		mpool.Set(ic.Platform.VSphere.DefaultMachinePlatform)
-		mpool.Set(pool.Platform.VSphere)
-
-		// The machinepool has no zones defined, there are FailureDomains
-		// This is a vSphere zonal installation. Generate machinepool zone
-		// list.
-
-		fdCount := int64(len(ic.Platform.VSphere.FailureDomains))
-		var idx int64
-		if len(mpool.Zones) == 0 && len(ic.VSphere.FailureDomains) != 0 {
-			for i := int64(0); i < *(ic.ControlPlane.Replicas); i++ {
-				idx = i
-				if idx >= fdCount {
-					idx = i % fdCount
-				}
-				mpool.Zones = append(mpool.Zones, ic.VSphere.FailureDomains[idx].Name)
-			}
-		}
-
-		pool.Platform.VSphere = &mpool
-		templateName := clusterID.InfraID + "-rhcos"
-
-		machines, err = vsphere.Machines(clusterID.InfraID, ic, &pool, templateName, "master", masterUserDataSecretName)
-		if err != nil {
-			return errors.Wrap(err, "failed to create master machine objects")
-		}
-		vsphere.ConfigMasters(machines, clusterID.InfraID)
-	case powervstypes.Name:
-		mpool := defaultPowerVSMachinePoolPlatform()
-		mpool.Set(ic.Platform.PowerVS.DefaultMachinePlatform)
-		mpool.Set(pool.Platform.PowerVS)
-		// Only the service instance is guaranteed to exist and be passed via the install config
-		// The other two, we should standardize a name including the cluster id. At this point, all
-		// we have are names.
-		pool.Platform.PowerVS = &mpool
-		machines, controlPlaneMachineSet, err = powervs.Machines(clusterID.InfraID, ic, &pool, "master", "master-user-data")
-		if err != nil {
-			return errors.Wrap(err, "failed to create master machine objects")
-		}
-		if err := powervs.ConfigMasters(machines, controlPlaneMachineSet, clusterID.InfraID, ic.Publish); err != nil {
-			return errors.Wrap(err, "failed to to configure master machine objects")
-		}
-	case externaltypes.Name, nonetypes.Name:
-	case nutanixtypes.Name:
-		mpool := defaultNutanixMachinePoolPlatform()
-		mpool.NumCPUs = 8
-		mpool.Set(ic.Platform.Nutanix.DefaultMachinePlatform)
-		mpool.Set(pool.Platform.Nutanix)
-		if err = mpool.ValidateConfig(ic.Platform.Nutanix); err != nil {
-			return errors.Wrap(err, "failed to create master machine objects")
-		}
-		pool.Platform.Nutanix = &mpool
-		templateName := nutanixtypes.RHCOSImageName(clusterID.InfraID)
-
-		machines, controlPlaneMachineSet, err = nutanix.Machines(clusterID.InfraID, ic, &pool, templateName, "master", masterUserDataSecretName)
-		if err != nil {
-			return errors.Wrap(err, "failed to create master machine objects")
-		}
-		nutanix.ConfigMasters(machines, clusterID.InfraID)
 	default:
 		return fmt.Errorf("invalid Platform")
 	}
@@ -546,19 +171,11 @@ func (m *Master) Generate(dependencies asset.Parents) error {
 		}
 		machineConfigs = append(machineConfigs, ignFIPS)
 	}
-	if ic.Platform.Name() == powervstypes.Name {
-		// always enable multipath for powervs.
-		ignMultipath, err := machineconfig.ForMultipathEnabled("master")
-		if err != nil {
-			return errors.Wrap(err, "failed to create ignition for Multipath enabled for master machines")
-		}
-		machineConfigs = append(machineConfigs, ignMultipath)
-	}
 	// The maximum number of networks supported on ServiceNetwork is two, one IPv4 and one IPv6 network.
 	// The cluster-network-operator handles the validation of this field.
 	// Reference: https://github.com/openshift/cluster-network-operator/blob/fc3e0e25b4cfa43e14122bdcdd6d7f2585017d75/pkg/network/cluster_config.go#L45-L52
 	if ic.Networking != nil && len(ic.Networking.ServiceNetwork) == 2 &&
-		(ic.Platform.Name() == openstacktypes.Name || ic.Platform.Name() == vspheretypes.Name) {
+		(ic.Platform.Name() == openstacktypes.Name) {
 		// Only configure kernel args for dual-stack clusters.
 		ignIPv6, err := machineconfig.ForDualStackAddresses("master")
 		if err != nil {
@@ -680,23 +297,10 @@ func (m *Master) Load(f asset.FileFetcher) (found bool, err error) {
 // Machines returns master Machine manifest structures.
 func (m *Master) Machines() ([]machinev1beta1.Machine, error) {
 	scheme := runtime.NewScheme()
-	baremetalapi.AddToScheme(scheme)
-	ibmcloudapi.AddToScheme(scheme)
-	libvirtapi.AddToScheme(scheme)
-	ovirtproviderapi.AddToScheme(scheme)
 	scheme.AddKnownTypes(machinev1alpha1.GroupVersion,
 		&machinev1alpha1.OpenstackProviderSpec{},
 	)
-	scheme.AddKnownTypes(machinev1beta1.SchemeGroupVersion,
-		&machinev1beta1.AWSMachineProviderConfig{},
-		&machinev1beta1.VSphereMachineProviderSpec{},
-		&machinev1beta1.AzureMachineProviderSpec{},
-		&machinev1beta1.GCPMachineProviderSpec{},
-	)
 	scheme.AddKnownTypes(machinev1.GroupVersion,
-		&machinev1.AlibabaCloudMachineProviderConfig{},
-		&machinev1.NutanixMachineProviderConfig{},
-		&machinev1.PowerVSMachineProviderConfig{},
 		&machinev1.ControlPlaneMachineSet{},
 	)
 
@@ -704,12 +308,8 @@ func (m *Master) Machines() ([]machinev1beta1.Machine, error) {
 	machinev1.Install(scheme)
 	decoder := serializer.NewCodecFactory(scheme).UniversalDecoder(
 		machinev1.GroupVersion,
-		baremetalprovider.SchemeGroupVersion,
-		ibmcloudprovider.SchemeGroupVersion,
-		libvirtprovider.SchemeGroupVersion,
 		machinev1alpha1.GroupVersion,
 		machinev1beta1.SchemeGroupVersion,
-		ovirtprovider.SchemeGroupVersion,
 	)
 
 	machines := []machinev1beta1.Machine{}

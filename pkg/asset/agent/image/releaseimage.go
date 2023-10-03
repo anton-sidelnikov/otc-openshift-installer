@@ -6,7 +6,7 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/openshift/installer/pkg/version"
+	"github.com/anton-sidelnikov/otc-openshift-installer/pkg/version"
 )
 
 type releaseImage struct {

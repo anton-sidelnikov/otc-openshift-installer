@@ -3,7 +3,7 @@ package validation
 import (
 	"k8s.io/apimachinery/pkg/util/validation/field"
 
-	"github.com/openshift/installer/pkg/types"
+	"github.com/anton-sidelnikov/otc-openshift-installer/pkg/types"
 )
 
 // FilledInTechPreviewFields returns a slice of field paths that were set in

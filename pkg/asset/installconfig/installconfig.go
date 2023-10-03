@@ -6,7 +6,6 @@ import (
 	"k8s.io/apimachinery/pkg/util/validation/field"
 
 	"github.com/anton-sidelnikov/otc-openshift-installer/pkg/asset"
-	"github.com/anton-sidelnikov/otc-openshift-installer/pkg/asset/installconfig/alibabacloud"
 	icopenstack "github.com/anton-sidelnikov/otc-openshift-installer/pkg/asset/installconfig/openstack"
 	"github.com/anton-sidelnikov/otc-openshift-installer/pkg/types"
 	"github.com/anton-sidelnikov/otc-openshift-installer/pkg/types/defaults"
@@ -20,7 +19,6 @@ const (
 // InstallConfig generates the install-config.yaml file.
 type InstallConfig struct {
 	AssetBase
-	AlibabaCloud *alibabacloud.Metadata `json:"alibabacloud,omitempty"`
 }
 
 var _ asset.WritableAsset = (*InstallConfig)(nil)
@@ -79,8 +77,6 @@ func (a *InstallConfig) Generate(parents asset.Parents) error {
 		},
 	}
 
-	a.Config.AlibabaCloud = platform.AlibabaCloud
-	a.Config.None = platform.None
 	a.Config.OpenStack = platform.OpenStack
 	defaults.SetInstallConfigDefaults(a.Config)
 
@@ -100,10 +96,6 @@ func (a *InstallConfig) Load(f asset.FileFetcher) (found bool, err error) {
 }
 
 func (a *InstallConfig) finish(filename string) error {
-	if a.Config.AlibabaCloud != nil {
-		a.AlibabaCloud = alibabacloud.NewMetadata(a.Config.AlibabaCloud.Region, a.Config.AlibabaCloud.VSwitchIDs)
-	}
-
 	if err := validation.ValidateInstallConfig(a.Config, false).ToAggregate(); err != nil {
 		if filename == "" {
 			return errors.Wrap(err, "invalid install config")
@@ -122,13 +114,6 @@ func (a *InstallConfig) finish(filename string) error {
 // underlying platform. In some cases, platforms also duplicate validations
 // that have already been checked by validation.ValidateInstallConfig().
 func (a *InstallConfig) platformValidation() error {
-	if a.Config.Platform.AlibabaCloud != nil {
-		client, err := a.AlibabaCloud.Client()
-		if err != nil {
-			return err
-		}
-		return alibabacloud.Validate(client, a.Config)
-	}
 	if a.Config.Platform.OpenStack != nil {
 		return icopenstack.Validate(a.Config)
 	}

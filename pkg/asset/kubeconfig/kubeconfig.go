@@ -8,9 +8,9 @@ import (
 	clientcmd "k8s.io/client-go/tools/clientcmd/api/v1"
 	"sigs.k8s.io/yaml"
 
-	"github.com/openshift/installer/pkg/asset"
-	"github.com/openshift/installer/pkg/asset/tls"
-	"github.com/openshift/installer/pkg/types"
+	"github.com/anton-sidelnikov/otc-openshift-installer/pkg/asset"
+	"github.com/anton-sidelnikov/otc-openshift-installer/pkg/asset/tls"
+	"github.com/anton-sidelnikov/otc-openshift-installer/pkg/types"
 )
 
 type kubeconfig struct {

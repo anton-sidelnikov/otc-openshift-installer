@@ -13,12 +13,12 @@ import (
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 
-	"github.com/openshift/installer/pkg/asset"
-	"github.com/openshift/installer/pkg/asset/agent"
-	"github.com/openshift/installer/pkg/asset/agent/manifests"
-	"github.com/openshift/installer/pkg/asset/agent/mirror"
-	"github.com/openshift/installer/pkg/rhcos"
-	"github.com/openshift/installer/pkg/types"
+	"github.com/anton-sidelnikov/otc-openshift-installer/pkg/asset"
+	"github.com/anton-sidelnikov/otc-openshift-installer/pkg/asset/agent"
+	"github.com/anton-sidelnikov/otc-openshift-installer/pkg/asset/agent/manifests"
+	"github.com/anton-sidelnikov/otc-openshift-installer/pkg/asset/agent/mirror"
+	"github.com/anton-sidelnikov/otc-openshift-installer/pkg/rhcos"
+	"github.com/anton-sidelnikov/otc-openshift-installer/pkg/types"
 )
 
 // BaseIso generates the base ISO file for the image

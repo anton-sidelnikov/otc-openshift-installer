@@ -8,14 +8,12 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"sigs.k8s.io/yaml"
 
+	"github.com/anton-sidelnikov/otc-openshift-installer/pkg/asset"
+	"github.com/anton-sidelnikov/otc-openshift-installer/pkg/asset/installconfig"
+	"github.com/anton-sidelnikov/otc-openshift-installer/pkg/asset/templates/content/openshift"
+	"github.com/anton-sidelnikov/otc-openshift-installer/pkg/types"
 	configv1 "github.com/openshift/api/config/v1"
 	operatorv1 "github.com/openshift/api/operator/v1"
-	"github.com/openshift/installer/pkg/asset"
-	"github.com/openshift/installer/pkg/asset/installconfig"
-	"github.com/openshift/installer/pkg/asset/templates/content/openshift"
-	"github.com/openshift/installer/pkg/types"
-	"github.com/openshift/installer/pkg/types/aws"
-	"github.com/openshift/installer/pkg/types/powervs"
 )
 
 var (
@@ -122,33 +120,6 @@ func (no *Networking) Generate(dependencies asset.Parents) error {
 			Filename: noCfgFilename,
 			Data:     configData,
 		},
-	}
-
-	switch installConfig.Config.Platform.Name() {
-	case aws.Name:
-		cnoDefCfg, exists, err := no.generateDefaultNetworkConfigAWSEdge(installConfig)
-		if err != nil {
-			return err
-		}
-		if exists {
-			no.FileList = append(no.FileList, &asset.File{
-				Filename: cnoCfgFilename,
-				Data:     cnoDefCfg,
-			})
-		}
-
-	case powervs.Name:
-		if netConfig.NetworkType == "OVNKubernetes" {
-			ovnConfig, err := OvnKubeConfig(clusterNet, serviceNet, true)
-			if err != nil {
-				return errors.Wrapf(err, "cannot marshal Power VS OVNKube Config")
-			}
-			no.FileList = append(no.FileList, &asset.File{
-				Filename: cnoCfgFilename,
-				Data:     ovnConfig,
-			})
-		}
-
 	}
 
 	return nil

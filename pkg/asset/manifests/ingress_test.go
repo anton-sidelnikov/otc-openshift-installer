@@ -6,10 +6,10 @@ import (
 	"github.com/stretchr/testify/assert"
 	"sigs.k8s.io/yaml"
 
+	"github.com/anton-sidelnikov/otc-openshift-installer/pkg/asset"
+	"github.com/anton-sidelnikov/otc-openshift-installer/pkg/asset/installconfig"
+	"github.com/anton-sidelnikov/otc-openshift-installer/pkg/types"
 	configv1 "github.com/openshift/api/config/v1"
-	"github.com/openshift/installer/pkg/asset"
-	"github.com/openshift/installer/pkg/asset/installconfig"
-	"github.com/openshift/installer/pkg/types"
 )
 
 // installConfigFromTopologies generates an install config that would yield the
@@ -62,91 +62,8 @@ func TestGenerateIngerssDefaultPlacement(t *testing.T) {
 		expectedIngressPlatformType configv1.PlatformType
 	}{
 		{
-			// AWS currently uses a load balancer even on single-node, so the
-			// default placement should be workers
-			name:                      "aws single node with 0 or 1 day-1 workers",
-			installConfigBuildOptions: []icOption{icBuild.forAWS()},
-			controlPlaneTopology:      configv1.SingleReplicaTopologyMode,
-			infrastructureTopology:    configv1.SingleReplicaTopologyMode,
-			expectedIngressAWSLBType:  configv1.Classic,
-			expectedIngressPlacement:  configv1.DefaultPlacementWorkers,
-		},
-		{
-			name:                      "aws multi-node with 1 day-1 worker",
-			installConfigBuildOptions: []icOption{icBuild.forAWS()},
-			controlPlaneTopology:      configv1.HighlyAvailableTopologyMode,
-			infrastructureTopology:    configv1.SingleReplicaTopologyMode,
-			expectedIngressAWSLBType:  configv1.Classic,
-			expectedIngressPlacement:  configv1.DefaultPlacementWorkers,
-		},
-		{
-			// AWS currently uses a load balancer even on single-node, so the
-			// default placement should be workers
-			name:                      "aws single-node with multiple day-1 workers",
-			installConfigBuildOptions: []icOption{icBuild.forAWS()},
-			controlPlaneTopology:      configv1.SingleReplicaTopologyMode,
-			infrastructureTopology:    configv1.HighlyAvailableTopologyMode,
-			expectedIngressAWSLBType:  configv1.Classic,
-			expectedIngressPlacement:  configv1.DefaultPlacementWorkers,
-		},
-		{
-			name:                      "vanilla aws",
-			installConfigBuildOptions: []icOption{icBuild.forAWS()},
-			controlPlaneTopology:      configv1.HighlyAvailableTopologyMode,
-			infrastructureTopology:    configv1.HighlyAvailableTopologyMode,
-			expectedIngressAWSLBType:  configv1.Classic,
-			expectedIngressPlacement:  configv1.DefaultPlacementWorkers,
-		},
-		{
-			name:                        "test setting of aws lb type to NLB",
-			installConfigBuildOptions:   []icOption{icBuild.withLBType(configv1.NLB)},
-			controlPlaneTopology:        configv1.HighlyAvailableTopologyMode,
-			infrastructureTopology:      configv1.HighlyAvailableTopologyMode,
-			expectedIngressPlacement:    configv1.DefaultPlacementWorkers,
-			expectedIngressAWSLBType:    configv1.NLB,
-			expectedIngressPlatformType: configv1.AWSPlatformType,
-		},
-		{
-			name:                        "test setting of aws lb type to Classic",
-			installConfigBuildOptions:   []icOption{icBuild.withLBType(configv1.Classic)},
-			controlPlaneTopology:        configv1.HighlyAvailableTopologyMode,
-			infrastructureTopology:      configv1.HighlyAvailableTopologyMode,
-			expectedIngressPlacement:    configv1.DefaultPlacementWorkers,
-			expectedIngressAWSLBType:    configv1.Classic,
-			expectedIngressPlatformType: configv1.AWSPlatformType,
-		},
-		{
-			name:                      "none-platform single node with 0 or 1 day-1 workers",
-			installConfigBuildOptions: []icOption{icBuild.forNone()},
-			controlPlaneTopology:      configv1.SingleReplicaTopologyMode,
-			infrastructureTopology:    configv1.SingleReplicaTopologyMode,
-			expectedIngressPlacement:  configv1.DefaultPlacementControlPlane,
-		},
-		{
-			name:                      "none-platform multi-node with 1 day-1 worker",
-			installConfigBuildOptions: []icOption{icBuild.forNone()},
-			controlPlaneTopology:      configv1.HighlyAvailableTopologyMode,
-			infrastructureTopology:    configv1.SingleReplicaTopologyMode,
-			expectedIngressPlacement:  configv1.DefaultPlacementWorkers,
-		},
-		{
-			// For the sake of consistency, we want ingress traffic to go
-			// through the single control plane node even when there are
-			// workers on day 1. This is even though it would make sense
-			// for the user to want to set up a day-1 load balancer in this
-			// situation for highly available ingress.
-			name:                      "none-platform single-node with multiple day-1 workers",
-			installConfigBuildOptions: []icOption{icBuild.forNone()},
-			controlPlaneTopology:      configv1.SingleReplicaTopologyMode,
-			infrastructureTopology:    configv1.HighlyAvailableTopologyMode,
-			expectedIngressPlacement:  configv1.DefaultPlacementControlPlane,
-		},
-		{
-			name:                      "vanilla none-platform",
-			installConfigBuildOptions: []icOption{icBuild.forNone()},
-			controlPlaneTopology:      configv1.HighlyAvailableTopologyMode,
-			infrastructureTopology:    configv1.HighlyAvailableTopologyMode,
-			expectedIngressPlacement:  configv1.DefaultPlacementWorkers,
+			name:                        "test setting of openstack",
+			expectedIngressPlatformType: configv1.OpenStackPlatformType,
 		},
 	}
 

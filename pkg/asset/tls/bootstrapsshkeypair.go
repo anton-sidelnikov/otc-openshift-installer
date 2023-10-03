@@ -5,7 +5,7 @@ import (
 	"github.com/sirupsen/logrus"
 	"golang.org/x/crypto/ssh"
 
-	"github.com/openshift/installer/pkg/asset"
+	"github.com/anton-sidelnikov/otc-openshift-installer/pkg/asset"
 )
 
 // BootstrapSSHKeyPair generates a private, public key pair for SSH.

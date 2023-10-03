@@ -12,8 +12,8 @@ import (
 	"github.com/pkg/errors"
 	"k8s.io/apimachinery/pkg/util/sets"
 
-	"github.com/openshift/installer/data"
-	prov "github.com/openshift/installer/pkg/terraform/providers"
+	"github.com/anton-sidelnikov/otc-openshift-installer/data"
+	prov "github.com/anton-sidelnikov/otc-openshift-installer/pkg/terraform/providers"
 )
 
 // unpack unpacks the platform-specific Terraform modules into the

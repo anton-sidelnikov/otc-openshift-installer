@@ -6,8 +6,8 @@ import (
 
 	"github.com/apparentlymart/go-cidr/cidr"
 
-	"github.com/openshift/installer/pkg/types"
-	"github.com/openshift/installer/pkg/types/openstack"
+	"github.com/anton-sidelnikov/otc-openshift-installer/pkg/types"
+	"github.com/anton-sidelnikov/otc-openshift-installer/pkg/types/openstack"
 )
 
 const (

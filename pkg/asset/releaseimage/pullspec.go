@@ -7,7 +7,7 @@ import (
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 
-	"github.com/openshift/installer/pkg/asset"
+	"github.com/anton-sidelnikov/otc-openshift-installer/pkg/asset"
 )
 
 // Image asset generates the release-image pullspec for the cluster

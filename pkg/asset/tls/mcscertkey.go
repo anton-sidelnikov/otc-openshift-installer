@@ -5,13 +5,9 @@ import (
 	"crypto/x509/pkix"
 	"net"
 
-	"github.com/openshift/installer/pkg/asset"
-	"github.com/openshift/installer/pkg/asset/installconfig"
-	baremetaltypes "github.com/openshift/installer/pkg/types/baremetal"
-	nutanixtypes "github.com/openshift/installer/pkg/types/nutanix"
-	openstacktypes "github.com/openshift/installer/pkg/types/openstack"
-	ovirttypes "github.com/openshift/installer/pkg/types/ovirt"
-	vspheretypes "github.com/openshift/installer/pkg/types/vsphere"
+	"github.com/anton-sidelnikov/otc-openshift-installer/pkg/asset"
+	"github.com/anton-sidelnikov/otc-openshift-installer/pkg/asset/installconfig"
+	openstacktypes "github.com/anton-sidelnikov/otc-openshift-installer/pkg/types/openstack"
 )
 
 // MCSCertKey is the asset that generates the MCS key/cert pair.
@@ -47,16 +43,8 @@ func (a *MCSCertKey) Generate(dependencies asset.Parents) error {
 
 	var vips []string
 	switch installConfig.Config.Platform.Name() {
-	case baremetaltypes.Name:
-		vips = installConfig.Config.BareMetal.APIVIPs
-	case nutanixtypes.Name:
-		vips = installConfig.Config.Nutanix.APIVIPs
 	case openstacktypes.Name:
 		vips = installConfig.Config.OpenStack.APIVIPs
-	case ovirttypes.Name:
-		vips = installConfig.Config.Ovirt.APIVIPs
-	case vspheretypes.Name:
-		vips = installConfig.Config.VSphere.APIVIPs
 	}
 
 	cfg.IPAddresses = []net.IP{}

@@ -11,8 +11,8 @@ import (
 	"k8s.io/apimachinery/pkg/util/validation/field"
 	utilsslice "k8s.io/utils/strings/slices"
 
-	"github.com/openshift/installer/pkg/types"
-	"github.com/openshift/installer/pkg/types/openstack"
+	"github.com/anton-sidelnikov/otc-openshift-installer/pkg/types"
+	"github.com/anton-sidelnikov/otc-openshift-installer/pkg/types/openstack"
 )
 
 // ValidatePlatform checks that the specified platform is valid.

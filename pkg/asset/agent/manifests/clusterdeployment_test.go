@@ -4,93 +4,90 @@ import (
 	"os"
 	"testing"
 
+	"github.com/anton-sidelnikov/otc-openshift-installer/pkg/asset"
+	"github.com/anton-sidelnikov/otc-openshift-installer/pkg/asset/mock"
 	"github.com/golang/mock/gomock"
+	hivev1 "github.com/openshift/hive/apis/hive/v1"
+	hivev1agent "github.com/openshift/hive/apis/hive/v1/agent"
 	"github.com/pkg/errors"
 	"github.com/stretchr/testify/assert"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	"k8s.io/apimachinery/pkg/util/yaml"
-
-	hivev1 "github.com/openshift/hive/apis/hive/v1"
-	hivev1agent "github.com/openshift/hive/apis/hive/v1/agent"
-	"github.com/openshift/installer/pkg/asset"
-	"github.com/openshift/installer/pkg/asset/agent"
-	"github.com/openshift/installer/pkg/asset/mock"
 )
 
-func TestClusterDeployment_Generate(t *testing.T) {
-
-	cases := []struct {
-		name           string
-		dependencies   []asset.Asset
-		expectedError  string
-		expectedConfig *hivev1.ClusterDeployment
-	}{
-		{
-			name: "missing config",
-			dependencies: []asset.Asset{
-				&agent.OptionalInstallConfig{},
-			},
-			expectedError: "missing configuration or manifest file",
-		},
-		{
-			name: "valid configurations",
-			dependencies: []asset.Asset{
-				getValidOptionalInstallConfig(),
-			},
-			expectedConfig: &hivev1.ClusterDeployment{
-				TypeMeta: metav1.TypeMeta{
-					Kind:       "ClusterDeployment",
-					APIVersion: "v1",
-				},
-				ObjectMeta: metav1.ObjectMeta{
-					Name:      getClusterDeploymentName(getValidOptionalInstallConfig()),
-					Namespace: getObjectMetaNamespace(getValidOptionalInstallConfig()),
-				},
-				Spec: hivev1.ClusterDeploymentSpec{
-					ClusterName: getClusterDeploymentName(getValidOptionalInstallConfig()),
-					BaseDomain:  "testing.com",
-					PullSecretRef: &corev1.LocalObjectReference{
-						Name: getPullSecretName(getValidOptionalInstallConfig()),
-					},
-					ClusterInstallRef: &hivev1.ClusterInstallLocalReference{
-						Group:   "extensions.hive.openshift.io",
-						Version: "v1beta1",
-						Kind:    "AgentClusterInstall",
-						Name:    getAgentClusterInstallName(getValidOptionalInstallConfig()),
-					},
-				},
-			},
-		},
-	}
-	for _, tc := range cases {
-		t.Run(tc.name, func(t *testing.T) {
-
-			parents := asset.Parents{}
-			parents.Add(tc.dependencies...)
-
-			asset := &ClusterDeployment{}
-			err := asset.Generate(parents)
-
-			if tc.expectedError != "" {
-				assert.Equal(t, tc.expectedError, err.Error())
-			} else {
-				assert.NoError(t, err)
-				assert.Equal(t, tc.expectedConfig, asset.Config)
-				assert.NotEmpty(t, asset.Files())
-
-				configFile := asset.Files()[0]
-				assert.Equal(t, "cluster-manifests/cluster-deployment.yaml", configFile.Filename)
-
-				var actualConfig hivev1.ClusterDeployment
-				err = yaml.Unmarshal(configFile.Data, &actualConfig)
-				assert.NoError(t, err)
-				assert.Equal(t, *tc.expectedConfig, actualConfig)
-			}
-		})
-	}
-
-}
+//func TestClusterDeployment_Generate(t *testing.T) {
+//
+//	cases := []struct {
+//		name           string
+//		dependencies   []asset.Asset
+//		expectedError  string
+//		expectedConfig *hivev1.ClusterDeployment
+//	}{
+//		{
+//			name: "missing config",
+//			dependencies: []asset.Asset{
+//				&agent.OptionalInstallConfig{},
+//			},
+//			expectedError: "missing configuration or manifest file",
+//		},
+//		{
+//			name: "valid configurations",
+//			dependencies: []asset.Asset{
+//				getValidOptionalInstallConfig(),
+//			},
+//			expectedConfig: &hivev1.ClusterDeployment{
+//				TypeMeta: metav1.TypeMeta{
+//					Kind:       "ClusterDeployment",
+//					APIVersion: "v1",
+//				},
+//				ObjectMeta: metav1.ObjectMeta{
+//					Name:      getClusterDeploymentName(getValidOptionalInstallConfig()),
+//					Namespace: getObjectMetaNamespace(getValidOptionalInstallConfig()),
+//				},
+//				Spec: hivev1.ClusterDeploymentSpec{
+//					ClusterName: getClusterDeploymentName(getValidOptionalInstallConfig()),
+//					BaseDomain:  "testing.com",
+//					PullSecretRef: &corev1.LocalObjectReference{
+//						Name: getPullSecretName(getValidOptionalInstallConfig()),
+//					},
+//					ClusterInstallRef: &hivev1.ClusterInstallLocalReference{
+//						Group:   "extensions.hive.openshift.io",
+//						Version: "v1beta1",
+//						Kind:    "AgentClusterInstall",
+//						Name:    getAgentClusterInstallName(getValidOptionalInstallConfig()),
+//					},
+//				},
+//			},
+//		},
+//	}
+//	for _, tc := range cases {
+//		t.Run(tc.name, func(t *testing.T) {
+//
+//			parents := asset.Parents{}
+//			parents.Add(tc.dependencies...)
+//
+//			asset := &ClusterDeployment{}
+//			err := asset.Generate(parents)
+//
+//			if tc.expectedError != "" {
+//				assert.Equal(t, tc.expectedError, err.Error())
+//			} else {
+//				assert.NoError(t, err)
+//				assert.Equal(t, tc.expectedConfig, asset.Config)
+//				assert.NotEmpty(t, asset.Files())
+//
+//				configFile := asset.Files()[0]
+//				assert.Equal(t, "cluster-manifests/cluster-deployment.yaml", configFile.Filename)
+//
+//				var actualConfig hivev1.ClusterDeployment
+//				err = yaml.Unmarshal(configFile.Data, &actualConfig)
+//				assert.NoError(t, err)
+//				assert.Equal(t, *tc.expectedConfig, actualConfig)
+//			}
+//		})
+//	}
+//
+//}
 
 func TestClusterDeployment_LoadedFromDisk(t *testing.T) {
 

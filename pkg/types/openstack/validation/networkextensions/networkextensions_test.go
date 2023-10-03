@@ -7,7 +7,7 @@ import (
 
 	"github.com/gophercloud/gophercloud/openstack/common/extensions"
 
-	"github.com/openshift/installer/pkg/types/openstack/validation/networkextensions"
+	"github.com/anton-sidelnikov/otc-openshift-installer/pkg/types/openstack/validation/networkextensions"
 )
 
 func TestValidate(t *testing.T) {

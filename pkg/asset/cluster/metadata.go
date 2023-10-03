@@ -8,12 +8,10 @@ import (
 	"github.com/pkg/errors"
 
 	"github.com/anton-sidelnikov/otc-openshift-installer/pkg/asset"
-	"github.com/anton-sidelnikov/otc-openshift-installer/pkg/asset/cluster/alibabacloud"
 	"github.com/anton-sidelnikov/otc-openshift-installer/pkg/asset/cluster/openstack"
 	"github.com/anton-sidelnikov/otc-openshift-installer/pkg/asset/ignition/bootstrap"
 	"github.com/anton-sidelnikov/otc-openshift-installer/pkg/asset/installconfig"
 	"github.com/anton-sidelnikov/otc-openshift-installer/pkg/types"
-	alibabacloudtypes "github.com/anton-sidelnikov/otc-openshift-installer/pkg/types/alibabacloud"
 	openstacktypes "github.com/anton-sidelnikov/otc-openshift-installer/pkg/types/openstack"
 )
 
@@ -58,8 +56,6 @@ func (m *Metadata) Generate(parents asset.Parents) (err error) {
 	switch installConfig.Config.Platform.Name() {
 	case openstacktypes.Name:
 		metadata.ClusterPlatformMetadata.OpenStack = openstack.Metadata(clusterID.InfraID, installConfig.Config)
-	case alibabacloudtypes.Name:
-		metadata.ClusterPlatformMetadata.AlibabaCloud = alibabacloud.Metadata(installConfig.Config)
 	default:
 		return errors.Errorf("no known platform")
 	}

@@ -7,7 +7,7 @@ import (
 
 	"k8s.io/apimachinery/pkg/util/sets"
 
-	"github.com/openshift/installer/pkg/asset"
+	"github.com/anton-sidelnikov/otc-openshift-installer/pkg/asset"
 )
 
 // LogCreatedFiles checks all the asset files created and logs it for the user to see.

@@ -15,9 +15,9 @@ import (
 	"github.com/sirupsen/logrus"
 	"github.com/vincent-petithory/dataurl"
 
-	"github.com/openshift/installer/pkg/asset/ignition"
-	"github.com/openshift/installer/pkg/types"
-	openstackdefaults "github.com/openshift/installer/pkg/types/openstack/defaults"
+	"github.com/anton-sidelnikov/otc-openshift-installer/pkg/asset/ignition"
+	"github.com/anton-sidelnikov/otc-openshift-installer/pkg/types"
+	openstackdefaults "github.com/anton-sidelnikov/otc-openshift-installer/pkg/types/openstack/defaults"
 )
 
 // Starting from OpenShift 4.4 we store bootstrap Ignition configs in Glance.

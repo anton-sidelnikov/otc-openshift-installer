@@ -4,9 +4,9 @@ import (
 	survey "github.com/AlecAivazis/survey/v2"
 	"github.com/pkg/errors"
 
-	"github.com/openshift/installer/pkg/asset"
-	"github.com/openshift/installer/pkg/types"
-	"github.com/openshift/installer/pkg/validate"
+	"github.com/anton-sidelnikov/otc-openshift-installer/pkg/asset"
+	"github.com/anton-sidelnikov/otc-openshift-installer/pkg/types"
+	"github.com/anton-sidelnikov/otc-openshift-installer/pkg/validate"
 )
 
 type clusterName struct {
@@ -31,27 +31,6 @@ func (a *clusterName) Generate(parents asset.Parents) error {
 
 	validator := survey.Required
 
-	if platform.GCP != nil || platform.Azure != nil {
-		validator = survey.ComposeValidators(validator, func(ans interface{}) error {
-			return validate.ClusterName1035(ans.(string))
-		})
-		if platform.GCP != nil {
-			validator = survey.ComposeValidators(validator, func(ans interface{}) error {
-				return validate.GCPClusterName(ans.(string))
-			})
-		}
-	}
-
-	if platform.Ovirt != nil {
-		validator = survey.ComposeValidators(validator, func(ans interface{}) error {
-			return validate.ClusterName(ans.(string))
-		})
-	}
-	if platform.VSphere != nil || platform.BareMetal != nil || platform.Nutanix != nil {
-		validator = survey.ComposeValidators(validator, func(ans interface{}) error {
-			return validate.OnPremClusterName(ans.(string))
-		})
-	}
 	validator = survey.ComposeValidators(validator, func(ans interface{}) error {
 		installConfig := &types.InstallConfig{BaseDomain: bd.BaseDomain}
 		installConfig.ObjectMeta.Name = ans.(string)

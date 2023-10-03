@@ -9,32 +9,9 @@ import (
 	"github.com/pkg/errors"
 
 	"github.com/anton-sidelnikov/otc-openshift-installer/pkg/asset"
-	alibabacloudconfig "github.com/anton-sidelnikov/otc-openshift-installer/pkg/asset/installconfig/alibabacloud"
-	awsconfig "github.com/anton-sidelnikov/otc-openshift-installer/pkg/asset/installconfig/aws"
-	azureconfig "github.com/anton-sidelnikov/otc-openshift-installer/pkg/asset/installconfig/azure"
-	baremetalconfig "github.com/anton-sidelnikov/otc-openshift-installer/pkg/asset/installconfig/baremetal"
-	gcpconfig "github.com/anton-sidelnikov/otc-openshift-installer/pkg/asset/installconfig/gcp"
-	ibmcloudconfig "github.com/anton-sidelnikov/otc-openshift-installer/pkg/asset/installconfig/ibmcloud"
-	libvirtconfig "github.com/anton-sidelnikov/otc-openshift-installer/pkg/asset/installconfig/libvirt"
-	nutanixconfig "github.com/anton-sidelnikov/otc-openshift-installer/pkg/asset/installconfig/nutanix"
 	openstackconfig "github.com/anton-sidelnikov/otc-openshift-installer/pkg/asset/installconfig/openstack"
-	powervsconfig "github.com/anton-sidelnikov/otc-openshift-installer/pkg/asset/installconfig/powervs"
-	vsphereconfig "github.com/anton-sidelnikov/otc-openshift-installer/pkg/asset/installconfig/vsphere"
 	"github.com/anton-sidelnikov/otc-openshift-installer/pkg/types"
-	"github.com/anton-sidelnikov/otc-openshift-installer/pkg/types/alibabacloud"
-	"github.com/anton-sidelnikov/otc-openshift-installer/pkg/types/aws"
-	"github.com/anton-sidelnikov/otc-openshift-installer/pkg/types/azure"
-	"github.com/anton-sidelnikov/otc-openshift-installer/pkg/types/baremetal"
-	"github.com/anton-sidelnikov/otc-openshift-installer/pkg/types/external"
-	"github.com/anton-sidelnikov/otc-openshift-installer/pkg/types/gcp"
-	"github.com/anton-sidelnikov/otc-openshift-installer/pkg/types/ibmcloud"
-	"github.com/anton-sidelnikov/otc-openshift-installer/pkg/types/libvirt"
-	"github.com/anton-sidelnikov/otc-openshift-installer/pkg/types/none"
-	"github.com/anton-sidelnikov/otc-openshift-installer/pkg/types/nutanix"
 	"github.com/anton-sidelnikov/otc-openshift-installer/pkg/types/openstack"
-	"github.com/anton-sidelnikov/otc-openshift-installer/pkg/types/ovirt"
-	"github.com/anton-sidelnikov/otc-openshift-installer/pkg/types/powervs"
-	"github.com/anton-sidelnikov/otc-openshift-installer/pkg/types/vsphere"
 )
 
 // Platform is an asset that queries the user for the platform on which to install
@@ -58,64 +35,8 @@ func (a *platform) Generate(asset.Parents) error {
 	}
 
 	switch platform {
-	case alibabacloud.Name:
-		a.AlibabaCloud, err = alibabacloudconfig.Platform()
-		if err != nil {
-			return err
-		}
-	case aws.Name:
-		a.AWS, err = awsconfig.Platform()
-		if err != nil {
-			return err
-		}
-	case azure.Name:
-		a.Azure, err = azureconfig.Platform()
-		if err != nil {
-			return err
-		}
-	case baremetal.Name:
-		a.BareMetal, err = baremetalconfig.Platform()
-		if err != nil {
-			return err
-		}
-	case gcp.Name:
-		a.GCP, err = gcpconfig.Platform()
-		if err != nil {
-			return err
-		}
-	case ibmcloud.Name:
-		a.IBMCloud, err = ibmcloudconfig.Platform()
-		if err != nil {
-			return err
-		}
-	case libvirt.Name:
-		a.Libvirt, err = libvirtconfig.Platform()
-		if err != nil {
-			return err
-		}
-	case external.Name:
-		a.External = &external.Platform{}
-	case none.Name:
-		a.None = &none.Platform{}
 	case openstack.Name:
 		a.OpenStack, err = openstackconfig.Platform()
-		if err != nil {
-			return err
-		}
-	case ovirt.Name:
-		return fmt.Errorf("platform oVirt is no longer supported")
-	case vsphere.Name:
-		a.VSphere, err = vsphereconfig.Platform()
-		if err != nil {
-			return err
-		}
-	case powervs.Name:
-		a.PowerVS, err = powervsconfig.Platform()
-		if err != nil {
-			return err
-		}
-	case nutanix.Name:
-		a.Nutanix, err = nutanixconfig.Platform()
 		if err != nil {
 			return err
 		}

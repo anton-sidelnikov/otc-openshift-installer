@@ -2,21 +2,14 @@ package agent
 
 import (
 	"fmt"
-	"reflect"
-
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"k8s.io/apimachinery/pkg/util/validation/field"
 
-	"github.com/openshift/installer/pkg/asset"
-	"github.com/openshift/installer/pkg/asset/installconfig"
-	"github.com/openshift/installer/pkg/types"
-	"github.com/openshift/installer/pkg/types/baremetal"
-	baremetaldefaults "github.com/openshift/installer/pkg/types/baremetal/defaults"
-	"github.com/openshift/installer/pkg/types/external"
-	"github.com/openshift/installer/pkg/types/none"
-	"github.com/openshift/installer/pkg/types/validation"
-	"github.com/openshift/installer/pkg/types/vsphere"
+	"github.com/anton-sidelnikov/otc-openshift-installer/pkg/asset"
+	"github.com/anton-sidelnikov/otc-openshift-installer/pkg/asset/installconfig"
+	"github.com/anton-sidelnikov/otc-openshift-installer/pkg/types"
+	"github.com/anton-sidelnikov/otc-openshift-installer/pkg/types/validation"
 )
 
 const (
@@ -68,10 +61,6 @@ func (a *OptionalInstallConfig) validateInstallConfig(installConfig *types.Insta
 		allErrs = append(allErrs, err...)
 	}
 
-	if err := a.validateSupportedPlatforms(installConfig); err != nil {
-		allErrs = append(allErrs, err...)
-	}
-
 	if err := a.validateSupportedArchs(installConfig); err != nil {
 		allErrs = append(allErrs, err...)
 	}
@@ -85,24 +74,6 @@ func (a *OptionalInstallConfig) validateInstallConfig(installConfig *types.Insta
 		allErrs = append(allErrs, err...)
 	}
 
-	return allErrs
-}
-
-func (a *OptionalInstallConfig) validateSupportedPlatforms(installConfig *types.InstallConfig) field.ErrorList {
-	var allErrs field.ErrorList
-
-	fieldPath := field.NewPath("Platform")
-
-	if installConfig.Platform.Name() != "" && !IsSupportedPlatform(HivePlatformType(installConfig.Platform)) {
-		allErrs = append(allErrs, field.NotSupported(fieldPath, installConfig.Platform.Name(), SupportedInstallerPlatforms()))
-	}
-	if installConfig.Platform.Name() != none.Name && installConfig.ControlPlane.Architecture == types.ArchitecturePPC64LE {
-		allErrs = append(allErrs, field.Invalid(fieldPath, installConfig.Platform.Name(), fmt.Sprintf("CPU architecture \"%s\" only supports platform \"%s\".", types.ArchitecturePPC64LE, none.Name)))
-	}
-	fieldPath = field.NewPath("Platform", "External", "PlatformName")
-	if installConfig.Platform.Name() == external.Name && installConfig.Platform.External.PlatformName != "oci" {
-		allErrs = append(allErrs, field.NotSupported(fieldPath, installConfig.Platform.External.PlatformName, []string{"oci"}))
-	}
 	return allErrs
 }
 
@@ -145,17 +116,10 @@ func (a *OptionalInstallConfig) validateSNOConfiguration(installConfig *types.In
 
 	if installConfig.ControlPlane != nil && *installConfig.ControlPlane.Replicas == 1 {
 		if workers == 0 {
-			if (installConfig.Platform.Name() == none.Name || installConfig.Platform.Name() == external.Name) && installConfig.Networking.NetworkType != "OVNKubernetes" {
-				fieldPath = field.NewPath("Networking", "NetworkType")
-				allErrs = append(allErrs, field.Invalid(fieldPath, installConfig.Networking.NetworkType, "Only OVNKubernetes network type is allowed for Single Node OpenShift (SNO) cluster"))
-			}
-			if installConfig.Platform.Name() != none.Name && installConfig.Platform.Name() != external.Name {
-				fieldPath = field.NewPath("Platform")
-				allErrs = append(allErrs, field.Invalid(fieldPath, installConfig.Platform.Name(), fmt.Sprintf("Only platform %s and %s supports 1 ControlPlane and 0 Compute nodes", none.Name, external.Name)))
-			}
+			allErrs = append(allErrs, field.Invalid(fieldPath, installConfig.Networking.NetworkType, "Only OVNKubernetes network type is allowed for Single Node OpenShift (SNO) cluster"))
 		} else {
 			fieldPath = field.NewPath("Compute", "Replicas")
-			allErrs = append(allErrs, field.Required(fieldPath, fmt.Sprintf("Total number of Compute.Replicas must be 0 when ControlPlane.Replicas is 1 for platform %s or %s. Found %v", none.Name, external.Name, workers)))
+			allErrs = append(allErrs, field.Required(fieldPath, fmt.Sprintf("Total number of Compute.Replicas must be 0 when ControlPlane.Replicas is 1 for platform. Found %v", workers)))
 		}
 	}
 	return allErrs
@@ -199,186 +163,6 @@ func warnUnusedConfig(installConfig *types.InstallConfig) {
 		logrus.Warnf(fmt.Sprintf("%s is ignored", fieldPath))
 	}
 
-	switch installConfig.Platform.Name() {
-
-	case baremetal.Name:
-		defaultIc := &types.InstallConfig{Platform: types.Platform{BareMetal: &baremetal.Platform{}}}
-		baremetaldefaults.SetPlatformDefaults(defaultIc.Platform.BareMetal, defaultIc)
-
-		baremetal := installConfig.Platform.BareMetal
-		defaultBM := defaultIc.Platform.BareMetal
-		// Compare values from generic installconfig code to check for changes
-		if baremetal.LibvirtURI != defaultBM.LibvirtURI {
-			fieldPath := field.NewPath("Platform", "Baremetal", "LibvirtURI")
-			logrus.Debugf(fmt.Sprintf("%s: %s is ignored", fieldPath, baremetal.LibvirtURI))
-		}
-		if baremetal.ClusterProvisioningIP != defaultBM.ClusterProvisioningIP {
-			fieldPath := field.NewPath("Platform", "Baremetal", "ClusterProvisioningIP")
-			logrus.Warnf(fmt.Sprintf("%s: %s is ignored", fieldPath, baremetal.ClusterProvisioningIP))
-		}
-		if baremetal.DeprecatedProvisioningHostIP != defaultBM.DeprecatedProvisioningHostIP {
-			fieldPath := field.NewPath("Platform", "Baremetal", "ProvisioningHostIP")
-			logrus.Warnf(fmt.Sprintf("%s: %s is ignored", fieldPath, baremetal.DeprecatedProvisioningHostIP))
-		}
-		if baremetal.BootstrapProvisioningIP != defaultBM.BootstrapProvisioningIP {
-			fieldPath := field.NewPath("Platform", "Baremetal", "BootstrapProvisioningIP")
-			logrus.Debugf(fmt.Sprintf("%s: %s is ignored", fieldPath, baremetal.BootstrapProvisioningIP))
-		}
-		if baremetal.ExternalBridge != defaultBM.ExternalBridge {
-			fieldPath := field.NewPath("Platform", "Baremetal", "ExternalBridge")
-			logrus.Warnf(fmt.Sprintf("%s: %s is ignored", fieldPath, baremetal.ExternalBridge))
-		}
-		if baremetal.ProvisioningNetwork != defaultBM.ProvisioningNetwork {
-			fieldPath := field.NewPath("Platform", "Baremetal", "ProvisioningNetwork")
-			logrus.Warnf(fmt.Sprintf("%s: %s is ignored", fieldPath, baremetal.ProvisioningNetwork))
-		}
-		if baremetal.ProvisioningBridge != defaultBM.ProvisioningBridge {
-			fieldPath := field.NewPath("Platform", "Baremetal", "ProvisioningBridge")
-			logrus.Warnf(fmt.Sprintf("%s: %s is ignored", fieldPath, baremetal.ProvisioningBridge))
-		}
-		if baremetal.ProvisioningNetworkInterface != defaultBM.ProvisioningNetworkInterface {
-			fieldPath := field.NewPath("Platform", "Baremetal", "ProvisioningNetworkInterface")
-			logrus.Warnf(fmt.Sprintf("%s: %s is ignored", fieldPath, baremetal.ProvisioningNetworkInterface))
-		}
-		if baremetal.ProvisioningNetworkCIDR.String() != defaultBM.ProvisioningNetworkCIDR.String() {
-			fieldPath := field.NewPath("Platform", "Baremetal", "ProvisioningNetworkCIDR")
-			logrus.Warnf(fmt.Sprintf("%s: %s is ignored", fieldPath, baremetal.ProvisioningNetworkCIDR))
-		}
-		if baremetal.DeprecatedProvisioningDHCPExternal != defaultBM.DeprecatedProvisioningDHCPExternal {
-			fieldPath := field.NewPath("Platform", "Baremetal", "ProvisioningDHCPExternal")
-			logrus.Warnf(fmt.Sprintf("%s: true is ignored", fieldPath))
-		}
-		if baremetal.ProvisioningDHCPRange != defaultBM.ProvisioningDHCPRange {
-			fieldPath := field.NewPath("Platform", "Baremetal", "ProvisioningDHCPRange")
-			logrus.Warnf(fmt.Sprintf("%s: %s is ignored", fieldPath, baremetal.ProvisioningDHCPRange))
-		}
-
-		for i, host := range baremetal.Hosts {
-			if host.Name != "" {
-				fieldPath := field.NewPath("Platform", "Baremetal", fmt.Sprintf("Hosts[%d]", i), "Name")
-				logrus.Warnf(fmt.Sprintf("%s: %s is ignored", fieldPath, host.Name))
-			}
-			if host.BMC.Username != "" {
-				fieldPath := field.NewPath("Platform", "Baremetal", fmt.Sprintf("Hosts[%d]", i), "BMC", "Username")
-				logrus.Warnf(fmt.Sprintf("%s: %s is ignored", fieldPath, host.BMC.Username))
-			}
-			if host.BMC.Password != "" {
-				fieldPath := field.NewPath("Platform", "Baremetal", fmt.Sprintf("Hosts[%d]", i), "BMC", "Password")
-				logrus.Warnf(fmt.Sprintf("%s is ignored", fieldPath))
-			}
-			if host.BMC.Address != "" {
-				fieldPath := field.NewPath("Platform", "Baremetal", fmt.Sprintf("Hosts[%d]", i), "BMC", "Address")
-				logrus.Warnf(fmt.Sprintf("%s: %s is ignored", fieldPath, host.BMC.Address))
-			}
-			if host.BMC.DisableCertificateVerification {
-				fieldPath := field.NewPath("Platform", "Baremetal", fmt.Sprintf("Hosts[%d]", i), "BMC", "DisableCertificateVerification")
-				logrus.Warnf(fmt.Sprintf("%s: true is ignored", fieldPath))
-			}
-			if host.Role != "" {
-				fieldPath := field.NewPath("Platform", "Baremetal", fmt.Sprintf("Hosts[%d]", i), "Role")
-				logrus.Warnf(fmt.Sprintf("%s: %s is ignored", fieldPath, host.Role))
-			}
-			if host.BootMACAddress != "" {
-				fieldPath := field.NewPath("Platform", "Baremetal", fmt.Sprintf("Hosts[%d]", i), "BootMACAddress")
-				logrus.Warnf(fmt.Sprintf("%s: %s is ignored", fieldPath, host.BootMACAddress))
-			}
-			if host.HardwareProfile != "" {
-				fieldPath := field.NewPath("Platform", "Baremetal", fmt.Sprintf("Hosts[%d]", i), "HardwareProfile")
-				logrus.Warnf(fmt.Sprintf("%s: %s is ignored", fieldPath, host.HardwareProfile))
-			}
-			if host.RootDeviceHints != nil {
-				fieldPath := field.NewPath("Platform", "Baremetal", fmt.Sprintf("Hosts[%d]", i), "RootDeviceHints")
-				logrus.Warnf(fmt.Sprintf("%s is ignored", fieldPath))
-			}
-			// The default is UEFI. +kubebuilder:validation:Enum="";UEFI;UEFISecureBoot;legacy. Set from generic install config code
-			if host.BootMode != "UEFI" {
-				fieldPath := field.NewPath("Platform", "Baremetal", fmt.Sprintf("Hosts[%d]", i), "BootMode")
-				logrus.Warnf(fmt.Sprintf("%s: %s is ignored", fieldPath, host.BootMode))
-			}
-			if host.NetworkConfig != nil {
-				fieldPath := field.NewPath("Platform", "Baremetal", fmt.Sprintf("Hosts[%d]", i), "NetworkConfig")
-				logrus.Warnf(fmt.Sprintf("%s: %s is ignored", fieldPath, host.NetworkConfig))
-			}
-		}
-
-		if baremetal.DefaultMachinePlatform != nil {
-			fieldPath := field.NewPath("Platform", "Baremetal", "DefaultMachinePlatform")
-			logrus.Warnf(fmt.Sprintf("%s: %s is ignored", fieldPath, baremetal.DefaultMachinePlatform))
-		}
-		if baremetal.BootstrapOSImage != "" {
-			fieldPath := field.NewPath("Platform", "Baremetal", "BootstrapOSImage")
-			logrus.Debugf(fmt.Sprintf("%s: %s is ignored", fieldPath, baremetal.BootstrapOSImage))
-		}
-		// ClusterOSImage is ignored even in IPI now, so we probably don't need to check it at all.
-
-		if baremetal.BootstrapExternalStaticIP != "" {
-			fieldPath := field.NewPath("Platform", "Baremetal", "BootstrapExternalStaticIP")
-			logrus.Debugf(fmt.Sprintf("%s: %s is ignored", fieldPath, baremetal.BootstrapExternalStaticIP))
-		}
-		if baremetal.BootstrapExternalStaticGateway != "" {
-			fieldPath := field.NewPath("Platform", "Baremetal", "BootstrapExternalStaticGateway")
-			logrus.Debugf(fmt.Sprintf("%s: %s is ignored", fieldPath, baremetal.BootstrapExternalStaticGateway))
-		}
-	case vsphere.Name:
-		vspherePlatform := installConfig.Platform.VSphere
-
-		if vspherePlatform.DeprecatedVCenter != "" {
-			fieldPath := field.NewPath("Platform", "VSphere", "VCenter")
-			logrus.Warnf(fmt.Sprintf("%s: %s is ignored", fieldPath, vspherePlatform.DeprecatedVCenter))
-		}
-		if vspherePlatform.DeprecatedUsername != "" {
-			fieldPath := field.NewPath("Platform", "VSphere", "Username")
-			logrus.Warnf(fmt.Sprintf("%s: %s is ignored", fieldPath, vspherePlatform.DeprecatedUsername))
-		}
-		if vspherePlatform.DeprecatedPassword != "" {
-			fieldPath := field.NewPath("Platform", "VSphere", "Password")
-			logrus.Warnf(fmt.Sprintf("%s is ignored", fieldPath))
-		}
-		if vspherePlatform.DeprecatedDatacenter != "" {
-			fieldPath := field.NewPath("Platform", "VSphere", "Datacenter")
-			logrus.Warnf(fmt.Sprintf("%s: %s is ignored", fieldPath, vspherePlatform.DeprecatedDatacenter))
-		}
-		if vspherePlatform.DeprecatedDefaultDatastore != "" {
-			fieldPath := field.NewPath("Platform", "VSphere", "DefaultDatastore")
-			logrus.Warnf(fmt.Sprintf("%s: %s is ignored", fieldPath, vspherePlatform.DeprecatedDefaultDatastore))
-		}
-		if vspherePlatform.DeprecatedFolder != "" {
-			fieldPath := field.NewPath("Platform", "VSphere", "Folder")
-			logrus.Warnf(fmt.Sprintf("%s: %s is ignored", fieldPath, vspherePlatform.DeprecatedFolder))
-		}
-		if vspherePlatform.DeprecatedCluster != "" {
-			fieldPath := field.NewPath("Platform", "VSphere", "Cluster")
-			logrus.Warnf(fmt.Sprintf("%s: %s is ignored", fieldPath, vspherePlatform.DeprecatedCluster))
-		}
-		if vspherePlatform.DeprecatedResourcePool != "" {
-			fieldPath := field.NewPath("Platform", "VSphere", "ResourcePool")
-			logrus.Warnf(fmt.Sprintf("%s: %s is ignored", fieldPath, vspherePlatform.DeprecatedResourcePool))
-		}
-		if vspherePlatform.ClusterOSImage != "" {
-			fieldPath := field.NewPath("Platform", "VSphere", "ClusterOSImage")
-			logrus.Warnf(fmt.Sprintf("%s: %s is ignored", fieldPath, vspherePlatform.ClusterOSImage))
-		}
-		if vspherePlatform.DefaultMachinePlatform != nil && !reflect.DeepEqual(*vspherePlatform.DefaultMachinePlatform, vsphere.MachinePool{}) {
-			fieldPath := field.NewPath("Platform", "VSphere", "DefaultMachinePlatform")
-			logrus.Warnf(fmt.Sprintf("%s: %v is ignored", fieldPath, vspherePlatform.DefaultMachinePlatform))
-		}
-		if vspherePlatform.DeprecatedNetwork != "" {
-			fieldPath := field.NewPath("Platform", "VSphere", "Network")
-			logrus.Warnf(fmt.Sprintf("%s: %s is ignored", fieldPath, vspherePlatform.DeprecatedNetwork))
-		}
-		if vspherePlatform.DiskType != "" {
-			fieldPath := field.NewPath("Platform", "VSphere", "DiskType")
-			logrus.Warnf(fmt.Sprintf("%s: %s is ignored", fieldPath, vspherePlatform.DiskType))
-		}
-		if len(vspherePlatform.VCenters) > 1 {
-			fieldPath := field.NewPath("Platform", "VSphere", "VCenters")
-			logrus.Warnf(fmt.Sprintf("%s: %v is ignored", fieldPath, vspherePlatform.VCenters))
-		}
-		if len(vspherePlatform.FailureDomains) > 1 {
-			fieldPath := field.NewPath("Platform", "VSphere", "FailureDomains")
-			logrus.Warnf(fmt.Sprintf("%s: %v is ignored", fieldPath, vspherePlatform.FailureDomains))
-		}
-	}
 	// "External" is the default set from generic install config code
 	if installConfig.Publish != "External" {
 		fieldPath := field.NewPath("Publish")

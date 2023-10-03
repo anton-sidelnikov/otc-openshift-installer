@@ -4,9 +4,9 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/openshift/installer/pkg/asset"
-	agentmanifests "github.com/openshift/installer/pkg/asset/agent/manifests"
-	"github.com/openshift/installer/pkg/asset/tls"
+	"github.com/anton-sidelnikov/otc-openshift-installer/pkg/asset"
+	agentmanifests "github.com/anton-sidelnikov/otc-openshift-installer/pkg/asset/agent/manifests"
+	"github.com/anton-sidelnikov/otc-openshift-installer/pkg/asset/tls"
 )
 
 // AgentAdminClient is the asset for the agent admin kubeconfig.

@@ -25,11 +25,11 @@ import (
 	networkutils "github.com/gophercloud/utils/openstack/networking/v2/networks"
 	"github.com/sirupsen/logrus"
 
-	"github.com/openshift/installer/pkg/quota"
-	"github.com/openshift/installer/pkg/types"
-	"github.com/openshift/installer/pkg/types/openstack"
-	openstackdefaults "github.com/openshift/installer/pkg/types/openstack/defaults"
-	"github.com/openshift/installer/pkg/types/openstack/validation/networkextensions"
+	"github.com/anton-sidelnikov/otc-openshift-installer/pkg/quota"
+	"github.com/anton-sidelnikov/otc-openshift-installer/pkg/types"
+	"github.com/anton-sidelnikov/otc-openshift-installer/pkg/types/openstack"
+	openstackdefaults "github.com/anton-sidelnikov/otc-openshift-installer/pkg/types/openstack/defaults"
+	"github.com/anton-sidelnikov/otc-openshift-installer/pkg/types/openstack/validation/networkextensions"
 )
 
 // CloudInfo caches data fetched from the user's openstack cloud

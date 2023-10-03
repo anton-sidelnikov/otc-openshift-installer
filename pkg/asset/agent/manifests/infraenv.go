@@ -12,11 +12,11 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"sigs.k8s.io/yaml"
 
+	"github.com/anton-sidelnikov/otc-openshift-installer/pkg/asset"
+	"github.com/anton-sidelnikov/otc-openshift-installer/pkg/asset/agent"
+	"github.com/anton-sidelnikov/otc-openshift-installer/pkg/asset/agent/agentconfig"
+	"github.com/anton-sidelnikov/otc-openshift-installer/pkg/types"
 	aiv1beta1 "github.com/openshift/assisted-service/api/v1beta1"
-	"github.com/openshift/installer/pkg/asset"
-	"github.com/openshift/installer/pkg/asset/agent"
-	"github.com/openshift/installer/pkg/asset/agent/agentconfig"
-	"github.com/openshift/installer/pkg/types"
 )
 
 var (

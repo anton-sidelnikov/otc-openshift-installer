@@ -14,7 +14,6 @@ import (
 	quotaasset "github.com/anton-sidelnikov/otc-openshift-installer/pkg/destroy/quota"
 	"github.com/anton-sidelnikov/otc-openshift-installer/pkg/metrics/timer"
 
-	_ "github.com/anton-sidelnikov/otc-openshift-installer/pkg/destroy/alibabacloud"
 	_ "github.com/anton-sidelnikov/otc-openshift-installer/pkg/destroy/openstack"
 )
 

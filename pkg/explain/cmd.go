@@ -8,7 +8,7 @@ import (
 	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
 
-	"github.com/openshift/installer/data"
+	"github.com/anton-sidelnikov/otc-openshift-installer/data"
 )
 
 // NewCmd returns a subcommand for explain

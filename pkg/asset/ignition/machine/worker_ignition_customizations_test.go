@@ -5,13 +5,13 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
-	"github.com/openshift/installer/pkg/asset"
-	"github.com/openshift/installer/pkg/asset/ignition"
-	"github.com/openshift/installer/pkg/asset/installconfig"
-	"github.com/openshift/installer/pkg/asset/tls"
-	"github.com/openshift/installer/pkg/ipnet"
-	"github.com/openshift/installer/pkg/types"
-	"github.com/openshift/installer/pkg/types/aws"
+	"github.com/anton-sidelnikov/otc-openshift-installer/pkg/asset"
+	"github.com/anton-sidelnikov/otc-openshift-installer/pkg/asset/ignition"
+	"github.com/anton-sidelnikov/otc-openshift-installer/pkg/asset/installconfig"
+	"github.com/anton-sidelnikov/otc-openshift-installer/pkg/asset/tls"
+	"github.com/anton-sidelnikov/otc-openshift-installer/pkg/ipnet"
+	"github.com/anton-sidelnikov/otc-openshift-installer/pkg/types"
+	"github.com/anton-sidelnikov/otc-openshift-installer/pkg/types/openstack"
 )
 
 // TestWorkerIgnitionCustomizationsGenerate tests generating the worker ignition check asset.
@@ -41,9 +41,7 @@ func TestWorkerIgnitionCustomizationsGenerate(t *testing.T) {
 						ServiceNetwork: []ipnet.IPNet{*ipnet.MustParseCIDR("10.0.1.0/24")},
 					},
 					Platform: types.Platform{
-						AWS: &aws.Platform{
-							Region: "us-east",
-						},
+						OpenStack: &openstack.Platform{},
 					},
 				})
 

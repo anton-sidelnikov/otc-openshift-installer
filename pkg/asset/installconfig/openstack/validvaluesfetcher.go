@@ -10,7 +10,7 @@ import (
 	"github.com/gophercloud/utils/openstack/clientconfig"
 	networkutils "github.com/gophercloud/utils/openstack/networking/v2/networks"
 
-	openstackdefaults "github.com/openshift/installer/pkg/types/openstack/defaults"
+	openstackdefaults "github.com/anton-sidelnikov/otc-openshift-installer/pkg/types/openstack/defaults"
 )
 
 // getCloudNames gets the valid cloud names. These are read from clouds.yaml.
