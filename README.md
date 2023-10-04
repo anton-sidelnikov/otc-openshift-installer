@@ -2,22 +2,9 @@
 
 ## Supported Platforms
 
-* [AWS](docs/user/aws/README.md)
-* [AWS (UPI)](docs/user/aws/install_upi.md)
-* [Azure](docs/user/azure/README.md)
-* [Bare Metal (UPI)](docs/user/metal/install_upi.md)
-* [Bare Metal (IPI)](docs/user/metal/install_ipi.md)
-* [GCP](docs/user/gcp/README.md)
-* [GCP (UPI)](docs/user/gcp/install_upi.md)
-* [Libvirt with KVM](docs/dev/libvirt/README.md) (development only)
 * [OpenStack](docs/user/openstack/README.md)
 * [OpenStack (UPI)](docs/user/openstack/install_upi.md)
-* [Power](docs/user/power/install_upi.md)
-* [oVirt](docs/user/ovirt/install_ipi.md)
-* [oVirt (UPI)](docs/user/ovirt/install_upi.md)
-* [vSphere](docs/user/vsphere/README.md)
-* [vSphere (UPI)](docs/user/vsphere/install_upi.md)
-* [z/VM](docs/user/zvm/install_upi.md)
+
 
 ## Quick Start
 

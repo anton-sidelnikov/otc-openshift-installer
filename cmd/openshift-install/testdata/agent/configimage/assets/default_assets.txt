@@ -7,34 +7,53 @@ exists $WORK/agentconfig.noarch.iso
 configImgContains agentconfig.noarch.iso /config.gz
 
 -- install-config.yaml --
+additionalTrustBundlePolicy: Proxyonly
 apiVersion: v1
-baseDomain: test.metalkube.org
-controlPlane:
-  name: master
-  replicas: 1
+baseDomain: some.otc-openshift.com
 compute:
-- name: worker
-  replicas: 0
+- architecture: amd64
+  hyperthreading: Enabled
+  name: worker
+  platform: {}
+  replicas: 3
+controlPlane:
+  architecture: amd64
+  hyperthreading: Enabled
+  name: master
+  platform: {}
+  replicas: 3
 metadata:
-  namespace: cluster0
-  name: ostest
+  creationTimestamp: null
+  name: test-oshift-as
 networking:
   clusterNetwork:
   - cidr: 10.128.0.0/14
     hostPrefix: 23
-  networkType: OVNKubernetes
   machineNetwork:
-  - cidr: 192.168.111.0/24
+  - cidr: 10.0.0.0/16
+  networkType: OVNKubernetes
   serviceNetwork:
   - 172.30.0.0/16
 platform:
-  none: {}
-sshKey: ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQDK6UTEydcEKzuNdPaofn8Z2DwgHqdcionLZBiPf/zIRNco++etLsat7Avv7yt04DINQd5zjxIFgG8jblaUB5E5C9ClUcMwb52GO0ay2Y9v1uBv1a4WhI3peKktAzYNk0EBMQlJtXPjRMrC9ylBPh+DsBHMu+KmDnfk7PIwyN4efC8k5kSRuPWoNdme1rz2+umU8FSmaWTHIajrbspf4GQbsntA5kuKEtDbfoNCU97o2KrRnUbeg3a8hwSjfh3u6MhlnGcg5K2Ij+zivEsWGCLKYUtE1ErqwfIzwWmJ6jnV66XCQGHf4Q1iIxqF7s2a1q24cgG2Z/iDXfqXrCIfy4P7b/Ztak3bdT9jfAdVZtdO5/r7I+O5hYhF86ayFlDWzZWP/ByiSb+q4CQbfVgK3BMmiAv2MqLHdhesmD/SmIcoOWUF6rFmRKZVFFpKpt5ATNTgUJ3JRowoXrrDruVXClUGRiCS6Zabd1rZ3VmTchaPJwtzQMdfIWISXj+Ig+C4UK0=
-pullSecret: '{"auths": {"quay.io": {"auth": "c3VwZXItc2VjcmV0Cg=="}}}'
+  openstack:
+    apiFloatingIP: 80.158.110.191
+    apiVIPs:
+    - 10.0.0.5
+    cloud: test
+    defaultMachinePlatform:
+      type: c2.medium
+    externalDNS: null
+    externalNetwork: admin_external_net
+    ingressVIPs:
+    - 10.0.0.7
+publish: External
+pullSecret: '{"auths":{"cloud.openshift.com":{"auth":"b3BlbnNoaWZ0LXJlbGVhc2UtZGV2K29jbV9hY2Nlc3NfMDM2NWZjZWFiYWM1NDc0ZDkwYmQyNTU0ZTVlMzM5NGU6MzUwVVFUOUxMSkNDQVhCRjFGM1ZONFVQWUpWWVhZSFJTMVUwVTZBSzk5NERVUzk0ODhOSzdJVjFKSklGNlJVQQ==","email":"direct.on@hotmail.com"},"quay.io":{"auth":"b3BlbnNoaWZ0LXJlbGVhc2UtZGV2K29jbV9hY2Nlc3NfMDM2NWZjZWFiYWM1NDc0ZDkwYmQyNTU0ZTVlMzM5NGU6MzUwVVFUOUxMSkNDQVhCRjFGM1ZONFVQWUpWWVhZSFJTMVUwVTZBSzk5NERVUzk0ODhOSzdJVjFKSklGNlJVQQ==","email":"direct.on@hotmail.com"},"registry.connect.redhat.com":{"auth":"fHVoYy1wb29sLTZmNzQ0OTg1LTA3ZWYtNGY1YS04NzJjLTg4MTY2NWZiY2QyODpleUpoYkdjaU9pSlNVelV4TWlKOS5leUp6ZFdJaU9pSmxNR016TnpjNU9ERXpObUUwWkdFMVlqWXdNREF4TTJJM1pUSTVaVEV5WlNKOS5ZT2dKT25kZDNocEF0cWdqRWZyeDdJYXFCVldJRUNEenc0WHZEQ1A2WS1qZjgxU0NOSkxVRTdSdzM3WDBVS2FmSDZxNHVsdGxROFgtYzVZSmRkMFJoencwdUxRV1dhZUtLNk9yVUJ4MXdNQXFyb0h5SnRwV2FyczdJOF9INzdwdVhfZnRyR2ZyVmFqamZva1RmS29sZ1g3c1JQU05ydzdDa3hvOXFlWGRnTmZKN1NzTzRFREdIRjl3OWVjdWhfRTAzWlZyWUZ3RWIzcEhLbEVWYWFKOHZubHQ0VDEtRHJ2bGFiSlMzQ05hSTlPdUxjaG5KSE41NGpFelI5N0FlckJ4b1RjaGRwRWlYZ1ZrLTBPdlVlYlJBNWlvRUpJVFdzVGlBZS1jNjMyUmtFbWNWOEtXNC0wTEY3VWNGUFJ1QzU0TjFjMmFLVXFKNzRTaWNrWTQwbUJfT012M0Q3SHNvcldOYWR1UEZGdkU5ckx1Tko2VFhuLU1QNWF6SUktcldoR3VNR2NLUXp2SXU4dzFnUnZfcWM1S0YwVy1aYThnUWlRZ2RTaWl0emlzOXdVc1pyVzJ0WlJ1XzR2c1V4d242R1hZUU1jRVdURWVvQ3R2a0dvSnJORGl5LVF6TzR2UmlEMWI0aUEtN0RfZnRGSkRNTVRCalJ1Y3RvSk9ibkZoSVdpczVyajJVOUxyMV9wamM3cVJfQkZ3YzdxZEJtTE1xTFJ3d01BNS0xVFdNdk8wZVJEREJWWk5TUjctSWNLTTFmZkRZYW14cjhGU0tpZ3R2VUNsZ2ZJb3BpRmxOUXl0TlpWNU1HRGpIZmx6RWhGMmlQc09zMUJIaTNZcFFmSm1VYUZLQkRVM2lRb0YwUk45RlRyeHNJU3RoODZKM0VTU2hIcjFlUTM5VEFhb1JyUQ==","email":"direct.on@hotmail.com"},"registry.redhat.io":{"auth":"fHVoYy1wb29sLTZmNzQ0OTg1LTA3ZWYtNGY1YS04NzJjLTg4MTY2NWZiY2QyODpleUpoYkdjaU9pSlNVelV4TWlKOS5leUp6ZFdJaU9pSmxNR016TnpjNU9ERXpObUUwWkdFMVlqWXdNREF4TTJJM1pUSTVaVEV5WlNKOS5ZT2dKT25kZDNocEF0cWdqRWZyeDdJYXFCVldJRUNEenc0WHZEQ1A2WS1qZjgxU0NOSkxVRTdSdzM3WDBVS2FmSDZxNHVsdGxROFgtYzVZSmRkMFJoencwdUxRV1dhZUtLNk9yVUJ4MXdNQXFyb0h5SnRwV2FyczdJOF9INzdwdVhfZnRyR2ZyVmFqamZva1RmS29sZ1g3c1JQU05ydzdDa3hvOXFlWGRnTmZKN1NzTzRFREdIRjl3OWVjdWhfRTAzWlZyWUZ3RWIzcEhLbEVWYWFKOHZubHQ0VDEtRHJ2bGFiSlMzQ05hSTlPdUxjaG5KSE41NGpFelI5N0FlckJ4b1RjaGRwRWlYZ1ZrLTBPdlVlYlJBNWlvRUpJVFdzVGlBZS1jNjMyUmtFbWNWOEtXNC0wTEY3VWNGUFJ1QzU0TjFjMmFLVXFKNzRTaWNrWTQwbUJfT012M0Q3SHNvcldOYWR1UEZGdkU5ckx1Tko2VFhuLU1QNWF6SUktcldoR3VNR2NLUXp2SXU4dzFnUnZfcWM1S0YwVy1aYThnUWlRZ2RTaWl0emlzOXdVc1pyVzJ0WlJ1XzR2c1V4d242R1hZUU1jRVdURWVvQ3R2a0dvSnJORGl5LVF6TzR2UmlEMWI0aUEtN0RfZnRGSkRNTVRCalJ1Y3RvSk9ibkZoSVdpczVyajJVOUxyMV9wamM3cVJfQkZ3YzdxZEJtTE1xTFJ3d01BNS0xVFdNdk8wZVJEREJWWk5TUjctSWNLTTFmZkRZYW14cjhGU0tpZ3R2VUNsZ2ZJb3BpRmxOUXl0TlpWNU1HRGpIZmx6RWhGMmlQc09zMUJIaTNZcFFmSm1VYUZLQkRVM2lRb0YwUk45RlRyeHNJU3RoODZKM0VTU2hIcjFlUTM5VEFhb1JyUQ==","email":"direct.on@hotmail.com"}}}'
+sshKey: |
+  ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIOg8EA04azbKD/cxMZo0BBP0sYa6+yUDYjG+y4PUBzNC direct.on@hotmail.com
 
 -- agent-config.yaml --
 apiVersion: v1alpha1
 metadata:
   name: ostest
   namespace: cluster0
-rendezvousIP: 192.168.111.20
+rendezvousIP: 10.128.111.20
