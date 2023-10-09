@@ -5,6 +5,8 @@ import (
 	"os"
 	"path"
 	"path/filepath"
+	"runtime"
+	"strings"
 )
 
 // Unpack unpacks the assets from this package into a target directory.
@@ -15,6 +17,9 @@ func Unpack(base string, uri string) (err error) {
 // UnpackWithFilePermissions unpacks the assets from this package into a target directory, setting the permissions of
 // each file to the specified permissions.
 func UnpackWithFilePermissions(base string, uri string, permissions os.FileMode) (err error) {
+	if runtime.GOOS == "windows" {
+		uri = strings.Replace(uri, "\\", "/", -1)
+	}
 	file, err := Assets.Open(uri)
 	if err != nil {
 		return err
