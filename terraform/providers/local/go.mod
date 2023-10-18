@@ -1,4 +1,4 @@
-module github.com/openshift/installer/terraform/providers/local
+module github.com/anton-sidelnikov/otc-openshift-installer/terraform/providers/local
 
 go 1.18
 

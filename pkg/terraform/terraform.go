@@ -2,13 +2,11 @@ package terraform
 
 import (
 	"context"
-	"os"
-	"path"
-	"path/filepath"
-
 	"github.com/hashicorp/terraform-exec/tfexec"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
+	"os"
+	"path/filepath"
 
 	"github.com/anton-sidelnikov/otc-openshift-installer/pkg/lineprinter"
 )
@@ -58,7 +56,7 @@ func newTFExec(datadir string, terraformDir string) (*tfexec.Terraform, error) {
 	// files we unpack are contained and, more importantly, we can ensure the
 	// provider binaries unpacked in the Terraform data dir have the same permission
 	// levels as the Terraform binary.
-	dd := path.Join(terraformDir, ".terraform")
+	dd := filepath.Join(terraformDir, ".terraform")
 	os.Setenv("TF_DATA_DIR", dd)
 
 	return tf, nil

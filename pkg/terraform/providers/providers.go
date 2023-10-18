@@ -6,6 +6,7 @@ import (
 	"io"
 	"os"
 	"path/filepath"
+	"runtime"
 	"strings"
 
 	"github.com/pkg/errors"
@@ -48,6 +49,9 @@ func (p Provider) Extract(dir string) error {
 	destProviderDir := filepath.Join(dir, providerDir)
 	destDir := destProviderDir
 	srcDir := filepath.Join("mirror", providerDir)
+	if runtime.GOOS == "windows" {
+		srcDir = strings.Replace(srcDir, "\\", "/", -1)
+	}
 	logrus.Debugf("creating %s directory", destDir)
 	if err := os.MkdirAll(destDir, 0777); err != nil {
 		return errors.Wrapf(err, "could not make directory for the %s provider", p.Name)
@@ -85,6 +89,9 @@ func unpack(srcDir, destDir string) error {
 }
 
 func unpackFile(srcPath, destPath string) error {
+	if runtime.GOOS == "windows" {
+		srcPath = strings.Replace(srcPath, "\\", "/", -1)
+	}
 	srcFile, err := mirror.Open(srcPath)
 	if err != nil {
 		return err

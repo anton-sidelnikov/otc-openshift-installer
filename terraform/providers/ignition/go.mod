@@ -1,4 +1,4 @@
-module github.com/openshift/installer/terraform/providers/ignition
+module github.com/anton-sidelnikov/otc-openshift-installer/terraform/providers/ignition
 
 go 1.18
 
