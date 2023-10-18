@@ -3,6 +3,7 @@ package bootstrap
 import (
 	"encoding/json"
 	"fmt"
+	"strings"
 
 	"github.com/pkg/errors"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
@@ -19,6 +20,7 @@ var (
 
 const (
 	cvoOverridesFilename      = "manifests/cvo-overrides.yaml"
+	cvoOverridesName          = "cvo-overrides.yaml"
 	originalOverridesFilename = "original_cvo_overrides.patch"
 )
 
@@ -69,7 +71,7 @@ func (a *CVOIgnore) Generate(dependencies asset.Parents) error {
 		}
 		seen[key] = file.Filename
 
-		if file.Filename == cvoOverridesFilename {
+		if strings.Contains(file.Filename, cvoOverridesName) {
 			clusterVersion = u
 			continue
 		}

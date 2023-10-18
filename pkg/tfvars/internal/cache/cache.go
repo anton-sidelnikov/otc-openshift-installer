@@ -5,6 +5,8 @@ import (
 	"compress/gzip"
 	"crypto/sha256"
 	"fmt"
+	"github.com/anton-sidelnikov/otc-openshift-installer/pkg/file_lock"
+	"github.com/anton-sidelnikov/otc-openshift-installer/pkg/file_lock/file_locker"
 	"io"
 	"net/http"
 	"net/url"
@@ -16,7 +18,6 @@ import (
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"github.com/ulikunitz/xz"
-	"golang.org/x/sys/unix"
 )
 
 const (
@@ -71,16 +72,19 @@ func cacheFile(reader io.Reader, filePath string, sha256Checksum string) (err er
 		}
 	}()
 
-	err = unix.Flock(int(flock.Fd()), unix.LOCK_EX)
-	if err != nil {
+	if locker, err := file_locker.NewFileLocker(flockPath); err != nil {
 		return err
-	}
-	defer func() {
-		err2 := unix.Flock(int(flock.Fd()), unix.LOCK_UN)
-		if err == nil {
-			err = err2
+	} else {
+		if _, lock, err := locker.Acquire("flock", file_lock.AcquireOptions{
+			OnWaitFunc: func(_ string, doWait func() error) error {
+				return doWait()
+			},
+		}); err != nil {
+			return err
+		} else {
+			defer locker.Release(lock)
 		}
-	}()
+	}
 
 	_, err = os.Stat(filePath)
 	if err != nil && !os.IsNotExist(err) {
